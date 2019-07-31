@@ -1,11 +1,11 @@
-Nordic nRF5x Support Files
+Nordic nRF52x Support Files
 ==========================
 
 This repository is a starting point and shared code for Nordic nRF52x BLE/Thread platforms. This repo is
 a collection of libraries, SDKs, Softdevices, and Makefiles to be included
 within other projects using the Nordic platfroms. Pull requests welcome.
 
-The currently supported SDK versions are: 15.0.0, 15.2.0, 15.3.0, as well as the SDK for Thread and Zigbee v3.0.0
+The currently supported SDK versions are: 15.3.0, and the SDK for Thread and Zigbee v3.0.0
 
 The currently supported Softdevice versions are:
 s132_6.1.1, s140_6.1.1
