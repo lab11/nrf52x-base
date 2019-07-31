@@ -1,5 +1,0 @@
-r
-loadfile _build/thread_hello_world_sdk15_blank.hex 
-r
-g
-exit
