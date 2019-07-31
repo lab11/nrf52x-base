@@ -1,0 +1,5 @@
+r
+loadfile _build/thread_ntp_sdk15_blank.hex 
+r
+g
+exit
