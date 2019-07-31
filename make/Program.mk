@@ -26,8 +26,8 @@ JLINK_GDBSERVER_FLAGS = -port $(GDB_PORT_NUMBER)
 
 # Configuration flags for nrfutil tools
 BOOTLOADER_DEV = /dev/ttyACM0
-NRFUTIL_SETTINGS_GEN_FLAGS = settings generate --family $(NRF_IC_UPPER) --application-version 1 --bootloader-version 1 --bl-settings-version 2 --key-file private.pem --app-boot-validation='VALIDATE_ECDSA_P256_SHA256' --application $(HEX) $(BUILDDIR)$(OUTPUT_NAME)_settings.hex
-MERGEHEX_SETTINGS_FLAGS = -m $(HEX) $(BUILDDIR)$(OUTPUT_NAME)_settings.hex -o $(FIRST_DFU_HEX)
+NRFUTIL_SETTINGS_GEN_FLAGS = settings generate --family $(NRF_IC_UPPER) --application-version 1 --bootloader-version 1 --bl-settings-version 2 --key-file private.pem --app-boot-validation='VALIDATE_ECDSA_P256_SHA256' --application $(HEX) $(BOOTLOADER_SETTINGS)
+MERGEHEX_SETTINGS_FLAGS = -m $(HEX) $(BUILDDIR)$(OUTPUT_NAME)_settings.hex -o $(MERGED_HEX)
 NRFUTIL_PKG_GEN_FLAGS = pkg generate --hw-version 52 --sd-req 0x0 --application-version-string "$(BARE_VERSION)" --application $(HEX) $(BUILDDIR)$(OUTPUT_NAME).zip
 NRFUTIL_PKG_SIGNED_GEN_FLAGS = pkg generate --hw-version 52 --sd-req 0x0 --application-version-string "$(BARE_VERSION)" --key-file private.pem --application $(HEX) $(BUILDDIR)$(OUTPUT_NAME).zip --app-boot-validation='VALIDATE_ECDSA_P256_SHA256'
 NRFUTIL_PKG_USB_DFU_FLAGS = dfu usb-serial -pkg $(BUILDDIR)$(OUTPUT_NAME).zip -p $(BOOTLOADER_DEV) -b 115200
@@ -72,7 +72,11 @@ flash: all test_softdevice flash_mbr
 ifdef ID
 	$(Q)printf "w4 $(ID_FLASH_LOCATION), 0x$(ID_SECON) 0x$(ID_FIRST)\n" >> $(BUILDDIR)flash.jlink
 endif
+ifeq ($(USE_BOOTLOADER),1)
+	$(Q)printf "loadfile $(MERGED_HEX) \nr\ng\nexit\n" >> $(BUILDDIR)flash.jlink
+else
 	$(Q)printf "loadfile $(HEX) \nr\ng\nexit\n" >> $(BUILDDIR)flash.jlink
+endif
 	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)flash.jlink
 
 .PHONY: test_softdevice
@@ -107,15 +111,6 @@ flash_mbr: $(BUILDDIR) $(MBR_PATH)
 	$(Q)printf "loadfile $(MBR_PATH) \nr\ng\nexit\n" > $(BUILDDIR)flash_mbr.jlink
 	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)flash_mbr.jlink
 endif
-
-.PHONY: flash_first_dfu
-flash_first_dfu: all first_dfu
-	$(Q)printf "r\n" > $(BUILDDIR)flash.jlink
-ifdef ID
-	$(Q)printf "w4 $(ID_FLASH_LOCATION), 0x$(ID_SECON) 0x$(ID_FIRST)\n" >> $(BUILDDIR)flash.jlink
-endif
-	$(Q)printf "loadfile $(FIRST_DFU_HEX) \nr\ng\nexit\n" >> $(BUILDDIR)flash.jlink
-	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)flash.jlink
 
 .PHONY: erase
 erase: $(BUILDDIR)
@@ -161,10 +156,6 @@ else
 endif
 
 # ---- nrfutil bootloader rules
-.PHONY: first_dfu
-first_dfu: all
-	$(Q)$(NRFUTIL) $(NRFUTIL_SETTINGS_GEN_FLAGS)
-	$(Q)$(MERGEHEX) $(MERGEHEX_SETTINGS_FLAGS)
 .PHONY: pkg
 pkg: all
 	$(NRFUTIL) $(NRFUTIL_PKG_GEN_FLAGS)

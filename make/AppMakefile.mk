@@ -12,8 +12,9 @@ all:
 
 OUTPUT_NAME ?= $(addsuffix _sdk$(SDK_VERSION)_$(SOFTDEVICE_MODEL), $(PROJECT_NAME))
 HEX = $(BUILDDIR)$(OUTPUT_NAME).hex
+MERGED_HEX = $(BUILDDIR)$(OUTPUT_NAME)_merged.hex
+BOOTLOADER_SETTINGS = $(BUILDDIR)$(OUTPUT_NAME)_settings.hex
 DEBUG_HEX = $(BUILDDIR)$(OUTPUT_NAME).hex-debug
-FIRST_DFU_HEX = $(BUILDDIR)$(OUTPUT_NAME)_first_dfu.hex
 ELF = $(BUILDDIR)$(OUTPUT_NAME).elf
 DEBUG_ELF = $(BUILDDIR)$(OUTPUT_NAME).elf-debug
 BIN = $(BUILDDIR)$(OUTPUT_NAME).bin
@@ -36,7 +37,11 @@ include $(NRF_BASE_DIR)/make/Program.mk
 
 # ---- Rules for building apps
 .PHONY:	all
+ifeq ($(USE_BOOTLOADER),1)
+all: $(OBJS) $(OBJS_AS) $(MERGED_HEX)
+else
 all: $(OBJS) $(OBJS_AS) $(HEX)
+endif
 
 $(BUILDDIR):
 	$(TRACE_DIR)
@@ -86,6 +91,12 @@ $(DEBUG_HEX): $(DEBUG_ELF) | $(BUILDDIR)
 	$(Q)$(OBJCOPY) -Obinary $< $(DEBUG_BIN)
 	$(TRACE_SIZ)
 	$(Q)$(SIZE) $<
+
+$(BOOTLOADER_SETTINGS): $(HEX)
+	$(Q)$(NRFUTIL) $(NRFUTIL_SETTINGS_GEN_FLAGS)
+
+$(MERGED_HEX): $(HEX) $(BOOTLOADER_SETTINGS)
+	$(Q)$(MERGEHEX) $(MERGEHEX_SETTINGS_FLAGS)
 
 .PHONY: debug
 debug: $(DEBUG_OBJS) $(DEBUG_OBJS_AS) $(DEBUG_HEX)
