@@ -901,7 +901,7 @@ void simple_ble_add_service(simple_ble_service_t* service_handle) {
 
     // Setup our long UUID so that nRF recognizes it. This is done by storing
     // the full 128-bit UUID and using 16 bits of it as a handle
-    uint16_t uuid16 = (service_handle->uuid128.uuid128[12] << 8) |(service_handle->uuid128.uuid128[13]);
+    uint16_t uuid16 = (service_handle->uuid128.uuid128[13] << 8) |(service_handle->uuid128.uuid128[12]);
     if (!service_handle->uuid_handle.uuid) {
         service_handle->uuid_handle.uuid = uuid16;
     }
