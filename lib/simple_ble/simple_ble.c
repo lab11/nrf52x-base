@@ -1103,7 +1103,7 @@ bool simple_ble_is_write_auth_event(ble_evt_t* p_ble_evt, simple_ble_char_t* cha
 
     return false;
 }
-uint32_t simple_ble_grant_auth(ble_evt_t* p_ble_evt) {
+int32_t simple_ble_grant_auth(ble_evt_t* p_ble_evt) {
     ble_gatts_evt_rw_authorize_request_t* p_auth_req =
             &(p_ble_evt->evt.gatts_evt.params.authorize_request);
 
