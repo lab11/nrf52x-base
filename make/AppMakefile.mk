@@ -58,7 +58,7 @@ $(BUILDDIR)%.o-debug: %.c | $(BUILDDIR)
 .PRECIOUS: $(BUILDDIR)%.s
 $(BUILDDIR)%.s: %.S | $(BUILDDIR)
 	$(TRACE_CC)
-	$(Q)$(CC) -E $< > $@
+	$(Q)$(CC) -E $(SDK_DEFINES) $< > $@
 
 $(BUILDDIR)%.os: $(BUILDDIR)%.s | $(BUILDDIR)
 	$(TRACE_AS)
