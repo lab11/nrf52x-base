@@ -1227,6 +1227,33 @@ void simple_ble_adv_only_name(void) {
     advertising_start();
 }
 
+void simple_ble_adv_manuf_data(uint8_t* buf, size_t len) {
+  // Set up an advertisement
+  static uint8_t payload[24] = {0}; // 24 bytes are available for arbitrary data
+  if (len > 24) {
+    len = 24;
+  }
+  memcpy(payload, buf, len);
+
+  static ble_advdata_manuf_data_t adv_payload = {
+    .company_identifier = 0x02E0, // Lab11 company ID (University of Michigan)
+    .data.p_data = payload,
+    .data.size = 24,
+  };
+
+  // create an advertisement with a manufacturer-specific data payload
+  // https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.sdk5.v15.0.0%2Fstructble__advdata__t.html
+  ble_advdata_t advdata = {0};
+  advdata.name_type = BLE_ADVDATA_NO_NAME; // do not include device name (adv_name) in advertisement
+  advdata.flags = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE; // BLE Low energy advertisement
+  advdata.p_manuf_specific_data = &adv_payload;
+
+  // update advertisement data and start advertising
+  simple_ble_set_adv(&advdata, NULL);
+
+
+}
+
 void simple_ble_set_adv(ble_advdata_t* adv_data, ble_advdata_t* scan_rsp_data) {
     uint32_t err_code;
 

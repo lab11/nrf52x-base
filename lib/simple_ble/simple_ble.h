@@ -234,9 +234,16 @@ uint32_t simple_ble_stack_char_set(simple_ble_char_t* char_handle, uint16_t len,
  *  see: https://infocenter.nordicsemi.com/topic/com.nordic.infocenter.sdk5.v15.3.0/structble__advdata__t.html
  */
 void simple_ble_set_adv(ble_advdata_t* adv_data, ble_advdata_t* scan_rsp_data);
+
 /* Set advertising data to only advertise device name
  */
 void simple_ble_adv_only_name(void);
+
+/* Set advertising data to only advertise manufacturer specific data
+ *  buf: buffer to data to add to advertisement
+ *  len: length of buffer. Note that only 26 bytes are available after header and flags.
+ */
+void simple_ble_adv_manuf_data(uint8_t* buf, size_t len);
 
 /*******************************************************************************
  *   EDDYSTONE
@@ -247,11 +254,13 @@ void simple_ble_adv_only_name(void);
  *  scan_rsp_data: settings and data to include in scan response
  */
 void simple_ble_es_adv(const char* url_str, const ble_advdata_t* scan_rsp_data);
+
 /* Set advertising data eddystone url with manufacturer specific data
  *  url_str: string for url to advertise
  *  ble_advdata_manuf_data_t: data to include in advertisement
  */
 void simple_ble_es_with_manuf_adv(const char* url_str, ble_advdata_manuf_data_t* manuf_specific_data);
+
 /* Set advertising data eddystone url and device name
  *  url_str: string for url to advertise
  */
