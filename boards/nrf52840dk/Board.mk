@@ -38,6 +38,7 @@ BOARD_SOURCES += \
 	nrf_atomic.c\
 	nrf_balloc.c\
 	nrf_drv_twi.c\
+	nrf_drv_uart.c\
 	nrf_fprintf.c\
 	nrf_fprintf_format.c\
 	nrf_log_backend_rtt.c\
@@ -49,24 +50,33 @@ BOARD_SOURCES += \
 	nrf_memobj.c\
 	nrf_ringbuf.c\
 	nrf_section_iter.c\
+	nrf_serial.c\
 	nrf_sdh.c\
 	nrf_strerror.c\
 	nrf_queue.c\
 	nrf_drv_clock.c\
 	nrf_nvmc.c\
 	nrfx_gpiote.c\
+	nrfx_ppi.c\
+	nrfx_prs.c\
 	nrfx_saadc.c\
 	nrfx_timer.c\
 	nrfx_twi.c\
 	nrfx_twim.c\
 	nrfx_clock.c\
+	nrfx_uart.c\
+	nrfx_uarte.c\
 	SEGGER_RTT.c\
 	SEGGER_RTT_Syscalls_GCC.c\
 	SEGGER_RTT_printf.c\
+
+ifeq ($(USE_THREAD), 1)
+BOARD_SOURCES += \
 	simple_thread.c\
 	thread_coap.c\
 	thread_dns.c\
 	thread_ntp.c\
 
+endif
 endif
 

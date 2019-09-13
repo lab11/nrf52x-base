@@ -22,6 +22,10 @@ REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_logger/*/))
 REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_thread/*/))
 REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/ntpclient/source/c/*/))
 
+# ---- CMSIS DSP Library
+REPO_HEADER_PATHS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/DSP/Include/
+LIBS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/DSP/Lib/GCC/libarm_cortexM4lf_math.a
+
 # ---- SDK files
 
 ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
@@ -364,7 +368,7 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
       THREAD_LIB_FILES += $(SDK_ROOT)external/nrf_cc310_bl/lib/libnrf_cc310_bl_0.9.10.a
       LIBS += $(THREAD_LIB_FILES)
 
-      SDK_HEADER_PATHS += $(SDK_ROOT)external/openthread/include/
+      REPO_HEADER_PATHS += $(SDK_ROOT)external/openthread/include/
 
       SDK_VARS += OPENTHREAD_ENABLE_APPLICATION_COAP OPENTHREAD_MTD=1
     endif

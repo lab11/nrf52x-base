@@ -64,6 +64,12 @@ TRACE_LST = @echo " LST       " $<
 TRACE_SIZ = @echo " SIZE      " $<
 endif
 
+# ---- CMSIS DSP configuration
+
+ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
+CONFIGURATION_VARS += ARM_MATH_CM4
+CONFIGURATION_VARS += __FPU_PRESENT
+endif
 
 # ---- Nordic configuration
 
