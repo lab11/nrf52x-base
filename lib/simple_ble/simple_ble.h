@@ -241,7 +241,7 @@ void simple_ble_adv_only_name(void);
 
 /* Set advertising data to only advertise manufacturer specific data
  *  buf: buffer to data to add to advertisement
- *  len: length of buffer. Note that only 26 bytes are available after header and flags.
+ *  len: length of buffer. Note that only 24 bytes are available after header and flags.
  */
 void simple_ble_adv_manuf_data(uint8_t* buf, size_t len);
 
