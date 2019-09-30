@@ -23,8 +23,10 @@ REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_thread/*/))
 REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/ntpclient/source/c/*/))
 
 # ---- CMSIS DSP Library
-REPO_HEADER_PATHS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/DSP/Include/
-LIBS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/DSP/Lib/GCC/libarm_cortexM4lf_math.a
+ifeq ($(USE_DSP), 1)
+  REPO_HEADER_PATHS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/DSP/Include/
+  LIBS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/DSP/Lib/GCC/libarm_cortexM4lf_math.a
+endif
 
 # ---- SDK files
 
