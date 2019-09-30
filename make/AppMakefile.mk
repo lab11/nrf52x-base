@@ -51,9 +51,17 @@ $(BUILDDIR)%.o: %.c | $(BUILDDIR)
 	$(TRACE_CC)
 	$(Q)$(CC) $(LDFLAGS) $(CFLAGS) $(OPTIMIZATION_FLAG) $< -o $@
 
+$(BUILDDIR)%.o: %.cc | $(BUILDDIR)
+	$(TRACE_CXX)
+	$(Q)$(CXX) $(LDFLAGS) $(CFLAGS) $(OPTIMIZATION_FLAG) $< -o $@
+
 $(BUILDDIR)%.o-debug: %.c | $(BUILDDIR)
 	$(TRACE_CC)
 	$(Q)$(CC) $(LDFLAGS) $(CFLAGS) -g -O0 $< -o $@
+
+$(BUILDDIR)%.o-debug: %.cc | $(BUILDDIR)
+	$(TRACE_CXX)
+	$(Q)$(CXX) $(LDFLAGS) $(CFLAGS) -g -O0 $< -o $@
 
 .PRECIOUS: $(BUILDDIR)%.s
 $(BUILDDIR)%.s: %.S | $(BUILDDIR)

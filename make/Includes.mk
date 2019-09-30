@@ -27,6 +27,11 @@ ifeq ($(USE_DSP), 1)
   REPO_HEADER_PATHS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/DSP/Include/
   LIBS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/DSP/Lib/GCC/libarm_cortexM4lf_math.a
 endif
+# ---- Tensorflow Lite Micro Library
+ifeq ($(USE_TFLOW), 1)
+  REPO_HEADER_PATHS += $(NRF_BASE_DIR)/lib/tensorflow/
+  REPO_SOURCE_PATHS += $(NRF_BASE_DIR)/lib/tensorflow/tensorflow/lite/experimental/micro
+endif
 
 # ---- SDK files
 
@@ -394,9 +399,12 @@ SDK_DEFINES = $(addprefix -D,$(SDK_VARS)) $(addprefix -D,$(BOARD_VARS)) $(addpre
 VPATH = $(SDK_SOURCE_PATHS) $(REPO_SOURCE_PATHS) $(BOARD_SOURCE_PATHS) $(APP_SOURCE_PATHS)
 
 SOURCES = $(notdir $(APP_SOURCES)) $(notdir $(BOARD_SOURCES)) $(notdir $(SDK_SOURCES))
-OBJS = $(addprefix $(BUILDDIR), $(SOURCES:.c=.o))
-DEBUG_OBJS = $(addprefix $(BUILDDIR), $(SOURCES:.c=.o-debug))
-DEPS = $(addprefix $(BUILDDIR), $(SOURCES:.c=.d))
+OBJS_ = $(SOURCES:.c=.o)
+OBJS = $(addprefix $(BUILDDIR), $(OBJS_:.cc=.o))
+DEBUG_OBJS_ = $(SOURCES:.c=.o-debug)
+DEBUG_OBJS = $(addprefix $(BUILDDIR), $(DEBUG_OBJS_:.cc=.o-debug))
+DEPS_ = $(SOURCES:.c=.d)
+DEPS = $(addprefix $(BUILDDIR), $(DEPS_:.cc=.d))
 
 SOURCES_AS = $(notdir $(SDK_AS)) $(notdir $(BOARD_AS)) $(notdir $(APP_AS))
 OBJS_AS = $(addprefix $(BUILDDIR), $(SOURCES_AS:.S=.os))

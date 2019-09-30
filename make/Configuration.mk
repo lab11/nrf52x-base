@@ -23,7 +23,7 @@ AS := $(TOOLCHAIN)-as
 CC := $(TOOLCHAIN)-gcc
 CXX := $(TOOLCHAIN)-g++
 GDB := $(TOOLCHAIN)-gdb
-LD := $(TOOLCHAIN)-gcc
+LD := $(TOOLCHAIN)-g++
 OBJCOPY := $(TOOLCHAIN)-objcopy
 OBJDUMP := $(TOOLCHAIN)-objdump
 RANLIB := $(TOOLCHAIN)-ranlib
@@ -159,9 +159,11 @@ ifneq ($(V),)
   $(info Config:)
   $(info TOOLCHAIN=$(TOOLCHAIN))
   $(info CC=$(CC))
+  $(info CXX=$(CXX))
   $(info MAKEFLAGS=$(MAKEFLAGS))
   $(info )
   $(info $(CC) --version = $(shell $(CC) --version))
+  $(info $(CXX) --version = $(shell $(CXX) --version))
   $(info **************************************************)
   $(info )
 endif
