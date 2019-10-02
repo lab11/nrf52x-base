@@ -1,6 +1,8 @@
 [submodule "lib/CMSIS_5"]
 	path = lib/CMSIS_5
 	url = https://github.com/ARM-software/CMSIS_5.git
+	shallow = true
 [submodule "lib/tensorflow"]
 	path = lib/tensorflow
 	url = https://github.com/tensorflow/tensorflow.git
+	shallow = true
