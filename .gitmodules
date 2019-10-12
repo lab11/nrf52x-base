@@ -6,3 +6,6 @@
 	path = lib/tensorflow
 	url = https://github.com/tensorflow/tensorflow.git
 	shallow = true
+[submodule "lib/nanopb"]
+	path = lib/nanopb
+	url = https://github.com/lab11/nanopb.git

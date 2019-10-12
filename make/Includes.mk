@@ -13,14 +13,14 @@ REPO_HEADER_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/*/))
 REPO_HEADER_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_ble/*/))
 REPO_HEADER_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_logger/*/))
 REPO_HEADER_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_thread/*/))
-REPO_HEADER_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/ntpclient/source/c/*/))
+REPO_HEADER_PATHS += $(NRF_BASE_DIR)/lib/nanopb/
 REPO_SOURCE_PATHS += $(NRF_BASE_DIR)/lib/
 REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/drivers/*/))
 REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/*/))
 REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_ble/*/))
 REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_logger/*/))
 REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_thread/*/))
-REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/ntpclient/source/c/*/))
+REPO_SOURCE_PATHS += $(NRF_BASE_DIR)/lib/nanopb/
 
 # ---- CMSIS DSP Library
 ifeq ($(USE_DSP), 1)
@@ -102,7 +102,6 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/memobj/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/mpu/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/ringbuf/
-    SDK_HEADER_PATHS += $(SDK_ROOT)external/nano-pb/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/experimental_section_vars/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/stack_guard/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/task_manager/
@@ -219,7 +218,6 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/memobj/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/mpu/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/ringbuf/
-    SDK_SOURCE_PATHS += $(SDK_ROOT)external/nano-pb/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/experimental_section_vars/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/stack_guard/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/task_manager/

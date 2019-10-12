@@ -64,6 +64,9 @@ TRACE_LST = @echo " LST       " $<
 TRACE_SIZ = @echo " SIZE      " $<
 endif
 
+# ---- NANOPB configuration
+CONFIGURATION_VARS += PB_FIELD_32BIT
+
 # ---- CMSIS DSP configuration
 
 ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
