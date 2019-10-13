@@ -21,7 +21,7 @@ Usage
 First, add this project as a submodule inside of your repo with your
 nRF5x code.
 
-    git submodule add https://github.com/lab11/nrf5x-base
+    git submodule add https://github.com/lab11/nrf52x-base
 
 Then write an application for the nRF5x SoC you are using and include
 a Makefile that looks like this:
