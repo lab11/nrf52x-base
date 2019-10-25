@@ -392,9 +392,13 @@ SDK_DEFINES = $(addprefix -D,$(SDK_VARS)) $(addprefix -D,$(BOARD_VARS)) $(addpre
 VPATH = $(SDK_SOURCE_PATHS) $(REPO_SOURCE_PATHS) $(BOARD_SOURCE_PATHS) $(APP_SOURCE_PATHS)
 
 SOURCES = $(notdir $(APP_SOURCES)) $(notdir $(BOARD_SOURCES)) $(notdir $(SDK_SOURCES))
-OBJS = $(addprefix $(BUILDDIR), $(SOURCES:.c=.o))
-DEBUG_OBJS = $(addprefix $(BUILDDIR), $(SOURCES:.c=.o-debug))
-DEPS = $(addprefix $(BUILDDIR), $(SOURCES:.c=.d))
+PBSRCS = $(filter %.proto,$(SOURCES))
+PBOPTS = $(filter %.options,$(SOURCES))
+PBGENS = $(PBSRCS:.proto=.pb.c) $(PBSRCS:.proto=.pb.h)
+CSOURCES = $(filter %.c,$(SOURCES))
+OBJS = $(addprefix $(BUILDDIR), $(CSOURCES:.c=.o))
+DEBUG_OBJS = $(addprefix $(BUILDDIR), $(CSOURCES:.c=.o-debug))
+DEPS = $(addprefix $(BUILDDIR), $(CSOURCES:.c=.d))
 
 SOURCES_AS = $(notdir $(SDK_AS)) $(notdir $(BOARD_AS)) $(notdir $(APP_AS))
 OBJS_AS = $(addprefix $(BUILDDIR), $(SOURCES_AS:.S=.os))

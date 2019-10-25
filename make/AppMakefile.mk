@@ -24,7 +24,6 @@ MAP = $(BUILDDIR)$(OUTPUT_NAME).Map
 
 
 # ---- Include additional supporting makefiles
-
 # Build settings
 include $(NRF_BASE_DIR)/make/Configuration.mk
 
@@ -38,20 +37,26 @@ include $(NRF_BASE_DIR)/make/Program.mk
 # ---- Rules for building apps
 .PHONY:	all
 ifeq ($(USE_BOOTLOADER),1)
-all: $(OBJS) $(OBJS_AS) $(MERGED_HEX)
+all: $(PBGENS) $(OBJS) $(OBJS_AS) $(MERGED_HEX)
 else
-all: $(OBJS) $(OBJS_AS) $(HEX)
+all: $(PBGENS) $(OBJS) $(OBJS_AS) $(HEX)
 endif
+
+# protobufs must be generated before objects
+$(OBJS): $(PBGENS)
+
+$(PBGENS): $(PBSRCS) $(PBOPTS)
+	$(PROTOC) $(PROTOC_OPTS) $(PROTOC_INC) --nanopb_out=. $<
 
 $(BUILDDIR):
 	$(TRACE_DIR)
 	$(Q)mkdir -p $@
 
-$(BUILDDIR)%.o: %.c | $(BUILDDIR)
+$(BUILDDIR)%.o: %.c $(PGENS) | $(BUILDDIR)
 	$(TRACE_CC)
 	$(Q)$(CC) $(LDFLAGS) $(CFLAGS) $(OPTIMIZATION_FLAG) $< -o $@
 
-$(BUILDDIR)%.o-debug: %.c | $(BUILDDIR)
+$(BUILDDIR)%.o-debug: %.c $(PGENS) | $(BUILDDIR)
 	$(TRACE_CC)
 	$(Q)$(CC) $(LDFLAGS) $(CFLAGS) -g -O0 $< -o $@
 
@@ -115,6 +120,11 @@ size: $(ELF)
 clean::
 	@echo " Cleaning..."
 	$(Q)rm -rf $(BUILDDIR)
+
+.PHONY: pbclean
+pbclean::
+	@echo " Cleaning..."
+	$(Q)rm -rf *.pb.*
 
 
 # ---- Dependencies

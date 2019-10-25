@@ -1,8 +1,6 @@
 syntax = "proto2";
 package dfu;
 
-import "nanopb.proto";
-
 // Version 0.1
 
 enum FwType {
@@ -34,20 +32,20 @@ enum ValidationType {
 
 message Hash {
     required HashType   hash_type   = 1;
-    required bytes      hash        = 2 [(nanopb).max_size = 32];
+    required bytes      hash        = 2;
 }
 
 message BootValidation {
 
     required ValidationType type    = 1;
-    required bytes          bytes   = 2 [(nanopb).max_size = 64];
+    required bytes          bytes   = 2;
 }
 
 // Commands data
 message InitCommand {
     optional uint32             fw_version      = 1;
     optional uint32             hw_version      = 2;
-    repeated uint32             sd_req          = 3 [(nanopb).max_count = 16, packed = true];
+    repeated uint32             sd_req          = 3;
     optional FwType             type            = 4;
 
     optional uint32             sd_size         = 5;
@@ -57,7 +55,7 @@ message InitCommand {
     optional Hash               hash            = 8;
 
     optional bool               is_debug        = 9 [default = false];
-    repeated BootValidation     boot_validation = 10 [(nanopb).max_count = 3];
+    repeated BootValidation     boot_validation = 10;
 }
 
 // Command type
@@ -75,7 +73,7 @@ enum SignatureType {
 message SignedCommand {
     required Command        command         = 1;
     required SignatureType  signature_type  = 2;
-    required bytes          signature       = 3 [(nanopb).max_size = 64];
+    required bytes          signature       = 3;
 }
 
 // Parent packet type
