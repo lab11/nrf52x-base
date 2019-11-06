@@ -46,7 +46,7 @@ endif
 $(OBJS): $(PBGENS)
 
 $(PBGENS): $(PBSRCS) $(PBOPTS)
-	$(PROTOC) $(PROTOC_OPTS) $(PROTOC_INC) --nanopb_out=. $<
+	$(PROTOC) $(PROTOC_OPTS) $(PROTOC_INC) --nanopb_out=$(NANOPB_OPTS):. $<
 
 $(BUILDDIR):
 	$(TRACE_DIR)

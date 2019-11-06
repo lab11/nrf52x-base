@@ -11,20 +11,29 @@ CONFIGURATION_MAKEFILE = 1
 # directory for built output
 BUILDDIR ?= _build/
 
+# ---- NANOPB configuration
 # Path to the nanopb root directory
 NANOPB_DIR := $(NRF_BASE_DIR)/lib/nanopb/
 # Files for the nanopb core
 NANOPB_CORE = $(NANOPB_DIR)/pb_encode.c $(NANOPB_DIR)/pb_decode.c $(NANOPB_DIR)/pb_common.c
+CONFIGURATION_VARS += PB_FIELD_32BIT
+PROTOC_INC = -I.
+ifdef PROTO_DIR
+	PROTOC_INC += -I$(PROTO_DIR)
+endif
+
 # Check whether to use binary version of nanopb_generator or the
 # system-supplied python interpreter.
 ifneq "$(wildcard $(NANOPB_DIR)/generator-bin)" ""
 	# Binary package
 	PROTOC = $(NANOPB_DIR)/generator-bin/protoc
 	PROTOC_OPTS =
+	NANOPB_OPTS =
 else
 	# Source only or git checkout
 	PROTOC = protoc
 	PROTOC_OPTS = --plugin=protoc-gen-nanopb=$(NANOPB_DIR)/generator/protoc-gen-nanopb
+	NANOPB_OPTS = -I$(PROTO_DIR)
 endif
 
 # Remove built-in rules and variables
@@ -79,10 +88,6 @@ TRACE_LD  = @echo "  LD       " $@
 TRACE_LST = @echo " LST       " $<
 TRACE_SIZ = @echo " SIZE      " $<
 endif
-
-# ---- NANOPB configuration
-CONFIGURATION_VARS += PB_FIELD_32BIT
-PROTOC_INC = -I. #-I$(SDK_ROOT)components/libraries/bootloader/dfu/
 
 # ---- CMSIS DSP configuration
 

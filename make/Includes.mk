@@ -21,6 +21,7 @@ REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_ble/*/))
 REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_logger/*/))
 REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_thread/*/))
 REPO_SOURCE_PATHS += $(NRF_BASE_DIR)/lib/nanopb/
+REPO_SOURCE_PATHS += $(PROTO_DIR)
 
 # ---- CMSIS DSP Library
 ifeq ($(USE_DSP), 1)
@@ -396,6 +397,7 @@ PBSRCS = $(filter %.proto,$(SOURCES))
 PBOPTS = $(filter %.options,$(SOURCES))
 PBGENS = $(PBSRCS:.proto=.pb.c) $(PBSRCS:.proto=.pb.h)
 CSOURCES = $(filter %.c,$(SOURCES))
+CSOURCES += $(filter %.c,$(PBGENS))
 OBJS = $(addprefix $(BUILDDIR), $(CSOURCES:.c=.o))
 DEBUG_OBJS = $(addprefix $(BUILDDIR), $(CSOURCES:.c=.o-debug))
 DEPS = $(addprefix $(BUILDDIR), $(CSOURCES:.c=.d))
