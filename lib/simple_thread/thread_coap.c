@@ -11,7 +11,7 @@ static const otIp6Address m_unspecified_ipv6 =
     }
 };
 
-void __attribute__((weak)) thread_coap_handler(
+void __attribute__((weak)) thread_coap_receive_handler(
                                 void                * p_context,
                                 otMessage           * p_message,
                                 const otMessageInfo * p_message_info)
@@ -27,10 +27,17 @@ void thread_coap_client_init(otInstance* instance) {
     otError error = otCoapStart(instance, OT_DEFAULT_COAP_PORT);
     ASSERT(error == OT_ERROR_NONE);
 
-    otCoapSetDefaultHandler(instance, thread_coap_handler, NULL);
+    otCoapSetDefaultHandler(instance, thread_coap_receive_handler, NULL);
 }
 
-otError thread_coap_send(otInstance* instance, otCoapCode req, otCoapType type, const otIp6Address* dest, const char* path, const uint8_t* data, size_t len) {
+otError thread_coap_send(otInstance* instance,
+                         otCoapCode req,
+                         otCoapType type,
+                         const otIp6Address* dest,
+                         const char* path,
+                         const uint8_t* data,
+                         size_t len,
+                         otCoapResponseHandler response_handler) {
   otError       error = OT_ERROR_NONE;
   otMessage   * message;
   otMessageInfo message_info;
@@ -69,8 +76,8 @@ otError thread_coap_send(otInstance* instance, otCoapCode req, otCoapType type, 
   error = otCoapSendRequest(instance,
       message,
       &message_info,
-      NULL,
-      instance);
+      response_handler,
+      NULL);
 
   if (error != OT_ERROR_NONE && message != NULL)
   {
