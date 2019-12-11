@@ -81,6 +81,11 @@ you must do.
         sudo apt-get update
         sudo apt-get install gcc-arm-embedded
 
+    On MacOS:
+    
+        brew tap ArmMbed/homebrew-formulae
+        brew install arm-none-eabi-gcc
+
 2. Install Nordic's [command line
    tools](https://infocenter.nordicsemi.com/index.jsp?topic=%2Fug_nrf5x_cltools%2FUG%2Fcltools%2Fnrf5x_installation.html)
    `mergehex` and `nrfjprog`. Ensure these tools are extracted and added to your path.
