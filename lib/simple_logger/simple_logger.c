@@ -27,6 +27,7 @@ static uint32_t buffer_size = SIMPLE_LOGGER_BUFFER_SIZE;
 
 
 static FIL 		simple_logger_fpointer;	/* File object */
+uint32_t MAX_PTR;
 static FATFS 	simple_logger_fs;		/* Filesystem object */
 static uint8_t 	simple_logger_opts;
 static BYTE		work[FF_MAX_SS];		/* Work area (larger is better for processing time) */
@@ -282,20 +283,18 @@ uint8_t simple_logger_read(uint8_t* buf, uint8_t buf_len) {
 
     // Buffer should be cleared before calling this function
 	UINT read_len = 0;
+	FRESULT res;
 
-	// Set read/write pointer back by amount we want to read
-	FRESULT res = f_lseek(&simple_logger_fpointer, f_size(&simple_logger_fpointer) - buf_len);
+	uint8_t cur_ptr = simple_logger_fpointer.fptr;
+	uint8_t nxt_ptr = cur_ptr+buf_len;
+	uint8_t to_read_buf_len = nxt_ptr < MAX_PTR ? buf_len : MAX_PTR - cur_ptr;
 
-	if(res != FR_OK) {
-		printf("ERROR: Failed reverting R/W pointer: %i\n", res);
-		error();
-	}
+	res = f_read(&simple_logger_fpointer, (void*)buf, to_read_buf_len, &read_len);
 
-	// Read string
-	res = f_read(&simple_logger_fpointer, (void*)buf, buf_len, &read_len);
-
-	if (read_len != buf_len) {
-		printf("ERROR: Should have read %i bytes, but only read %i\n", buf_len, read_len);
+	if (read_len < buf_len) {
+		// EOF
+		buf[read_len] = '\0';
+		return FR_INT_ERR;
 	}
 
 	if(res != FR_OK) {
@@ -303,9 +302,20 @@ uint8_t simple_logger_read(uint8_t* buf, uint8_t buf_len) {
 		error();
 	}
 
-	// File pointer must be at EOF again; should be correct
-
 	return res;
 }
 
+uint8_t simple_logger_reset_fp() {
+    // Sets the file pointer to the beginning of the file. Useful for reading from the beginning
+	FRESULT res = f_lseek(&simple_logger_fpointer, 0);
 
+	MAX_PTR = f_size(&simple_logger_fpointer);
+	// printf("\nmax_ptr: %d\n", MAX_PTR);
+
+	if(res != FR_OK) {
+		printf("ERROR: Failed reverting R/W pointer: %i\n", res);
+		error();
+	}
+
+	return res;
+}
