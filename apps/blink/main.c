@@ -9,7 +9,7 @@
 #include "nrf_gpio.h"
 
 // Pin definitions
-#define LED NRF_GPIO_PIN_MAP(0,17)
+#define LED NRF_GPIO_PIN_MAP(0,4)
 
 int main(void) {
 

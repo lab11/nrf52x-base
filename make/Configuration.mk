@@ -146,6 +146,20 @@ ifeq ($(SDK_VERSION), 15)
     endif
   endif
 endif
+ifeq ($(SDK_VERSION), 16)
+  ifeq ($(SOFTDEVICE_MODEL), s132)
+    SOFTDEVICE_VERSION = 7.0.1
+  else ifeq ($(SOFTDEVICE_MODEL), s140)
+    SOFTDEVICE_VERSION = 7.0.1
+  else ifeq ($(SOFTDEVICE_MODEL), blank)
+    SOFTDEVICE_VERSION = 0
+    USE_BLE = 0 # can't have BLE without a softdevice
+    # if we want to use the MBR to manage a bootloader without a softdevice:
+    ifeq ($(USE_MBR), 1)
+      MBR_VERSION = 2.4.1
+    endif
+  endif
+endif
 CONFIGURATION_VARS += SDK_VERSION_$(SDK_VERSION)
 
 # Identify the linker script for this particular configuration
