@@ -14,7 +14,9 @@
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
 
-#include "simple_thread.h"
+#include "thread_utils.h"
+
+#include <openthread/thread.h>
 
 #define LED0 NRF_GPIO_PIN_MAP(0,4)
 #define LED1 NRF_GPIO_PIN_MAP(0,5)
@@ -34,6 +36,26 @@ static void log_init(void)
     NRF_LOG_DEFAULT_BACKENDS_INIT();
 }
 
+static void thread_state_changed_callback(uint32_t flags, void * p_context)
+{
+
+    NRF_LOG_INFO("State changed! Flags: 0x%08x Current role: %d\r\n",
+                 flags, otThreadGetDeviceRole(p_context));
+}
+
+static void thread_instance_init(void)
+{
+    thread_configuration_t thread_configuration =
+    {
+        .radio_mode        = THREAD_RADIO_MODE_RX_OFF_WHEN_IDLE,
+        .autocommissioning = true,
+        .autostart_disable = false,
+    };
+
+    thread_init(&thread_configuration);
+    thread_state_changed_callback_set(thread_state_changed_callback);
+}
+
 int main(void) {
     nrf_power_dcdcen_set(1);
 
@@ -43,23 +65,17 @@ int main(void) {
     nrf_gpio_cfg_output(LED2);
     nrf_gpio_pin_set(LED2);
 
-    thread_config_t thread_config = {
-      .channel = 25,
-      .panid = 0xFACE,
-      .sed = true,
-      .poll_period = DEFAULT_POLL_PERIOD,
-      .child_period = DEFAULT_CHILD_TIMEOUT,
-      .autocommission = true,
-    };
-
-    thread_init(&thread_config);
-
     // Enter main loop.
-    while (1) {
-        thread_process();
-        if (NRF_LOG_PROCESS() == false)
-        {
-          thread_sleep();
-        }
+    thread_instance_init();
+
+    while (true)
+    {
+      thread_process();
+
+      if (NRF_LOG_PROCESS() == false)
+      {
+        thread_sleep();
+      }
     }
+
 }

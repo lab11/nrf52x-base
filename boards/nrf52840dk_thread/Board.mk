@@ -54,6 +54,7 @@ BOARD_SOURCES += \
 	nrf_queue.c\
 	nrf_drv_clock.c\
 	nrf_nvmc.c\
+	mem_manager.c\
 	nrfx_gpiote.c\
 	nrfx_ppi.c\
 	nrfx_saadc.c\
@@ -67,7 +68,7 @@ BOARD_SOURCES += \
 
 ifeq ($(USE_THREAD), 1)
 BOARD_SOURCES += \
-	simple_thread.c\
+	thread_utils.c\
 	thread_coap.c\
 	thread_dns.c\
 	thread_ntp.c\
