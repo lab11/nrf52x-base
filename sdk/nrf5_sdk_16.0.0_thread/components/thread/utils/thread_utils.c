@@ -196,10 +196,10 @@ void thread_init(const thread_configuration_t * p_config)
 
     if (!otDatasetIsCommissioned(mp_ot_instance) && p_config->autocommissioning)
     {
-        error = otLinkSetChannel(mp_ot_instance, THREAD_CHANNEL);
+        error = otLinkSetChannel(mp_ot_instance, 25);
         ASSERT(error == OT_ERROR_NONE);
 
-        error = otLinkSetPanId(mp_ot_instance, THREAD_PANID);
+        error = otLinkSetPanId(mp_ot_instance, 0xFACE);
         ASSERT(error == OT_ERROR_NONE);
     }
 
@@ -329,7 +329,7 @@ void thread_sleep(void)
 
 #ifdef NRF52840_XXAA
     // Workaround for issue with nrf_security.
-    // Issue: 
+    // Issue:
     // The MCU is prevented from going to sleep mode
     // by the pending CryptoCell interrrupt in the NVIC register.
     // Workaround:
