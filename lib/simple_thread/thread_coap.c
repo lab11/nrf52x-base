@@ -69,7 +69,6 @@ otError thread_coap_send(otInstance* instance,
   }
 
   memset(&message_info, 0, sizeof(message_info));
-  message_info.mInterfaceId = OT_NETIF_INTERFACE_ID_THREAD;
   message_info.mPeerPort    = OT_DEFAULT_COAP_PORT;
   memcpy(&message_info.mPeerAddr, dest, sizeof(message_info.mPeerAddr));
 
