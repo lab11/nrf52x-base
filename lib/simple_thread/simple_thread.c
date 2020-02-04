@@ -1,6 +1,10 @@
 #include "nrf.h"
 #include "nrf_log.h"
 #include "nrf_timer.h"
+#include "mem_manager.h"
+
+#include <mbedtls/platform.h>
+#include <openthread/heap.h>
 
 #include "simple_thread.h"
 
@@ -13,6 +17,35 @@ void __attribute__((weak)) thread_state_changed_callback(uint32_t flags, void * 
 
 }
 
+static void* ot_calloc(size_t n, size_t size)
+{
+    void *p_ptr = NULL;
+
+    p_ptr = nrf_calloc(n, size);
+
+    return p_ptr;
+}
+
+static void ot_free(void *p_ptr)
+{
+    nrf_free(p_ptr);
+}
+
+static void platform_init(void)
+{
+    APP_ERROR_CHECK(nrf_mem_init());
+
+    int ret;
+
+    ret = mbedtls_platform_set_calloc_free(ot_calloc, ot_free);
+    ASSERT(ret == 0);
+
+    ret = mbedtls_platform_setup(NULL);
+    ASSERT(ret == 0);
+
+    otHeapSetCAllocFree(ot_calloc, ot_free);
+}
+
 
 /**@brief Function for initializing the Thread Stack.
  */
@@ -22,6 +55,8 @@ void __attribute__((weak)) thread_init(const thread_config_t* config)
     otError error;
 
     otSysInit(0, NULL);
+
+    platform_init();
 
     m_ot_instance = otInstanceInitSingle();
     ASSERT(m_ot_instance != NULL);

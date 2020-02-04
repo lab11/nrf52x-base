@@ -43,7 +43,7 @@ otError gateway_coap_send(otIp6Address* dest_addr,
 
   otCoapType coap_type = confirmable ? OT_COAP_TYPE_CONFIRMABLE : OT_COAP_TYPE_NON_CONFIRMABLE;
 
-  otError error = thread_coap_send(thread_instance, OT_COAP_CODE_PUT, coap_type, dest_addr, path, data, ptr);
+  otError error = thread_coap_send(thread_instance, OT_COAP_CODE_PUT, coap_type, dest_addr, path, data, ptr, NULL);
 
   // increment sequence number if successful
   if (error == OT_ERROR_NONE) {

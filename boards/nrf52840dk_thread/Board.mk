@@ -68,7 +68,7 @@ BOARD_SOURCES += \
 
 ifeq ($(USE_THREAD), 1)
 BOARD_SOURCES += \
-	thread_utils.c\
+	simple_thread.c\
 	thread_coap.c\
 	thread_dns.c\
 	thread_ntp.c\
