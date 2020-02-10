@@ -6,6 +6,8 @@ SDK_VERSION = 16
 SOFTDEVICE_MODEL = blank
 USE_THREAD = 1
 
+SDK_VARS += __HEAP_SIZE=0x20000
+
 # Source and header files
 APP_HEADER_PATHS += .
 APP_SOURCE_PATHS += .

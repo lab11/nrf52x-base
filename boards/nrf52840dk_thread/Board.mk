@@ -70,6 +70,7 @@ ifeq ($(USE_THREAD), 1)
 BOARD_SOURCES += \
 	simple_thread.c\
 	thread_coap.c\
+	thread_coap_block.c\
 	thread_dns.c\
 	thread_ntp.c\
 
