@@ -15,6 +15,7 @@
 #include "thread_dns.h"
 #include "simple_thread.h"
 #include "thread_coap.h"
+#include "thread_coap_block.h"
 
 APP_TIMER_DEF(coap_send_timer);
 
@@ -48,6 +49,8 @@ static const otIp6Address m_unspecified_ipv6 =
     }
 };
 
+static block_info info = {0};
+
 /**@brief Function for initializing the nrf log module.
  */
 static void log_init(void)
@@ -74,63 +77,9 @@ void dns_response_handler(void         * p_context,
     m_peer_address = *p_resolved_address;
 }
 
-otError start_blockwise_transfer(otInstance* instance,
-                              otCoapCode req,
-                              otCoapType type,
-                              const otIp6Address* dest,
-                              const char* path,
-                              const uint8_t* data,
-                              size_t len,
-                              size_t block_size,
-                              otCoapResponseHandler response_handler) {
-  otError       error = OT_ERROR_NONE;
-  otMessage   * message;
-  otMessageInfo message_info;
-
-  if (otIp6IsAddressEqual(dest, &m_unspecified_ipv6))
-  {
-    NRF_LOG_INFO("Failed to send the CoAP Request to the Unspecified IPv6 Address\r\n");
-    return OT_ERROR_INVALID_ARGS;
-  }
-
-  message = otCoapNewMessage(instance, NULL);
-  if (message == NULL)
-  {
-    NRF_LOG_INFO("Failed to allocate message for CoAP Request\r\n");
-    // Force an app error and subsequent reset - this shouldn't happen!
-    return OT_ERROR_NO_BUFS;
-  }
-
-  otCoapMessageInit(message, type, req);
-  otCoapMessageGenerateToken(message, 2);
-  otCoapMessageAppendUriPathOptions(message, path);
-  otCoapMessageAppendBlock1Option(message, 0, 0, block_size);
-  otCoapMessageSetPayloadMarker(message);
-
-
-  error = otMessageAppend(message, data, block_size);
-  if (error != OT_ERROR_NONE)
-  {
-    return error;
-  }
-
-  memset(&message_info, 0, sizeof(message_info));
-  message_info.mPeerPort    = OT_DEFAULT_COAP_PORT;
-  memcpy(&message_info.mPeerAddr, dest, sizeof(message_info.mPeerAddr));
-
-  error = otCoapSendRequest(instance,
-      message,
-      &message_info,
-      response_handler,
-      NULL);
-
-  if (error != OT_ERROR_NONE && message != NULL)
-  {
-    NRF_LOG_INFO("Failed to send CoAP Request: %d\r\n", error);
-    otMessageFree(message);
-  }
-  return error;
-
+void blocks_sent_callback(uint8_t* data, size_t len) {
+  free(data);
+  app_timer_start(coap_send_timer, APP_TIMER_TICKS(10000), NULL);
 }
 
 void send_timer_callback() {
@@ -147,16 +96,23 @@ void send_timer_callback() {
         return;
     }
   } else {
-    NRF_LOG_INFO("SENDING!");
-    uint8_t data[320*320];
-    size_t block_size = 512;
-    for (size_t i = 0; i < sizeof(data)/block_size; i++) {
-      memset(data+i*block_size, i, block_size);
+    memset(&info, 0, sizeof(info));
+    info.data_len = 320*320;
+    info.data_addr = malloc(info.data_len);
+    size_t block_size = 1024;
+    for (size_t i = 0; i < info.data_len/block_size; i++) {
+      memset(info.data_addr+i*block_size, i, block_size);
     }
+    NRF_LOG_INFO("Fits in %d blocks", info.data_len/block_size);
 
-    start_blockwise_transfer(thread_instance, OT_COAP_CODE_PUT,
-        OT_COAP_TYPE_CONFIRMABLE, &m_peer_address, "test", data, sizeof(data),
-        block_size, NULL);
+    info.block_size = OT_COAP_BLOCK_SIZE_1024;
+    info.code = OT_COAP_CODE_PUT;
+    info.callback = blocks_sent_callback;
+
+    start_blockwise_transfer(thread_instance, &m_peer_address, "test", &info,
+        block_response_handler);
+
+    app_timer_stop(coap_send_timer);
   }
 }
 
@@ -173,7 +129,7 @@ int main(void) {
       .channel = 25,
       .panid = 0xFACE,
       .sed = true,
-      .poll_period = DEFAULT_POLL_PERIOD,
+      .poll_period = 10,
       .child_period = DEFAULT_CHILD_TIMEOUT,
       .autocommission = true,
     };
