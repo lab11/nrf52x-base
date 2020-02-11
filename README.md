@@ -1,5 +1,6 @@
 Nordic nRF52x Support Files
 ==========================
+[![Build Status](https://travis-ci.com/lab11/nrf52x-base.svg?branch=master)](https://travis-ci.com/lab11/nrf52x-base)
 
 This repository is a starting point and shared code for Nordic nRF52x BLE/Thread platforms. This repo is
 a collection of libraries, SDKs, Softdevices, and Makefiles to be included
@@ -82,7 +83,7 @@ you must do.
         sudo apt-get install gcc-arm-embedded
 
     On MacOS:
-    
+
         brew tap ArmMbed/homebrew-formulae
         brew install arm-none-eabi-gcc
 

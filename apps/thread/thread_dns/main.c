@@ -12,8 +12,8 @@
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
 
-#include "thread_dns.h"
 #include "simple_thread.h"
+#include "thread_dns.h"
 #include "thread_coap.h"
 
 APP_TIMER_DEF(coap_send_timer);

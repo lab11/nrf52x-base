@@ -66,6 +66,8 @@ BOARD_SOURCES += \
 	nrfx_clock.c\
 	nrfx_uart.c\
 	nrfx_uarte.c\
+	app_fifo.c\
+	app_uart_fifo.c\
 	SEGGER_RTT.c\
 	SEGGER_RTT_Syscalls_GCC.c\
 	SEGGER_RTT_printf.c\
