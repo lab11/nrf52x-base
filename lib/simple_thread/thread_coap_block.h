@@ -8,12 +8,14 @@ typedef struct block_info {
     otCoapCode code;
     otCoapType type;
 
+    uint32_t etag;
     uint8_t* data_addr;
     size_t data_len;
     size_t block_number;
     size_t last_block_number;
     otCoapBlockSize block_size;
     block_finalize_cb callback;
+
 } block_info;
 
 void __attribute__((weak)) block_response_handler(
