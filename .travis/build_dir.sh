@@ -4,7 +4,7 @@ for directory in `find $TRAVIS_BUILD_DIR -maxdepth 1 -mindepth 1 -type d -not -n
 do
   echo $directory
   cd $directory
-  if make
+  if make -j
   then
     echo Success!
   else
