@@ -33,6 +33,8 @@ APP_TIMER_DEF(coap_send_timer);
 #define DEFAULT_POLL_PERIOD      1000                                       /**< Thread Sleepy End Device polling period when MQTT-SN Asleep. [ms] */
 #define NUM_SLAAC_ADDRESSES      4                                          /**< Number of SLAAC addresses. */
 
+static uint32_t etag = 0;
+
 static otIp6Address m_peer_address =
 {
     .mFields =
@@ -99,15 +101,16 @@ void send_timer_callback() {
     memset(&info, 0, sizeof(info));
     info.data_len = 320*320;
     info.data_addr = malloc(info.data_len);
-    size_t block_size = 1024;
+    size_t block_size = 512;
     for (size_t i = 0; i < info.data_len/block_size; i++) {
       memset(info.data_addr+i*block_size, i, block_size);
     }
     NRF_LOG_INFO("Fits in %d blocks", info.data_len/block_size);
 
-    info.block_size = OT_COAP_BLOCK_SIZE_1024;
+    info.block_size = OT_COAP_BLOCK_SIZE_512;
     info.code = OT_COAP_CODE_PUT;
     info.callback = blocks_sent_callback;
+    info.etag = etag++;
 
     start_blockwise_transfer(thread_instance, &m_peer_address, "test", &info,
         block_response_handler);

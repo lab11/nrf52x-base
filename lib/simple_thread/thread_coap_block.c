@@ -69,6 +69,9 @@ otError start_blockwise_transfer(otInstance* instance,
 
   otCoapMessageInit(message, OT_COAP_TYPE_CONFIRMABLE, b_info->code);
   otCoapMessageGenerateToken(message, 2);
+  // append etag option
+  error = otCoapMessageAppendOption(message, 4, sizeof(b_info->etag), &(b_info->etag));
+  APP_ERROR_CHECK(error);
   error = otCoapMessageAppendUriPathOptions(message, path);
   APP_ERROR_CHECK(error);
   error = otCoapMessageAppendBlock1Option(message,
