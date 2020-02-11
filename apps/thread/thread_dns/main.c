@@ -59,10 +59,10 @@ static void log_init(void)
 }
 
 void dns_response_handler(void         * p_context,
-                                 const char   * p_hostname,
-                                 otIp6Address * p_resolved_address,
-                                 uint32_t       ttl,
-                                 otError        error)
+                          const char   * p_hostname,
+                          const otIp6Address * p_resolved_address,
+                          uint32_t       ttl,
+                          otError        error)
 {
     if (error != OT_ERROR_NONE)
     {

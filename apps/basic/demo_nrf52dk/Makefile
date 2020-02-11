@@ -1,3 +1,4 @@
+# nRF application makefile
 PROJECT_NAME = $(shell basename "$(realpath ./)")
 
 # Configurations
@@ -9,13 +10,12 @@ SOFTDEVICE_MODEL = s132
 APP_HEADER_PATHS += .
 APP_SOURCE_PATHS += .
 APP_SOURCES = $(notdir $(wildcard ./*.c))
-APP_SOURCES += retarget.c
 
-NRF_BASE_DIR = ../../
+# Path to base of nRF52-base repo
+NRF_BASE_DIR = ../../../
 
 # Include board Makefile (if any)
-include $(NRF_BASE_DIR)/boards/nrf52840dk/Board.mk
+include $(NRF_BASE_DIR)/boards/nrf52dk/Board.mk
 
 # Include main Makefile
-NRF_BASE_DIR ?= ../../
 include $(NRF_BASE_DIR)/make/AppMakefile.mk
