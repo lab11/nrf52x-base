@@ -12,6 +12,7 @@ install:
 jobs:
   include:
     - stage: "build"
-    - script: TRAVIS_BUILD_DIR=apps/basic/ .travis/build_dir.sh
-    - script: TRAVIS_BUILD_DIR=apps/thread/ .travis/build_dir.sh
-    - script: TRAVIS_BUILD_DIR=apps/ble/ .travis/build_dir.sh
+      script:
+      - TRAVIS_BUILD_DIR=apps/basic/ .travis/build_dir.sh
+      - TRAVIS_BUILD_DIR=apps/thread/ .travis/build_dir.sh
+      - TRAVIS_BUILD_DIR=apps/ble/ .travis/build_dir.sh
