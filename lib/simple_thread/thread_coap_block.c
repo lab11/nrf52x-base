@@ -28,7 +28,7 @@ void __attribute__((weak)) block_response_handler(
         //  otCoapOption* option = otCoapMessageGetNextOption(p_message);
         //}
         //if (option != NULL) {
-        start_blockwise_transfer(thread_get_instance(), &(p_message_info->mPeerAddr), "test", b_info, block_response_handler);
+        start_blockwise_transfer(thread_get_instance(), &(p_message_info->mPeerAddr), "image_raw", b_info, block_response_handler);
         //}
       } else if (lower == 4) {
         // This is a changed code!
@@ -76,7 +76,7 @@ otError start_blockwise_transfer(otInstance* instance,
   APP_ERROR_CHECK(error);
   error = otCoapMessageAppendBlock1Option(message,
                                           b_info->block_number,
-                                          actual_block_size < remaining_size ? 1 : 0,
+                                          more,
                                           b_info->block_size);
   APP_ERROR_CHECK(error);
   error = otCoapMessageSetPayloadMarker(message);

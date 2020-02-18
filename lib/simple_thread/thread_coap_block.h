@@ -6,7 +6,6 @@ typedef void (*block_finalize_cb)(uint8_t* data, size_t len);
 
 typedef struct block_info {
     otCoapCode code;
-    otCoapType type;
 
     uint32_t etag;
     uint8_t* data_addr;
