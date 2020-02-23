@@ -111,8 +111,10 @@ void send_timer_callback() {
     info.code = OT_COAP_CODE_PUT;
     info.callback = blocks_sent_callback;
     info.etag = etag++;
+    const char* path = "test";
+    memcpy(info.path, path, strnlen(path, sizeof(info.path)));
 
-    start_blockwise_transfer(thread_instance, &m_peer_address, "test", &info,
+    start_blockwise_transfer(thread_instance, &m_peer_address, &info,
         block_response_handler);
 
     app_timer_stop(coap_send_timer);

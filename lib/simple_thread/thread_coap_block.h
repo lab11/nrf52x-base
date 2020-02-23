@@ -13,6 +13,7 @@ typedef struct block_info {
     size_t block_number;
     size_t last_block_number;
     otCoapBlockSize block_size;
+    char path[64]; // arbitrary for now!
     block_finalize_cb callback;
 
 } block_info;
@@ -25,6 +26,5 @@ void __attribute__((weak)) block_response_handler(
 
 otError start_blockwise_transfer(otInstance* instance,
                               const otIp6Address* dest,
-                              const char* path,
                               block_info* b_info,
                               otCoapResponseHandler response_handler);
