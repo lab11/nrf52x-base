@@ -2,7 +2,7 @@
 
 #include "openthread/coap.h"
 
-typedef void (*block_finalize_cb)(uint8_t* data, size_t len);
+typedef void (*block_finalize_cb)(uint8_t code, otError result);
 
 typedef struct block_info {
     otCoapCode code;

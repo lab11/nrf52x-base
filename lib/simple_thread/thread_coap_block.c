@@ -16,6 +16,7 @@ void __attribute__((weak)) block_response_handler(
     uint8_t code = otCoapMessageGetCode(p_message);
     uint8_t upper = code >> 5;
     uint8_t lower = code & 0x1F;
+    NRF_LOG_INFO("CoAP Result: %d", p_result);
     NRF_LOG_INFO("Received CoAP Response: %d.%2d", upper, lower);
     NRF_LOG_INFO("\t code: %d\r\n", otCoapMessageGetType(p_message));
 
@@ -35,10 +36,15 @@ void __attribute__((weak)) block_response_handler(
         // did we send all the blocks?
         // if we did, we are done, time to clean up!
         if (b_info->callback) {
-          b_info->callback(b_info->data_addr, b_info->data_len);
+          b_info->callback(code, p_result);
         }
       }
-
+    }
+    // in cases of errors or error responses, let callback handle it
+    else if (upper == 4 || p_result != OT_ERROR_NONE) {
+      if (b_info->callback) {
+        b_info->callback(code, p_result);
+      }
     }
 }
 
