@@ -52,36 +52,44 @@ $(BUILDDIR):
 	$(TRACE_DIR)
 	$(Q)mkdir -p $@
 
-$(BUILDDIR)%.o: %.c $(PGENS) | $(BUILDDIR)
+$(BUILDDIR)%.o: %.c $(PGENS)
+	$(Q)mkdir -p $(BUILDDIR)
 	$(TRACE_CC)
 	$(Q)$(CC) $(LDFLAGS) $(CFLAGS) $(OPTIMIZATION_FLAG) $< -o $@
 
-$(BUILDDIR)%.o-debug: %.c $(PGENS) | $(BUILDDIR)
+$(BUILDDIR)%.o-debug: %.c $(PGENS)
+	$(Q)mkdir -p $(BUILDDIR)
 	$(TRACE_CC)
 	$(Q)$(CC) $(LDFLAGS) $(CFLAGS) -g -O0 $< -o $@
 
 .PRECIOUS: $(BUILDDIR)%.s
-$(BUILDDIR)%.s: %.S | $(BUILDDIR)
+$(BUILDDIR)%.s: %.S
+	$(Q)mkdir -p $(BUILDDIR)
 	$(TRACE_CC)
 	$(Q)$(CC) -E $(SDK_DEFINES) $< > $@
 
-$(BUILDDIR)%.os: $(BUILDDIR)%.s | $(BUILDDIR)
+$(BUILDDIR)%.os: $(BUILDDIR)%.s
+	$(Q)mkdir -p $(BUILDDIR)
 	$(TRACE_AS)
 	$(Q)$(AS) $< -o $@
 
-$(BUILDDIR)%.os-debug: $(BUILDDIR)%.s | $(BUILDDIR)
+$(BUILDDIR)%.os-debug: $(BUILDDIR)%.s
+	$(Q)mkdir -p $(BUILDDIR)
 	$(TRACE_AS)
 	$(Q)$(AS) $< -o $@
 
-$(ELF): $(OBJS) $(OBJS_AS) $(LIBS) | $(BUILDDIR)
+$(ELF): $(OBJS) $(OBJS_AS) $(LIBS)
+	$(Q)mkdir -p $(BUILDDIR)
 	$(TRACE_LD)
 	$(Q)$(LD) $(LDFLAGS) -Wl,--start-group $^ $(LDLIBS) -Wl,--end-group -o $@
 
-$(DEBUG_ELF): $(DEBUG_OBJS) $(DEBUG_OBJS_AS) $(LIBS) | $(BUILDDIR)
+$(DEBUG_ELF): $(DEBUG_OBJS) $(DEBUG_OBJS_AS) $(LIBS)
+	$(Q)mkdir -p $(BUILDDIR)
 	$(TRACE_LD)
 	$(Q)$(LD) $(LDFLAGS) -Wl,--start-group $^ $(LDLIBS) -Wl,--end-group -o $@
 
-$(HEX): $(ELF) | $(BUILDDIR)
+$(HEX): $(ELF)
+	$(Q)mkdir -p $(BUILDDIR)
 	$(TRACE_HEX)
 	$(Q)$(OBJCOPY) -Oihex $< $(HEX)
 	$(TRACE_BIN)
@@ -89,7 +97,8 @@ $(HEX): $(ELF) | $(BUILDDIR)
 	$(TRACE_SIZ)
 	$(Q)$(SIZE) $<
 
-$(DEBUG_HEX): $(DEBUG_ELF) | $(BUILDDIR)
+$(DEBUG_HEX): $(DEBUG_ELF)
+	$(Q)mkdir -p $(BUILDDIR)
 	$(TRACE_HEX)
 	$(Q)$(OBJCOPY) -Oihex $< $(DEBUG_HEX)
 	$(TRACE_BIN)
