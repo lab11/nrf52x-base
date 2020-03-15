@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+message Header {
+  uint32 version = 1;
+  bytes  id = 2;
+  string device_type = 3;
+  uint32 seq_no = 4;
+  uint64 tv_sec = 5;
+  uint32 tv_usec = 6;
+}
+
+message Data {
+  // System data
+  string discovery = 1;
+  string git_version = 2;
+
+  // Thread Info
+  uint32 thread_rloc16 = 50;
+  bytes  thread_ext_addr = 51;
+  uint32 thread_parent_avg_rssi = 52;
+  uint32 thread_parent_last_rssi = 53;
+}
+
+message Message {
+  Header header = 1;
+  Data data = 2;
+}
