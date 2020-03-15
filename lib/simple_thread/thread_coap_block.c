@@ -16,14 +16,14 @@ void __attribute__((weak)) block_response_handler(
     uint8_t code = otCoapMessageGetCode(p_message);
     uint8_t upper = code >> 5;
     uint8_t lower = code & 0x1F;
-    NRF_LOG_INFO("CoAP Result: %d", p_result);
-    NRF_LOG_INFO("Received CoAP Response: %d.%2d", upper, lower);
-    NRF_LOG_INFO("\t code: %d\r\n", otCoapMessageGetType(p_message));
+    //NRF_LOG_INFO("CoAP Result: %d", p_result);
+    //NRF_LOG_INFO("Received CoAP Response: %d.%2d", upper, lower);
+    //NRF_LOG_INFO("\t code: %d\r\n", otCoapMessageGetType(p_message));
 
     if (upper == 2) {
       if (lower == 31) {
         // This is a continue code!
-        NRF_LOG_INFO("CONTINUE");
+        //NRF_LOG_INFO("CONTINUE");
         //otCoapOption* option = otCoapMessageGetFirstOption(p_message);
         //while (option != NULL && option->mNumber != OT_COAP_OPTION_BLOCK1) {
         //  otCoapOption* option = otCoapMessageGetNextOption(p_message);
@@ -62,7 +62,7 @@ otError start_blockwise_transfer(otInstance* instance,
   size_t remaining_size = b_info->data_len - b_info->block_number * actual_block_size;
   bool more = actual_block_size < remaining_size;
 
-  NRF_LOG_INFO("block: %d/%d/%d out of %d", b_info->block_number, more, actual_block_size, remaining_size);
+  //NRF_LOG_INFO("block: %d/%d/%d out of %d", b_info->block_number, more, actual_block_size, remaining_size);
 
   message = otCoapNewMessage(instance, NULL);
   if (message == NULL)
@@ -99,7 +99,7 @@ otError start_blockwise_transfer(otInstance* instance,
   message_info.mPeerPort    = OT_DEFAULT_COAP_PORT;
   memcpy(&message_info.mPeerAddr, dest, sizeof(message_info.mPeerAddr));
 
-  NRF_LOG_INFO("SENDING!");
+  //NRF_LOG_INFO("SENDING!");
   error = otCoapSendRequest(instance,
       message,
       &message_info,
