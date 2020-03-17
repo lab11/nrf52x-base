@@ -4,6 +4,8 @@
 #include "gateway_coap.h"
 #include "thread_dns.h"
 
+#include "custom_board.h"
+
 #ifdef RTC_CS
 #include "ab1815.h"
 #endif
