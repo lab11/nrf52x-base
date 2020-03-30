@@ -1,6 +1,7 @@
 #pragma once
 #include "time.h"
 #include "simple_thread.h"
+#include "thread_coap_block.h"
 #include "thread_coap.h"
 #include "app_error.h"
 
@@ -9,3 +10,6 @@
 #define GATEWAY_PACKET_VERSION 3
 
 otError gateway_coap_send(otIp6Address* dest, const char* path, const char* device_type, bool confirmable, Message* msg);
+
+otError gateway_coap_block_send(otIp6Address* dest_addr, block_info* b_info,
+    const char* device_type, Message* msg, block_finalize_cb cb);

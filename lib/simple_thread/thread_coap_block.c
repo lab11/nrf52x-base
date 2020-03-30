@@ -99,7 +99,6 @@ otError start_blockwise_transfer(otInstance* instance,
   message_info.mPeerPort    = OT_DEFAULT_COAP_PORT;
   memcpy(&message_info.mPeerAddr, dest, sizeof(message_info.mPeerAddr));
 
-  //NRF_LOG_INFO("SENDING!");
   error = otCoapSendRequest(instance,
       message,
       &message_info,
