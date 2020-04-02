@@ -380,6 +380,8 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     # Set the path
     ifeq ($(USE_THREAD), 1)
       SDK_ROOT = $(NRF_BASE_DIR)/sdk/nrf5_sdk_16.0.0_thread/
+    else ifeq ($(USE_ZIGBEE), 1)
+      SDK_ROOT = $(NRF_BASE_DIR)/sdk/nrf5_sdk_16.0.0_thread/
     else
       SDK_ROOT = $(NRF_BASE_DIR)/sdk/nrf5_sdk_16.0.0/
     endif
@@ -720,13 +722,13 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
       THREAD_LIB_FILES += $(SDK_ROOT)external/nrf_cc310_bl/lib/cortex-m4/hard-float/libnrf_cc310_bl_0.9.12.a
       LIBS += $(THREAD_LIB_FILES)
 
-      REPO_HEADER_PATHS += $(SDK_ROOT)external/openthread/include
-      REPO_HEADER_PATHS += $(SDK_ROOT)external/openthread/project/nrf52840
-      REPO_HEADER_PATHS += $(SDK_ROOT)external/openthread/project/config
-      REPO_HEADER_PATHS += $(NRF_SECURITY)mbedtls_plat_config
-      REPO_HEADER_PATHS += $(NRF_SECURITY)include
-      REPO_HEADER_PATHS += $(NRF_SECURITY)config
-      REPO_HEADER_PATHS += $(NRF_SECURITY)/nrf_cc310_plat/include
+      SDK_HEADER_PATHS += $(SDK_ROOT)external/openthread/include
+      SDK_HEADER_PATHS += $(SDK_ROOT)external/openthread/project/nrf52840
+      SDK_HEADER_PATHS += $(SDK_ROOT)external/openthread/project/config
+      SDK_HEADER_PATHS += $(NRF_SECURITY)mbedtls_plat_config
+      SDK_HEADER_PATHS += $(NRF_SECURITY)include
+      SDK_HEADER_PATHS += $(NRF_SECURITY)config
+      SDK_HEADER_PATHS += $(NRF_SECURITY)/nrf_cc310_plat/include
 
       SDK_VARS += OPENTHREAD_ENABLE_APPLICATION_COAP
       SDK_VARS += OPENTHREAD_CONFIG_FILE=\"openthread-config-wrap.h\"
@@ -734,6 +736,29 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
       SDK_VARS += MBEDTLS_CONFIG_FILE=\"nrf-config.h\"
       SDK_VARS += OPENTHREAD_CONFIG_ENABLE_BUILTIN_MBEDTLS=0
       SDK_VARS += ENABLE_FEM
+    endif
+
+
+    ifeq ($(USE_ZIGBEE), 1)
+      SDK_SOURCE_PATHS += $(SDK_ROOT)/external/zboss/zb_error
+      SDK_SOURCE_PATHS += $(SDK_ROOT)/external/zboss/osif
+      SDK_SOURCE_PATHS += $(SDK_ROOT)/external/zboss/addons/zcl
+      SDK_SOURCE_PATHS += $(wildcard $(SDK_ROOT)components/zigbee/*/)
+      SDK_SOURCE_PATHS += $(SDK_ROOT)/external/nRF-IEEE-802.15.4-radio-driver/src
+
+      SDK_HEADER_PATHS += $(SDK_ROOT)/external/zboss/osif
+      SDK_HEADER_PATHS += $(SDK_ROOT)/external/zboss/include
+      SDK_HEADER_PATHS += $(dir $(wildcard $(SDK_ROOT)/external/zboss/include/*/))
+      SDK_HEADER_PATHS += $(SDK_ROOT)/external/zboss/addons
+      SDK_HEADER_PATHS += $(SDK_ROOT)/external/zboss/zb_error
+      SDK_HEADER_PATHS += $(wildcard $(SDK_ROOT)components/zigbee/*/)
+      SDK_HEADER_PATHS += $(SDK_ROOT)/external/nRF-IEEE-802.15.4-radio-driver/src
+
+      LIBS += $(SDK_ROOT)/external/zboss/lib/gcc/libzboss.ed.a
+      LIBS += $(SDK_ROOT)/external/zboss/lib/gcc/nrf52840/nrf_radio_driver.a
+
+      SDK_VARS += ZB_ED_ROLE ZB_TRACE_LEVEL=0 ZB_TRACE_MASK=0
+
     endif
 
   endif # SDK 16

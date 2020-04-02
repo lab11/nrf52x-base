@@ -231,6 +231,7 @@ override CFLAGS += \
     -Wno-unused-parameter\
     -Werror=return-type\
     -Wno-expansion-to-defined\
+    -Wno-packed-bitfield-compat\
     $(CONFIGURATION_DEFINES)\
     $(SDK_DEFINES)\
     -DGIT_VERSION=\"$(GIT_VERSION)\"\
