@@ -111,5 +111,12 @@ otError gateway_coap_block_send(otIp6Address* dest_addr, block_info* b_info,
   b_info->data_len = stream.bytes_written;
   b_info->callback = gateway_block_finalize;
 
-  return start_blockwise_transfer(thread_instance, dest_addr, b_info, block_response_handler);
+  otError error = start_blockwise_transfer(thread_instance, dest_addr, b_info, block_response_handler);
+
+  // increment sequence number if successful
+  if (error == OT_ERROR_NONE) {
+    seq_no++;
+  }
+
+  return error;
 }
