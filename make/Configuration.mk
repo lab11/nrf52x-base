@@ -16,7 +16,7 @@ BUILDDIR ?= _build/
 NANOPB_DIR := $(NRF_BASE_DIR)/lib/nanopb/
 # Files for the nanopb core
 NANOPB_CORE = $(NANOPB_DIR)/pb_encode.c $(NANOPB_DIR)/pb_decode.c $(NANOPB_DIR)/pb_common.c
-CONFIGURATION_VARS += PB_FIELD_32BIT
+CONFIGURATION_VARS += PB_FIELD_32BIT PB_BUFFER_ONLY
 PROTOC_INC = -I.
 ifdef PROTO_DIR
 	PROTOC_INC += -I$(PROTO_DIR)
