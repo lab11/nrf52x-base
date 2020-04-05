@@ -16,6 +16,7 @@ JLINK_RTTCLIENT = JLinkRTTClient
 # nrfutil tools
 MERGEHEX = mergehex
 NRFUTIL = nrfutil
+PRIVATE_KEY ?= private.pem
 
 # Default port for GDB
 GDB_PORT_NUMBER ?= 2331
@@ -26,10 +27,10 @@ JLINK_GDBSERVER_FLAGS = -port $(GDB_PORT_NUMBER)
 
 # Configuration flags for nrfutil tools
 BOOTLOADER_DEV = /dev/ttyACM0
-NRFUTIL_SETTINGS_GEN_FLAGS = settings generate --family $(NRF_IC_UPPER) --application-version 1 --bootloader-version 1 --bl-settings-version 2 --key-file private.pem --app-boot-validation='VALIDATE_ECDSA_P256_SHA256' --application $(HEX) $(BOOTLOADER_SETTINGS)
+NRFUTIL_SETTINGS_GEN_FLAGS = settings generate --family $(NRF_IC_UPPER) --application-version 1 --bootloader-version 1 --bl-settings-version 2 --key-file $(PRIVATE_KEY) --app-boot-validation='VALIDATE_ECDSA_P256_SHA256' --application $(HEX) $(BOOTLOADER_SETTINGS)
 MERGEHEX_SETTINGS_FLAGS = -m $(HEX) $(BUILDDIR)$(OUTPUT_NAME)_settings.hex -o $(MERGED_HEX)
 NRFUTIL_PKG_GEN_FLAGS = pkg generate --hw-version 52 --sd-req 0x0 --application-version 1 --application $(HEX) $(BUILDDIR)$(OUTPUT_NAME).zip
-NRFUTIL_PKG_SIGNED_GEN_FLAGS = pkg generate --hw-version 52 --sd-req 0x0 --application-version-string "$(BARE_VERSION)" --key-file private.pem --application $(HEX) $(BUILDDIR)$(OUTPUT_NAME).zip --app-boot-validation='VALIDATE_ECDSA_P256_SHA256'
+NRFUTIL_PKG_SIGNED_GEN_FLAGS = pkg generate --hw-version 52 --sd-req 0x0 --application-version-string "$(BARE_VERSION)" --key-file $(PRIVATE_KEY) --application $(HEX) $(BUILDDIR)$(OUTPUT_NAME).zip --app-boot-validation='VALIDATE_ECDSA_P256_SHA256'
 NRFUTIL_PKG_USB_DFU_FLAGS = dfu usb-serial -pkg $(BUILDDIR)$(OUTPUT_NAME).zip -p $(BOOTLOADER_DEV) -b 115200
 
 # Allow users to select a specific JTAG device with a variable
