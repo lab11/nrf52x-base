@@ -118,6 +118,11 @@ erase: $(BUILDDIR)
 	$(Q)printf "w4 4001e504 2\nw4 4001e50c 1\nsleep 100\nr\nexit\n" > $(BUILDDIR)erase.jlink
 	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)erase.jlink
 
+.PHONY: erase-all
+erase-all: $(BUILDDIR)
+	$(Q)printf "erase\nsleep 100\nr\nexit\n" > $(BUILDDIR)erase.jlink
+	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)erase.jlink
+
 .PHONY: gdb
 gdb:
 ifeq ($(UNAME_S),Darwin)
