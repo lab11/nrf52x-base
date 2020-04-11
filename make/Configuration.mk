@@ -48,7 +48,7 @@ AS := $(TOOLCHAIN)-as
 CC := $(TOOLCHAIN)-gcc
 CXX := $(TOOLCHAIN)-g++
 GDB := $(TOOLCHAIN)-gdb
-LD := $(TOOLCHAIN)-gcc
+LD := $(TOOLCHAIN)-g++
 OBJCOPY := $(TOOLCHAIN)-objcopy
 OBJDUMP := $(TOOLCHAIN)-objdump
 RANLIB := $(TOOLCHAIN)-ranlib
@@ -163,8 +163,8 @@ endif
 CONFIGURATION_VARS += SDK_VERSION_$(SDK_VERSION)
 
 # Identify the linker script for this particular configuration
-LINKER_SCRIPT ?= gcc_$(NRF_IC)_$(SOFTDEVICE_MODEL)_$(SOFTDEVICE_VERSION)_$(RAM_KB)_$(FLASH_KB).ld
-
+#LINKER_SCRIPT ?= gcc_$(NRF_IC)_$(SOFTDEVICE_MODEL)_$(SOFTDEVICE_VERSION)_$(RAM_KB)_$(FLASH_KB).ld
+LINKER_SCRIPT = gcc_nrf52840_blank_0_256_1024.ld
 # Default wireless configurations
 # These ought to be defined in the application or board makefiles
 USE_BLE ?= 1
@@ -249,6 +249,28 @@ override CFLAGS += \
     #-DSDK_VERSION_$(SDK_VERSION)\
     #-DSOFTDEVICE_$(SOFTDEVICE_MODEL)\
     #-DCONFIG_GPIO_AS_PINRESET\
+
+override CXXFLAGS += \
+   -c\
+   -O3\
+   -DNDEBUG\
+   --std=c++11\
+   -g\
+   -DTF_LITE_STATIC_MEMORY\
+   $(CONFIGURATION_DEFINES)\
+   $(SDK_DEFINES)\
+   -DGIT_VERSION=\"$(GIT_VERSION)\"\
+   -DCONFIG_GPIO_AS_PINRESET\
+   -s\
+   -ffunction-sections\
+   -fdata-sections\
+   -fno-strict-aliasing\
+   -fno-builtin\
+   -fshort-enums\
+   -fpermissive\
+   $(HEADER_INCLUDES)\
+   -MD\
+   -fomit-frame-pointer\
 
 #XXX: document this somewhere
 override OPTIMIZATION_FLAG ?= -Os

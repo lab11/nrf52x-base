@@ -60,6 +60,14 @@ $(BUILDDIR)%.o-debug: %.c $(PGENS) | $(BUILDDIR)
 	$(TRACE_CC)
 	$(Q)$(CC) $(LDFLAGS) $(CFLAGS) -g -O0 $< -o $@
 
+$(BUILDDIR)%.o: %.cc | $(BUILDDIR)	
+	$(TRACE_CXX)	
+	$(Q)$(CXX) $(LDFLAGS) $(CXXFLAGS) $(OPTIMIZATION_FLAG) $< -o $@	
+
+$(BUILDDIR)%.o-debug: %.cc | $(BUILDDIR)	
+	$(TRACE_CXX)	
+	$(Q)$(CXX) $(LDFLAGS) $(CXXFLAGS) $(OPTIMIZATION_FLAG) $< -o $@
+	
 .PRECIOUS: $(BUILDDIR)%.s
 $(BUILDDIR)%.s: %.S | $(BUILDDIR)
 	$(TRACE_CC)
