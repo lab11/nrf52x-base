@@ -41,10 +41,6 @@ namespace AllocationLogger{
 // this main.cc file in a target-specific subfolder.
 int main(int argc, char* argv[]) {
 
-  tflite::ErrorReporter* error_reporter = nullptr;
-  static tflite::MicroErrorReporter micro_error_reporter;
-  error_reporter = &micro_error_reporter;
-  error_reporter->Report("WER");
   // memset((void *)0x200008f0, 0xaa, 0x34e7c);
   setup();
   nrf_gpio_cfg_output(LED);
