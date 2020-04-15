@@ -87,9 +87,17 @@ you must do.
         brew tap ArmMbed/homebrew-formulae
         brew install arm-none-eabi-gcc
 
+    On Windows Subsystem for Linux (WSL):
+
+        sudo add-apt-repository ppa:team-gcc-arm-embedded/ppa
+        sudo apt-get update
+        sudo apt-get install gcc-arm-embedded
+
+
 2. Install Nordic's [command line
    tools](https://infocenter.nordicsemi.com/index.jsp?topic=%2Fug_nrf5x_cltools%2FUG%2Fcltools%2Fnrf5x_installation.html)
    `mergehex` and `nrfjprog`. Ensure these tools are extracted and added to your path.
+   For WSL: install the `nrfjprog` for Windows, and not for Linux.
 
 3. Install the JLink [software](https://www.segger.com/jlink-software.html)
 for your platform. You want the "Software and documentation pack".
