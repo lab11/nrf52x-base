@@ -5,9 +5,9 @@ This folder contains the GCC build system for the nRF5x platforms. It
 originally comes from
 [hlnd/nrf51-pure-gcc-setup](https://github.com/hlnd/nrf51-pure-gcc-setup).
 
-We develop on Linux. Original files still exist for Windows, but have not been
-tested in some time. Feel free to submit a pull request if you find something
-that doesn't work.
+We develop on Linux. This also works on Windows in either of the following ways:
+1. Build on WSL (Windows Subsystem for Linux), and `flash` with WSL.
+2. Build with SES (Segger Embedded Studio) and `flash` with WSL. Note: For this you will have to manually move the `.hex` file generated from SES to `build/` directory. For e.g. `mv blinky/pca10040/s132/ses/Output/Release/Exe/blinky_pca10040_s132.hex  blinky/_build/blink_sdk16_blank.hex`.
 
 The currently supported SDK versions are: 9, 10, 11
 
@@ -17,8 +17,8 @@ Things to Install
 -----------------
 1. `gcc-arm-none-eabi`: https://launchpad.net/gcc-arm-embedded
 2. gdb-arm-none-eabi
-3. The [jlink tools](https://www.segger.com/jlink-software.html) for linux
-4. The jlink debuger for linux
+3. The [jlink tools](https://www.segger.com/jlink-software.html) for linux / windows for WSL
+4. The jlink debuger for linux [OR] jlink debuger for Windows for WSL/SES
 
 Usage
 -----

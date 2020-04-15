@@ -216,14 +216,21 @@ $(foreach target, $(TARGETS), $(call define_target, $(target)))
 
 .PHONY: flash erase
 
+# Set environment (Linux / Windows - WSL) variables
+ifeq ($(strip $(grep -q Microsoft /proc/version)),)
+  NRFPROG := nrfjprog.exe
+else
+  NRFPROG := nrfjprog
+endif
+
 # Flash the program
 flash: default
-	@echo Flashing: $(OUTPUT_DIRECTORY)/toxophilite.hex
-	nrfjprog -f nrf52 --program $(OUTPUT_DIRECTORY)/toxophilite.hex --sectorerase
-	nrfjprog -f nrf52 --reset
+  @echo Flashing: $(OUTPUT_DIRECTORY)/toxophilite.hex
+  $(NRFPROG) -f nrf52 --program $(OUTPUT_DIRECTORY)/toxophilite.hex --sectorerase
+  $(NRFPROG) -f nrf52 --reset
 
 erase:
-	nrfjprog -f nrf52 --eraseall
+	$(NRFPROG) -f nrf52 --eraseall
 
 SDK_CONFIG_FILE := ../config/sdk_config.h
 CMSIS_CONFIG_TOOL := $(SDK_ROOT)/external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar
