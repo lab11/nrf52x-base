@@ -74,17 +74,17 @@ ifeq ($(strip $(grep -q Microsoft /proc/version)),)
 	nrfjprog.exe -f nrf52 --program $(HEX) --sectorerase
 	nrfjprog.exe -f nrf52 --reset
 else ifeq ($(USE_BOOTLOADER),1)
+	$(Q)printf "r\n" > $(BUILDDIR)flash.jlink
 ifdef ID
 	$(Q)printf "w4 $(ID_FLASH_LOCATION), 0x$(ID_SECON) 0x$(ID_FIRST)\n" >> $(BUILDDIR)flash.jlink
 endif
-	$(Q)printf "r\n" > $(BUILDDIR)flash.jlink
 	$(Q)printf "loadfile $(MERGED_HEX) \nr\ng\nexit\n" >> $(BUILDDIR)flash.jlink
 	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)flash.jlink
 else ifeq ($(USE_BOOTLOADER),0)
+	$(Q)printf "r\n" > $(BUILDDIR)flash.jlink
 ifdef ID
 	$(Q)printf "w4 $(ID_FLASH_LOCATION), 0x$(ID_SECON) 0x$(ID_FIRST)\n" >> $(BUILDDIR)flash.jlink
 endif
-	$(Q)printf "r\n" > $(BUILDDIR)flash.jlink
 	$(Q)printf "loadfile $(HEX) \nr\ng\nexit\n" >> $(BUILDDIR)flash.jlink
 	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)flash.jlink
 endif
