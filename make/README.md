@@ -7,7 +7,7 @@ originally comes from
 
 We develop on Linux. This also works on Windows in either of the following ways:
 1. Build on WSL (Windows Subsystem for Linux), and `flash` with WSL.
-2. Build with SES (Segger Embedded Studio) and `flash` with WSL. Note: For this you will have to manually move the `.hex` file generated from SES to `build/` directory. For e.g. `mv blinky/pca10040/s132/ses/Output/Release/Exe/blinky_pca10040_s132.hex  blinky/_build/blink_sdk16_blank.hex`.
+2. Build with SES (Segger Embedded Studio) and `flash` with WSL. Note: For this you will have to manually move the `.hex` file generated from SES to `_build/` directory. For e.g. `mv [your_application]/pca10040/s132/ses/Output/Release/Exe/[your_application.hex]  [your_application]/_build/[your_application.hex]`.
 
 The currently supported SDK versions are: 9, 10, 11
 
@@ -18,7 +18,8 @@ Things to Install
 1. `gcc-arm-none-eabi`: https://launchpad.net/gcc-arm-embedded
 2. gdb-arm-none-eabi
 3. The [jlink tools](https://www.segger.com/jlink-software.html) for linux / windows for WSL
-4. The jlink debuger for linux [OR] jlink debuger for Windows for WSL/SES
+4. The jlink debuger for linux
+5. The [nRF-Command-Line-Tools for Windows](https://www.nordicsemi.com/Software-and-Tools/Development-Tools/nRF5-Command-Line-Tools/Download#infotabs)
 
 Usage
 -----
