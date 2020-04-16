@@ -754,7 +754,12 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
       SDK_HEADER_PATHS += $(wildcard $(SDK_ROOT)components/zigbee/*/)
       SDK_HEADER_PATHS += $(SDK_ROOT)/external/nRF-IEEE-802.15.4-radio-driver/src
 
+    ifeq ($(ZIGBEE_ED), 1)
       LIBS += $(SDK_ROOT)/external/zboss/lib/gcc/libzboss.ed.a
+    else
+      LIBS += $(SDK_ROOT)/external/zboss/lib/gcc/libzboss.a
+    endif
+
       LIBS += $(SDK_ROOT)/external/zboss/lib/gcc/nrf52840/nrf_radio_driver.a
 
       SDK_VARS += ZB_ED_ROLE ZB_TRACE_LEVEL=0 ZB_TRACE_MASK=0
