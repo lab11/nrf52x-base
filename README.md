@@ -18,8 +18,12 @@ branch on the original `nrf5x-base` repo.
 
 Usage
 -----
+First, install [git-lfs](https://github.com/git-lfs/git-lfs/wiki/Installation)
+to properly download the CMSIS libraries. When adding the submodule, or cloning
+your project with an nrf52x-base submodule, you may need to navigate to
+`nrf52x-base/lib/CMSIS_5/` and run `git lfs pull`.
 
-First, add this project as a submodule inside of your repo with your
+Next, add this project as a submodule inside of your repo with your
 nRF5x code.
 
     git submodule add https://github.com/lab11/nrf52x-base
@@ -87,17 +91,13 @@ you must do.
         brew tap ArmMbed/homebrew-formulae
         brew install arm-none-eabi-gcc
 
-2. Install Nordic's [command line
-   tools](https://infocenter.nordicsemi.com/index.jsp?topic=%2Fug_nrf5x_cltools%2FUG%2Fcltools%2Fnrf5x_installation.html)
-   `mergehex` and `nrfjprog`. Ensure these tools are extracted and added to your path.
-
-3. Install the JLink [software](https://www.segger.com/jlink-software.html)
+2. Install the JLink [software](https://www.segger.com/jlink-software.html)
 for your platform. You want the "Software and documentation pack".
 
-4. Acquire a [JLink JTAG programmer](https://www.segger.com/jlink-general-info.html).
+3. Acquire a [JLink JTAG programmer](https://www.segger.com/jlink-general-info.html).
 The "EDU" edition works fine.
 
-5. Program an app! With the JLink box attached to the target board:
+4. Program an app! With the JLink box attached to the target board:
 
         make flash
 
