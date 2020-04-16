@@ -92,7 +92,9 @@ you must do.
         brew install arm-none-eabi-gcc
 
 2. Install the JLink [software](https://www.segger.com/jlink-software.html)
-for your platform. You want the "Software and documentation pack".
+for your platform. You want the "Software and documentation pack". As of April
+2020, some of the more recent JLink software is unstable on Linux. Version
+6.34b has been verified to work reliably on Linux and MacOS.
 
 3. Acquire a [JLink JTAG programmer](https://www.segger.com/jlink-general-info.html).
 The "EDU" edition works fine.
