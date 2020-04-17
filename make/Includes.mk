@@ -125,7 +125,7 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/sdcard/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/sensorsim/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/serial/
-    SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/sha256/  # <-- Conflicts with mbedtls
+    SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/sha256/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/simple_timer/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/slip/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/sortlist/
@@ -180,9 +180,7 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_HEADER_PATHS += $(SDK_ROOT)components/toolchain/cmsis/include/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/softdevice/common/
     SDK_HEADER_PATHS += $(SDK_ROOT)external/cifra_AES128-EAX/
-    #SDK_HEADER_PATHS += $(SDK_ROOT)external/mbedtls/library/
     SDK_HEADER_PATHS += $(SDK_ROOT)external/nrf_tls/
-    #SDK_HEADER_PATHS += $(SDK_ROOT)external/nrf_tls/mbedtls/nrf_crypto/config/
 
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/
     SDK_SOURCE_PATHS += $(SDK_ROOT)modules/nrfx/
@@ -241,7 +239,7 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/sdcard/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/sensorsim/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/serial/
-    SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/sha256/  # <-- Conflicts with mbedtls
+    SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/sha256/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/simple_timer/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/slip/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/sortlist/
@@ -267,7 +265,6 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_SOURCE_PATHS += $(SDK_ROOT)external/fprintf/
     SDK_SOURCE_PATHS += $(SDK_ROOT)external/segger_rtt/
     SDK_SOURCE_PATHS += $(SDK_ROOT)external/cifra_AES128-EAX/
-    #SDK_SOURCE_PATHS += $(SDK_ROOT)external/mbedtls/library/
 
     ifdef SERIALIZATION_MODE
       SDK_HEADER_PATHS += $(wildcard $(SDK_ROOT)components/serialization/*/)
@@ -470,7 +467,7 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/sdcard/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/sensorsim/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/serial/
-    SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/sha256/  # <-- Conflicts with mbedtls
+    SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/sha256/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/simple_timer/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/slip/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/sortlist/
@@ -583,7 +580,7 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/sdcard/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/sensorsim/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/serial/
-    SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/sha256/  # <-- Conflicts with mbedtls
+    SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/sha256/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/simple_timer/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/slip/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/sortlist/
@@ -692,8 +689,8 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
       SDK_SOURCES += nrf_esb.c
     endif
 
+    NRF_SECURITY = $(SDK_ROOT)external/openthread/nrf_security/
     ifeq ($(USE_THREAD),1)
-      NRF_SECURITY = $(SDK_ROOT)external/openthread/nrf_security/
       ifeq ($(THREAD_FTD),1)
         THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-ftd.a
         SDK_VARS += OPENTHREAD_FTD=1
@@ -754,15 +751,28 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
       SDK_HEADER_PATHS += $(wildcard $(SDK_ROOT)components/zigbee/*/)
       SDK_HEADER_PATHS += $(SDK_ROOT)/external/nRF-IEEE-802.15.4-radio-driver/src
 
+      LIBS += $(NRF_SECURITY)lib/libmbedcrypto_glue.a
+      LIBS += $(NRF_SECURITY)lib/libmbedcrypto_glue_cc310.a
+      LIBS += $(NRF_SECURITY)lib/libmbedcrypto_glue_vanilla.a
+      LIBS += $(NRF_SECURITY)lib/libmbedcrypto_cc310_backend.a
+      LIBS += $(NRF_SECURITY)lib/libmbedcrypto_vanilla_backend.a
+      LIBS += $(NRF_SECURITY)lib/libmbedtls_tls_vanilla.a
+      LIBS += $(NRF_SECURITY)lib/libmbedtls_x509_vanilla.a
+      LIBS += $(NRF_SECURITY)lib/libmbedtls_base_vanilla.a
+      LIBS += $(NRF_SECURITY)lib/libnrf_cc310_platform_0.9.1.a
+      LIBS += $(SDK_ROOT)external/nrf_cc310/lib/cortex-m4/hard-float/libnrf_cc310_0.9.12.a
+      LIBS += $(SDK_ROOT)external/nrf_cc310_bl/lib/cortex-m4/hard-float/libnrf_cc310_bl_0.9.12.a
+
     ifeq ($(ZIGBEE_ED), 1)
       LIBS += $(SDK_ROOT)/external/zboss/lib/gcc/libzboss.ed.a
+      SDK_VARS += ZB_ED_ROLE
     else
       LIBS += $(SDK_ROOT)/external/zboss/lib/gcc/libzboss.a
     endif
 
       LIBS += $(SDK_ROOT)/external/zboss/lib/gcc/nrf52840/nrf_radio_driver.a
 
-      SDK_VARS += ZB_ED_ROLE ZB_TRACE_LEVEL=0 ZB_TRACE_MASK=0
+      SDK_VARS += ZB_TRACE_LEVEL=0 ZB_TRACE_MASK=0
 
     endif
 
