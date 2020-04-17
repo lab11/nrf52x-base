@@ -171,6 +171,10 @@ pkg: all
 .PHONY: pkg_signed
 pkg_signed: all
 	$(NRFUTIL) $(NRFUTIL_PKG_SIGNED_GEN_FLAGS)
+ifeq ($(USE_ZIGBEE), 1)
+	mv *.zigbee $(BUILDDIR)
+endif
+
 .PHONY: dfu
 usb_dfu: all pkg
 	until $(NRFUTIL) $(NRFUTIL_PKG_USB_DFU_FLAGS); do sleep 0.5; done;
