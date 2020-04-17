@@ -58,6 +58,8 @@ SIZE := $(TOOLCHAIN)-size
 # Git version
 GIT_VERSION := $(shell git describe --abbrev=4 --always --tags)
 BARE_VERSION := $(lastword $(subst v, , $(firstword $(subst -, ,$(GIT_VERSION)))))
+HW_VERSION ?= 0
+MANUF_ID ?= 0
 
 # Pretty-printing rules
 # If environment variable V is non-empty, be verbose
