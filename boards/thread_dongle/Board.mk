@@ -70,7 +70,6 @@ BOARD_SOURCES += \
 	thread_coap.c\
 	thread_dns.c\
 	thread_ntp.c\
-	gateway_coap.c\
 
 endif
 
