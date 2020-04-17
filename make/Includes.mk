@@ -41,6 +41,8 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
       SDK_ROOT = $(NRF_BASE_DIR)/sdk/nrf5_sdk_15.3.0/
     endif
 
+    MBR_PATH ?= $(SDK_ROOT)components/softdevice/mbr/$(NRF_IC)/hex/mbr_$(NRF_MODEL)_$(MBR_VERSION)_mbr.hex
+
     # default files for ICs
     ifeq ($(NRF_IC),nrf52832)
       SDK_SOURCES += system_nrf52.c
@@ -383,6 +385,8 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     else
       SDK_ROOT = $(NRF_BASE_DIR)/sdk/nrf5_sdk_16.0.0/
     endif
+
+    MBR_PATH ?= $(SDK_ROOT)components/softdevice/mbr/hex/mbr_$(NRF_MODEL)_$(MBR_VERSION)_mbr.hex
 
     # default files for ICs
     ifeq ($(NRF_IC),nrf52832)
@@ -744,7 +748,6 @@ endif # nrf52
 
 # Location of softdevice
 SOFTDEVICE_PATH ?= $(SDK_ROOT)components/softdevice/$(SOFTDEVICE_MODEL)/hex/$(SOFTDEVICE_MODEL)_nrf52_$(SOFTDEVICE_VERSION)_softdevice.hex
-MBR_PATH ?= $(SDK_ROOT)components/softdevice/mbr/$(NRF_IC)/hex/mbr_$(NRF_MODEL)_$(MBR_VERSION)_mbr.hex
 
 # Flags for compiler
 HEADER_INCLUDES = $(addprefix -I,$(SDK_HEADER_PATHS)) $(addprefix -I,$(REPO_HEADER_PATHS)) $(addprefix -I,$(BOARD_HEADER_PATHS)) $(addprefix -I,$(APP_HEADER_PATHS))
