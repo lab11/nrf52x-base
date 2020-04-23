@@ -22,12 +22,12 @@ REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_logger/*/))
 REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_thread/*/))
 REPO_SOURCE_PATHS += $(NRF_BASE_DIR)/lib/nanopb/
 REPO_SOURCE_PATHS += $(PROTO_DIR)
+REPO_HEADER_PATHS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/Core/Include/
 
 # ---- CMSIS DSP Library
 ifeq ($(USE_DSP), 1)
 
 
-  REPO_HEADER_PATHS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/Core/Include/
   REPO_HEADER_PATHS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/DSP/Include/
 
   REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)lib/CMSIS_5/CMSIS/DSP/Source/*/))
