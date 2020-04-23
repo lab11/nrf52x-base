@@ -6,13 +6,11 @@ SDK_VERSION = 16
 SOFTDEVICE_MODEL = blank
 USE_THREAD = 1
 THREAD_FTD = 1
-PROTO_DIR = ../../../docs/gateway/
 
 # Source and header files
 APP_HEADER_PATHS += .
 APP_SOURCE_PATHS += .
 APP_SOURCES = $(notdir $(wildcard ./*.c))
-APP_SOURCES += parse.proto
 
 NRF_BASE_DIR ?= ../../../
 # Include board Makefile (if any)
