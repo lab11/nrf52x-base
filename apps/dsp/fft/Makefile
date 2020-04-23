@@ -5,6 +5,7 @@ NRF_IC = nrf52840
 SDK_VERSION = 15
 SOFTDEVICE_MODEL = blank
 USE_THREAD = 0
+USE_DSP = 1
 
 # Source and header files
 APP_HEADER_PATHS += .

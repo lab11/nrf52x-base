@@ -25,8 +25,21 @@ REPO_SOURCE_PATHS += $(PROTO_DIR)
 
 # ---- CMSIS DSP Library
 ifeq ($(USE_DSP), 1)
+
+
+  REPO_HEADER_PATHS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/Core/Include/
   REPO_HEADER_PATHS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/DSP/Include/
-  LIBS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/DSP/Lib/GCC/libarm_cortexM4lf_math.a
+
+  REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)lib/CMSIS_5/CMSIS/DSP/Source/*/))
+  #REPO_SOURCES = $(notdir $(wildcard $(NRF_BASE_DIR)lib/CMSIS_5/CMSIS/DSP/Source/*/arm*.c))
+  REPO_SOURCES += BasicMathFunctions.c
+  REPO_SOURCES += MatrixFunctions.c
+  REPO_SOURCES += TransformFunctions.c
+  REPO_SOURCES += FilteringFunctions.c
+  REPO_SOURCES += ComplexMathFunctions.c
+  REPO_SOURCES += StatisticsFunctions.c
+  REPO_SOURCES += CommonTables.c
+
 endif
 
 # ---- SDK files
@@ -179,7 +192,6 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_HEADER_PATHS += $(wildcard $(SDK_ROOT)external/*/include/)
     SDK_HEADER_PATHS += $(SDK_ROOT)components/toolchain/gcc/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/toolchain/
-    SDK_HEADER_PATHS += $(SDK_ROOT)components/toolchain/cmsis/include/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/softdevice/common/
     SDK_HEADER_PATHS += $(SDK_ROOT)external/cifra_AES128-EAX/
     SDK_HEADER_PATHS += $(SDK_ROOT)external/nrf_tls/
@@ -522,7 +534,6 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_HEADER_PATHS += $(SDK_ROOT)external/nrf_cc310/include/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/toolchain/gcc/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/toolchain/
-    SDK_HEADER_PATHS += $(SDK_ROOT)components/toolchain/cmsis/include/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/softdevice/common/
     SDK_HEADER_PATHS += $(SDK_ROOT)external/cifra_AES128-EAX/
     SDK_HEADER_PATHS += $(SDK_ROOT)external/nrf_tls/
@@ -797,7 +808,7 @@ SDK_DEFINES = $(addprefix -D,$(SDK_VARS)) $(addprefix -D,$(BOARD_VARS)) $(addpre
 # Directories make searches for prerequisites
 VPATH = $(SDK_SOURCE_PATHS) $(REPO_SOURCE_PATHS) $(BOARD_SOURCE_PATHS) $(APP_SOURCE_PATHS)
 
-SOURCES = $(notdir $(APP_SOURCES)) $(notdir $(BOARD_SOURCES)) $(notdir $(SDK_SOURCES))
+SOURCES = $(notdir $(APP_SOURCES)) $(notdir $(BOARD_SOURCES)) $(notdir $(SDK_SOURCES)) $(notdir $(REPO_SOURCES))
 PBSRCS = $(filter %.proto,$(SOURCES))
 PBOPTS = $(filter %.options,$(SOURCES))
 PBGENS = $(PBSRCS:.proto=.pb.c) $(PBSRCS:.proto=.pb.h)

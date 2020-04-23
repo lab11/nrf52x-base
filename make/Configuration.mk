@@ -304,7 +304,7 @@ override OBJDUMP_FLAGS += \
 
 override CFLAGS += -Wdate-time #                # warn if __TIME__, __DATE__, or __TIMESTAMP__ used
                                          # ^on b/c flashing assumes same code => no flash, these enforce
-override CFLAGS += -Wfloat-equal #              # floats used with '=' operator, likely imprecise
+#override CFLAGS += -Wfloat-equal #              # floats used with '=' operator, likely imprecise
 override CFLAGS += -Wformat-nonliteral #        # can't check format string (maybe disable if annoying)
 override CFLAGS += -Wformat-security #          # using untrusted format strings (maybe disable)
 override CFLAGS += -Wformat-y2k #               # use of strftime that assumes two digit years
@@ -361,7 +361,7 @@ override CFLAGS += -Wwrite-strings #            # { char* c = "foo"; c[0] = 'b' 
 #override CFLAGS += -Wbad-function-cast #          # not obvious when this would trigger, could drop if annoying
 override CFLAGS += -Wjump-misses-init #           # goto or switch skips over a variable initialziation
 #override CFLAGS += -Wmissing-prototypes #         # global fn defined w/out prototype (should be static or in .h)
-override CFLAGS += -Wnested-externs #             # mis/weird-use of extern keyword
+#override CFLAGS += -Wnested-externs #             # mis/weird-use of extern keyword
 #override CFLAGS += -Wold-style-definition #       # this garbage: void bar (a) int a; { }
 
 #CFLAGS += -Wunsuffixed-float-constants # # { float f=0.67; if(f==0.67) printf("y"); else printf("n"); } => n

@@ -121,11 +121,6 @@ erase: $(BUILDDIR)
 	$(Q)printf "w4 4001e504 2\nw4 4001e50c 1\nsleep 100\nr\nexit\n" > $(BUILDDIR)erase.jlink
 	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)erase.jlink
 
-.PHONY: erase-all
-erase-all: $(BUILDDIR)
-	$(Q)printf "erase\nsleep 100\nr\nexit\n" > $(BUILDDIR)erase.jlink
-	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)erase.jlink
-
 .PHONY: gdb
 gdb:
 ifeq ($(UNAME_S),Darwin)
@@ -171,10 +166,6 @@ pkg: all
 .PHONY: pkg_signed
 pkg_signed: all
 	$(NRFUTIL) $(NRFUTIL_PKG_SIGNED_GEN_FLAGS)
-ifeq ($(USE_ZIGBEE), 1)
-	mv *.zigbee $(BUILDDIR)
-endif
-
 .PHONY: dfu
 usb_dfu: all pkg
 	until $(NRFUTIL) $(NRFUTIL_PKG_USB_DFU_FLAGS); do sleep 0.5; done;
