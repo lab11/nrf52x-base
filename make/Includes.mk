@@ -23,13 +23,10 @@ REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_thread/*/))
 REPO_SOURCE_PATHS += $(NRF_BASE_DIR)/lib/nanopb/
 REPO_SOURCE_PATHS += $(PROTO_DIR)
 REPO_HEADER_PATHS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/Core/Include/
+REPO_HEADER_PATHS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/DSP/Include/
 
 # ---- CMSIS DSP Library
 ifeq ($(USE_DSP), 1)
-
-
-  REPO_HEADER_PATHS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/DSP/Include/
-
   REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)lib/CMSIS_5/CMSIS/DSP/Source/*/))
   #REPO_SOURCES = $(notdir $(wildcard $(NRF_BASE_DIR)lib/CMSIS_5/CMSIS/DSP/Source/*/arm*.c))
   REPO_SOURCES += BasicMathFunctions.c
@@ -39,7 +36,6 @@ ifeq ($(USE_DSP), 1)
   REPO_SOURCES += ComplexMathFunctions.c
   REPO_SOURCES += StatisticsFunctions.c
   REPO_SOURCES += CommonTables.c
-
 endif
 
 # ---- SDK files
