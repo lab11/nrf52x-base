@@ -8,7 +8,7 @@ typedef struct block_info {
     otCoapCode code;
 
     uint32_t etag;
-    uint8_t* data_addr;
+    const uint8_t* data_addr;
     size_t data_len;
     size_t block_number;
     size_t last_block_number;
