@@ -19,7 +19,7 @@ NANOPB_CORE = $(NANOPB_DIR)/pb_encode.c $(NANOPB_DIR)/pb_decode.c $(NANOPB_DIR)/
 CONFIGURATION_VARS += PB_FIELD_32BIT PB_BUFFER_ONLY
 PROTOC_INC = -I.
 ifdef PROTO_DIR
-	PROTOC_INC += -I$(PROTO_DIR)
+	PROTOC_INCLUDES = $(addprefix -I,$(PROTO_DIR))
 endif
 
 # Check whether to use binary version of nanopb_generator or the
