@@ -28,9 +28,8 @@ JLINK_GDBSERVER_FLAGS = -port $(GDB_PORT_NUMBER)
 # Configuration flags for nrfutil tools
 BOOTLOADER_DEV = /dev/ttyACM0
 NRFUTIL_SETTINGS_GEN_FLAGS = settings generate --family $(NRF_IC_UPPER) --application-version 1 --bootloader-version 1 --bl-settings-version 2 --key-file $(PRIVATE_KEY) --app-boot-validation='VALIDATE_ECDSA_P256_SHA256' --application $(HEX) $(BOOTLOADER_SETTINGS)
-MERGEHEX_SETTINGS_FLAGS = $(HEX) $(BUILDDIR)$(OUTPUT_NAME)_settings.hex -o $(MERGED_HEX)
-NRFUTIL_PKG_GEN_FLAGS = pkg generate --hw-version 52 --sd-req 0x0 --application-version 1 --application $(HEX) $(BUILDDIR)$(OUTPUT_NAME).zip
-NRFUTIL_PKG_SIGNED_GEN_FLAGS = pkg generate --hw-version 52 --sd-req 0x0 --application-version-string "$(BARE_VERSION)" --key-file $(PRIVATE_KEY) --application $(HEX) $(BUILDDIR)$(OUTPUT_NAME).zip --app-boot-validation='VALIDATE_ECDSA_P256_SHA256'
+NRFUTIL_PKG_GEN_FLAGS = pkg generate --hw-version $(HW_VERSION) --sd-req 0x0 --application-version-string "$(BARE_VERSION)" --application $(HEX) $(BUILDDIR)$(OUTPUT_NAME).zip
+NRFUTIL_PKG_SIGNED_GEN_FLAGS = pkg generate --hw-version $(HW_VERSION) --sd-req 0x0 --application-version-string "$(BARE_VERSION)" --key-file $(PRIVATE_KEY) --application $(HEX) $(BUILDDIR)$(OUTPUT_NAME).zip --app-boot-validation='VALIDATE_ECDSA_P256_SHA256'
 NRFUTIL_PKG_USB_DFU_FLAGS = dfu usb-serial -pkg $(BUILDDIR)$(OUTPUT_NAME).zip -p $(BOOTLOADER_DEV) -b 115200
 
 # Allow users to select a specific JTAG device with a variable
@@ -68,7 +67,7 @@ endif
 # ---- JTAG rules
 
 .PHONY: flash
-flash: all test_softdevice flash_mbr
+flash: all test_softdevice
 	$(Q)printf "r\n" > $(BUILDDIR)flash.jlink
 ifdef ID
 	$(Q)printf "w4 $(ID_FLASH_LOCATION), 0x$(ID_SECON) 0x$(ID_FIRST)\n" >> $(BUILDDIR)flash.jlink
@@ -107,11 +106,9 @@ flash_softdevice: $(BUILDDIR) $(SOFTDEVICE_PATH)
 	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)flash_softdevice.jlink
 
 .PHONY: flash_mbr
-ifdef USE_MBR
 flash_mbr: $(BUILDDIR) $(MBR_PATH)
 	$(Q)printf "loadfile $(MBR_PATH) \nr\ng\nexit\n" > $(BUILDDIR)flash_mbr.jlink
 	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)flash_mbr.jlink
-endif
 
 .PHONY: erase
 erase: $(BUILDDIR)

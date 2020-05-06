@@ -133,6 +133,7 @@ endif
 # Default SDK and softdevice versions
 SDK_VERSION ?= 15
 ifeq ($(SDK_VERSION), 15)
+  MBR_VERSION = 2.4.1
   ifeq ($(SOFTDEVICE_MODEL), s132)
     SOFTDEVICE_VERSION = 6.1.1
   else ifeq ($(SOFTDEVICE_MODEL), s140)
@@ -140,13 +141,10 @@ ifeq ($(SDK_VERSION), 15)
   else ifeq ($(SOFTDEVICE_MODEL), blank)
     SOFTDEVICE_VERSION = 0
     USE_BLE = 0 # can't have BLE without a softdevice
-    # if we want to use the MBR to manage a bootloader without a softdevice:
-    ifeq ($(USE_MBR), 1)
-      MBR_VERSION = 2.4.1
-    endif
   endif
 endif
 ifeq ($(SDK_VERSION), 16)
+  MBR_VERSION = 2.4.1
   ifeq ($(SOFTDEVICE_MODEL), s132)
     SOFTDEVICE_VERSION = 7.0.1
   else ifeq ($(SOFTDEVICE_MODEL), s140)
@@ -154,15 +152,14 @@ ifeq ($(SDK_VERSION), 16)
   else ifeq ($(SOFTDEVICE_MODEL), blank)
     SOFTDEVICE_VERSION = 0
     USE_BLE = 0 # can't have BLE without a softdevice
-    # if we want to use the MBR to manage a bootloader without a softdevice:
-    ifeq ($(USE_MBR), 1)
-      MBR_VERSION = 2.4.1
-    endif
   endif
 endif
 CONFIGURATION_VARS += SDK_VERSION_$(SDK_VERSION)
 
 # Identify the linker script for this particular configuration
+ifeq ($(USE_BOOTLOADER), 1)
+LINKER_SCRIPT ?= gcc_$(NRF_IC)_dfu_$(SOFTDEVICE_MODEL)_$(SOFTDEVICE_VERSION)_$(RAM_KB)_$(FLASH_KB).ld
+endif
 LINKER_SCRIPT ?= gcc_$(NRF_IC)_$(SOFTDEVICE_MODEL)_$(SOFTDEVICE_VERSION)_$(RAM_KB)_$(FLASH_KB).ld
 
 # Default wireless configurations
