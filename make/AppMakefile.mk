@@ -99,7 +99,7 @@ $(DEBUG_HEX): $(DEBUG_ELF) | $(BUILDDIR)
 
 .PHONY: bootloader
 bootloader: $(BUILDDIR)
-	$(Q)cd $(NRF_BASE_DIR)/apps/bootloader/$(BOOTLOADER)/ && make
+	$(Q)cd $(NRF_BASE_DIR)/apps/bootloader/$(BOOTLOADER)/ && KEY_DIR=$(KEY_DIR) make
 	$(Q)cp $(NRF_BASE_DIR)/apps/bootloader/$(BOOTLOADER)/_build/*.hex $(BUILDDIR)
 
 $(BOOTLOADER_SETTINGS): $(HEX)
