@@ -6,9 +6,10 @@ BOARD_MAKEFILE = 1
 
 # Get directory of this makefile
 BOARD_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+KEY_DIR := $(BOARD_DIR)/../keys/
 
 # Include any files in this directory in the build process
-BOARD_SOURCE_PATHS = $(BOARD_DIR)/. $(BOARD_DIR)/../keys/
+BOARD_SOURCE_PATHS = $(BOARD_DIR)/. $(KEY_DIR)
 BOARD_HEADER_PATHS = $(BOARD_DIR)/.
 BOARD_LINKER_PATHS = $(BOARD_DIR)/.
 BOARD_SOURCES = $(notdir $(wildcard $(BOARD_DIR)/./*.c))
