@@ -6,10 +6,15 @@ dist: bionic
 git:
   lfs_skip_smudge: true
 
+env:
+  - APPS_DIR=software/apps PK=.travis/dummy.pem
+
 install:
   - sudo add-apt-repository ppa:team-gcc-arm-embedded/ppa -y
   - sudo apt update
   - sudo apt install gcc-arm-embedded -y
+  - sudo apt install python python-pip python-setuptools -y
+  - sudo pip install nrfutil --ignore-installed PyYAML
 
 jobs:
   include:
@@ -18,3 +23,4 @@ jobs:
       - TRAVIS_BUILD_DIR=apps/basic/ .travis/build_dir.sh
       - TRAVIS_BUILD_DIR=apps/thread/ .travis/build_dir.sh
       - TRAVIS_BUILD_DIR=apps/ble/ .travis/build_dir.sh
+      - TRAVIS_BUILD_DIR=apps/bootloader/ .travis/build_dir.sh

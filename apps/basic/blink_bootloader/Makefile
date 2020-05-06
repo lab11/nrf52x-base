@@ -7,7 +7,7 @@ SOFTDEVICE_MODEL = blank
 USE_BOOTLOADER = 1
 BOOTLOADER = bg_bootloader
 
-PRIVATE_KEY = $(NRF_BASE_DIR)/boards/keys/private.pem
+PRIVATE_KEY := $(BOARD_DIR)/../../keys/private.pem
 
 # Source and header files
 APP_HEADER_PATHS += .
