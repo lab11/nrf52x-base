@@ -71,7 +71,7 @@ endif
 # ---- JTAG rules
 
 .PHONY: flash
-flash: all test_softdevice flash_mbr
+flash: all test_softdevice
 	$(Q)printf "r\n" > $(BUILDDIR)flash.jlink
 ifdef ID
 	$(Q)printf "w4 $(ID_FLASH_LOCATION), 0x$(ID_SECON) 0x$(ID_FIRST)\n" >> $(BUILDDIR)flash.jlink
@@ -110,11 +110,9 @@ flash_softdevice: $(BUILDDIR) $(SOFTDEVICE_PATH)
 	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)flash_softdevice.jlink
 
 .PHONY: flash_mbr
-ifdef USE_MBR
 flash_mbr: $(BUILDDIR) $(MBR_PATH)
 	$(Q)printf "loadfile $(MBR_PATH) \nr\ng\nexit\n" > $(BUILDDIR)flash_mbr.jlink
 	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)flash_mbr.jlink
-endif
 
 .PHONY: erase
 erase: $(BUILDDIR)

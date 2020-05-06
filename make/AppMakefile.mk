@@ -37,7 +37,7 @@ include $(NRF_BASE_DIR)/make/Program.mk
 # ---- Rules for building apps
 .PHONY:	all
 ifeq ($(USE_BOOTLOADER),1)
-all: $(PBGENS) $(OBJS) $(OBJS_AS) $(MERGED_HEX)
+all: $(PBGENS) $(OBJS) $(OBJS_AS) $(MERGED_HEX) bootloader
 else
 all: $(PBGENS) $(OBJS) $(OBJS_AS) $(HEX)
 endif
@@ -97,11 +97,16 @@ $(DEBUG_HEX): $(DEBUG_ELF) | $(BUILDDIR)
 	$(TRACE_SIZ)
 	$(Q)$(SIZE) $<
 
+.PHONY: bootloader
+bootloader: $(BUILDDIR)
+	$(Q)cd $(NRF_BASE_DIR)/apps/bootloader/$(BOOTLOADER)/ && make
+	$(Q)cp $(NRF_BASE_DIR)/apps/bootloader/$(BOOTLOADER)/_build/*.hex $(BUILDDIR)
+
 $(BOOTLOADER_SETTINGS): $(HEX)
 	$(Q)$(NRFUTIL) $(NRFUTIL_SETTINGS_GEN_FLAGS)
 
-$(MERGED_HEX): $(HEX) $(BOOTLOADER_SETTINGS)
-	$(Q)$(MERGEHEX) $(MERGEHEX_SETTINGS_FLAGS)
+$(MERGED_HEX): bootloader $(HEX) $(BOOTLOADER_SETTINGS)
+	$(Q)$(MERGEHEX) --overlap=replace $(HEX) $(BUILDDIR)$(OUTPUT_NAME)_settings.hex $(MBR_PATH) $(BUILDDIR)$(BOOTLOADER)*.hex $(MBR_PATH) -o $(MERGED_HEX)
 
 .PHONY: debug
 debug: $(DEBUG_OBJS) $(DEBUG_OBJS_AS) $(DEBUG_HEX)

@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "nrf_log.h"
+
 #include "gateway_coap.h"
 #include "thread_coap.h"
 #include "thread_dns.h"
@@ -8,6 +10,7 @@
 #include <openthread/message.h>
 
 #include "custom_board.h"
+#include "config.h"
 
 #ifdef RTC_CS
 #include "ab1815.h"
@@ -36,12 +39,28 @@ void gateway_block_finalize(uint8_t code, otError result) {
 void gateway_response_handler (void* context, otMessage* message, const
                                  otMessageInfo* message_info, otError result) {
   if (result == OT_ERROR_NONE) {
-    printf("got response!\n");
+    //NRF_LOG_INFO("Sent Message Successfully!");
+  } else {
+    NRF_LOG_INFO("Failed to send message! 0x%x", result);
+  }
+
+  uint8_t code = otCoapMessageGetCode(message);
+  uint8_t upper = code >> 5;
+  uint8_t lower = code & 0x1F;
+
+  if (upper == 4) {
+    if (lower == 4) {
+      NRF_LOG_INFO("404 Not Found!");
+      // send discovery!
+      Message msg = Message_init_default;
+      strncpy(msg.data.discovery, GATEWAY_PARSE_ADDR, sizeof(msg.data.discovery));
+      gateway_coap_send(&(message_info->mPeerAddr), "discovery", false, &msg);
+    }
   }
 }
 
-otError gateway_coap_send(otIp6Address* dest_addr,
-    const char* path, const char* device_type, bool confirmable, Message* msg) {
+otError gateway_coap_send(const otIp6Address* dest_addr,
+    const char* path, bool confirmable, Message* msg) {
   if (otIp6IsAddressEqual(dest_addr, &unspecified_ipv6)) {
     return OT_ERROR_ADDRESS_QUERY;
   }
@@ -50,7 +69,7 @@ otError gateway_coap_send(otIp6Address* dest_addr,
   Header header = Header_init_default;
   header.version = GATEWAY_PACKET_VERSION;
   memcpy(header.id.bytes, device_id, sizeof(device_id));
-  strncpy(header.device_type, device_type, sizeof(header.device_type));
+  strncpy(header.device_type, GATEWAY_DEVICE_TYPE, sizeof(header.device_type));
   header.id.size = sizeof(device_id);
 #ifdef RTC_CS
     struct timeval time = ab1815_get_time_unix();
@@ -81,15 +100,15 @@ otError gateway_coap_send(otIp6Address* dest_addr,
   return error;
 }
 
-otError gateway_coap_block_send(otIp6Address* dest_addr, block_info* b_info,
-    const char* device_type, Message* msg, block_finalize_cb cb) {
+otError gateway_coap_block_send(const otIp6Address* dest_addr, block_info* b_info,
+    Message* msg, block_finalize_cb cb) {
   otInstance * thread_instance = thread_get_instance();
   callback = cb;
 
   Header header = Header_init_default;
   header.version = GATEWAY_PACKET_VERSION;
   memcpy(header.id.bytes, device_id, sizeof(device_id));
-  strncpy(header.device_type, device_type, sizeof(header.device_type));
+  strncpy(header.device_type, GATEWAY_DEVICE_TYPE, sizeof(header.device_type));
   header.id.size = sizeof(device_id);
 #ifdef RTC_CS
   struct timeval time = ab1815_get_time_unix();
