@@ -12,6 +12,8 @@ LDFLAGS += --specs=nano.specs
 CFLAGS += -flto
 #CFLAGS += -D__HEAP_SIZE=0
 
+KEY_DIR = $(NRF_BASE_DIR)/boards/keys/
+
 # Source and header files
 SDK_CONFIG_DEFAULT =
 APP_HEADER_PATHS += .
