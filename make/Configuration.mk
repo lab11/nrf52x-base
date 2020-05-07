@@ -155,6 +155,7 @@ ifeq ($(SDK_VERSION), 16)
     SOFTDEVICE_VERSION = 0
     USE_BLE = 0 # can't have BLE without a softdevice
   endif
+  BOOTLOADER_HEX = $(NRF_BASE_DIR)/apps/bootloader/$(BOOTLOADER)/_build/$(BOOTLOADER)_sdk$(SDK_VERSION)_$(SOFTDEVICE_MODEL).hex
 endif
 CONFIGURATION_VARS += SDK_VERSION_$(SDK_VERSION)
 

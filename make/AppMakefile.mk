@@ -97,16 +97,14 @@ $(DEBUG_HEX): $(DEBUG_ELF) | $(BUILDDIR)
 	$(TRACE_SIZ)
 	$(Q)$(SIZE) $<
 
-.PHONY: bootloader
-bootloader: $(BUILDDIR)
-	$(Q)cd $(NRF_BASE_DIR)/apps/bootloader/$(BOOTLOADER)/ && KEY_DIR=$(KEY_DIR) make
-	$(Q)cp $(NRF_BASE_DIR)/apps/bootloader/$(BOOTLOADER)/_build/*.hex $(BUILDDIR)
+$(BOOTLOADER_HEX): $(BUILDDIR)
+	$(Q)cd $(NRF_BASE_DIR)/apps/bootloader/$(BOOTLOADER)/ && make KEY_DIR=$(KEY_DIR)
 
 $(BOOTLOADER_SETTINGS): $(HEX)
 	$(Q)$(NRFUTIL) $(NRFUTIL_SETTINGS_GEN_FLAGS)
 
-$(MERGED_HEX): bootloader $(HEX) $(BOOTLOADER_SETTINGS)
-	$(Q)$(MERGEHEX) --overlap=replace $(HEX) $(BUILDDIR)$(OUTPUT_NAME)_settings.hex $(MBR_PATH) $(BUILDDIR)$(BOOTLOADER)*.hex $(MBR_PATH) -o $(MERGED_HEX)
+$(MERGED_HEX): $(BOOTLOADER_HEX) $(HEX) $(BOOTLOADER_SETTINGS)
+	$(Q)$(MERGEHEX) --overlap=replace $(HEX) $(BUILDDIR)$(OUTPUT_NAME)_settings.hex $(MBR_PATH) $(BOOTLOADER_HEX) $(MBR_PATH) -o $(MERGED_HEX)
 
 .PHONY: debug
 debug: $(DEBUG_OBJS) $(DEBUG_OBJS_AS) $(DEBUG_HEX)
@@ -125,6 +123,9 @@ size: $(ELF)
 clean::
 	@echo " Cleaning..."
 	$(Q)rm -rf $(BUILDDIR)
+ifeq ($(USE_BOOTLOADER), 1)
+	$(Q)cd $(NRF_BASE_DIR)/apps/bootloader/$(BOOTLOADER)/ && make clean
+endif
 
 .PHONY: pbclean
 pbclean::
