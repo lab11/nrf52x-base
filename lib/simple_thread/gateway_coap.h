@@ -12,4 +12,4 @@
 otError gateway_coap_send(const otIp6Address* dest, const char* path, bool confirmable, Message* msg);
 
 otError gateway_coap_block_send(const otIp6Address* dest_addr, block_info* b_info,
-    Message* msg, block_finalize_cb cb);
+    Message* msg, block_finalize_cb cb, const uint8_t* existing_buffer);

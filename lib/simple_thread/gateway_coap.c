@@ -20,6 +20,7 @@
 
 static uint32_t seq_no = 0;
 static uint8_t* message_buf = NULL;
+static bool alloc = false;
 static block_finalize_cb callback;
 extern uint8_t device_id[6];
 
@@ -32,7 +33,10 @@ static const otIp6Address unspecified_ipv6 =
 };
 
 void gateway_block_finalize(uint8_t code, otError result) {
-  free(message_buf);
+  if (alloc) {
+    free(message_buf);
+  }
+  alloc = false;
   callback(code, result);
 }
 
@@ -101,7 +105,7 @@ otError gateway_coap_send(const otIp6Address* dest_addr,
 }
 
 otError gateway_coap_block_send(const otIp6Address* dest_addr, block_info* b_info,
-    Message* msg, block_finalize_cb cb) {
+    Message* msg, block_finalize_cb cb, const uint8_t* existing_buffer) {
   otInstance * thread_instance = thread_get_instance();
   callback = cb;
 
@@ -120,7 +124,13 @@ otError gateway_coap_block_send(const otIp6Address* dest_addr, block_info* b_inf
   memcpy(&(msg->header), &header, sizeof(header));
 
   pb_ostream_t stream;
-  message_buf = malloc(b_info->data_len + 256);
+  if (existing_buffer != NULL) {
+    message_buf = existing_buffer;
+    alloc = false;
+  } else {
+    message_buf = malloc(b_info->data_len + 256);
+    alloc = true;
+  }
   if(message_buf == NULL) {
     return NRF_ERROR_INVALID_PARAM;
   }
