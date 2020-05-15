@@ -18,6 +18,8 @@ MERGEHEX = $(NRF_BASE_DIR)/make/intelhex/scripts/hexmerge.py
 NRFUTIL = nrfutil
 PRIVATE_KEY ?= private.pem
 
+HW_VERSION ?= 52
+
 # Default port for GDB
 GDB_PORT_NUMBER ?= 2331
 
@@ -67,7 +69,11 @@ endif
 # ---- JTAG rules
 
 .PHONY: flash
+ifeq ($(USE_BOOTLOADER),1)
+flash: all test_softdevice flash_bootloader
+else
 flash: all test_softdevice
+endif
 	$(Q)printf "r\n" > $(BUILDDIR)flash.jlink
 ifdef ID
 	$(Q)printf "w4 $(ID_FLASH_LOCATION), 0x$(ID_SECON) 0x$(ID_FIRST)\n" >> $(BUILDDIR)flash.jlink
@@ -110,13 +116,19 @@ flash_mbr: $(BUILDDIR) $(MBR_PATH)
 	$(Q)printf "loadfile $(MBR_PATH) \nr\ng\nexit\n" > $(BUILDDIR)flash_mbr.jlink
 	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)flash_mbr.jlink
 
+.PHONY: flash_bootloader
+flash_bootloader: bootloader flash_mbr $(BUILDDIR) $(MBR_PATH)
+	$(Q)printf "loadfile $(BOOTLOADER_HEX) \nr\ng\nexit\n" > $(BUILDDIR)flash_bootloader.jlink
+	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)flash_bootloader.jlink
+
+
 .PHONY: erase
 erase: $(BUILDDIR)
 	$(Q)printf "w4 4001e504 2\nw4 4001e50c 1\nsleep 100\nr\nexit\n" > $(BUILDDIR)erase.jlink
 	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)erase.jlink
 
-.PHONY: erase-all
-erase-all: $(BUILDDIR)
+.PHONY: erase_all
+erase_all: $(BUILDDIR)
 	$(Q)printf "erase\nsleep 100\nr\nexit\n" > $(BUILDDIR)erase.jlink
 	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)erase.jlink
 
