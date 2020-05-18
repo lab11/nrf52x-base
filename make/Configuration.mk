@@ -58,6 +58,8 @@ SIZE := $(TOOLCHAIN)-size
 # Git version
 GIT_VERSION := $(shell git describe --abbrev=4 --always --tags)
 BARE_VERSION := $(lastword $(subst v, , $(firstword $(subst -, ,$(GIT_VERSION)))))
+HW_VERSION ?= 52
+MANUF_ID ?= 0
 
 # Pretty-printing rules
 # If environment variable V is non-empty, be verbose
@@ -229,6 +231,7 @@ override CFLAGS += \
     -Wno-unused-parameter\
     -Werror=return-type\
     -Wno-expansion-to-defined\
+    -Wno-packed-bitfield-compat\
     $(CONFIGURATION_DEFINES)\
     $(SDK_DEFINES)\
     -DGIT_VERSION=\"$(GIT_VERSION)\"\
