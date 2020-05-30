@@ -578,7 +578,7 @@ void zb_zgps_set_match_info(const zb_zgps_match_info_t *info);
  *
  * @param cb [in]  Commissioning request callback (@ref zb_zgp_comm_req_cb_t)
  *
- * @snippet tests/zgp/gppb/test_gps_decommissioning/dut_gps.c accept_comm
+ * @snippet doxygen_snippets.dox accept_comm
  */
 void zb_zgps_register_comm_req_cb(zb_zgp_comm_req_cb_t cb);
 #define ZB_ZGP_REGISTER_COMM_REQ_CB(cb) \

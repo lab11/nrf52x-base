@@ -70,7 +70,7 @@ PURPOSE: IAS Ancillary Control Equipment device definition
     @snippet doxygen_snippets.dox HANDLER_snippet_color_scene_controller_c
     @par
 
-    The complete set of IAS Zone samples can be found in /snippet/color_scene_control.c
+    The complete set of IAS Zone samples can be found in /application/ias_zone_sensor
 */
 
 /** HA IAS Zone device version */

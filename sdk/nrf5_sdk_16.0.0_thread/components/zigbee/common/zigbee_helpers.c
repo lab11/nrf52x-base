@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018 - 2019, Nordic Semiconductor ASA
+ * Copyright (c) 2018 - 2020, Nordic Semiconductor ASA
  *
  * All rights reserved.
  *
@@ -48,6 +48,7 @@
 #include "nrf_gpio.h"
 #include "nrf_log.h"
 #include "boards.h"
+#include "nrfx_power.h"
 
 #ifdef BOARD_PCA10056
 #define ERASE_PIN    NRF_GPIO_PIN_MAP(1,9)                                          /**< Pin 1.09. */
@@ -60,6 +61,45 @@
 #endif
 #define READ_RETRIES 10                                                             /**< Number of retries until the pin value stabilizes. */
 
+#ifndef ZB_DEV_REJOIN_TIMEOUT_MS
+#define ZB_DEV_REJOIN_TIMEOUT_MS (1000 * 200)                                       /**< Timeout after which End Device stops to send beacons if can not join/rejoin a network. */
+#endif
+#define REJOIN_INTERVAL_MAX_S    (15 * 60)                                          /**< Maximum interval between join/rejoin attempts. */
+
+#define RAM_START_ADDRESS           0x20000000UL                                    /**< Start address of RAM. */
+#define RAM_BANK_0_7_SECTION_SIZE   0x1000                                          /**< Size of RAM section for banks 0-7. */
+#define RAM_BANK_0_7_SECTIONS_NBR   2                                               /**< Number of sections in banks 0-7. */
+#define RAM_BANK_8_SECTION_SIZE     0x8000                                          /**< Size of RAM section for bank 8. */
+#define RAM_BANK_8_SECTIONS_NBR     6                                               /**< Number of sections in bank 8. */
+
+/* Define address of RAM region which can be used by application.
+ * GCC, SES compiler and Keil compiler has memory layout
+ * with stack being placed at the end of the RAM.
+ * For those compilers end of RAM can be determined by top of the stack.
+ * IAR has different layout and address of end of RAM
+ * is determined by linker symbol.
+ */
+#if defined ( __ICCARM__ )
+#define RAM_END_ADDRESS ((uint32_t)&__ICFEDIT_region_RAM_end__)
+
+extern char __ICFEDIT_region_RAM_end__;
+#else
+#define RAM_END_ADDRESS ((uint32_t)STACK_TOP)
+#endif /* defined __ICCARM__ */
+
+static zb_uint8_t           m_stack_initialised             = ZB_FALSE;
+static zb_uint8_t           m_is_rejoin_procedure_started   = ZB_FALSE;
+static zb_uint8_t           m_is_rejoin_stop_requested      = ZB_FALSE;
+static zb_uint8_t           m_is_rejoin_in_progress         = ZB_FALSE;
+static zb_uint8_t           m_rejoin_attempt_cnt            = 0;
+#if defined ZB_ED_ROLE
+static volatile zb_uint8_t  m_wait_for_user_input           = ZB_FALSE;
+static volatile zb_uint8_t  m_is_rejoin_start_scheduled     = ZB_FALSE;
+#endif
+
+static void rejoin_the_network(zb_uint8_t param);
+static void start_network_rejoin(void);
+static void stop_network_rejoin(zb_uint8_t was_scheduled);
 
 /**@brief Function to set the Erase persistent storage depending on the erase pin
  */
@@ -255,6 +295,25 @@ zb_ret_t zigbee_default_signal_handler(zb_bufid_t bufid)
             }
             else
             {
+                zb_production_config_ver_1_t *prod_conf = ZB_ZDO_SIGNAL_GET_PARAMS(p_sg_p, zb_production_config_ver_1_t);
+                char ieee_addr_buf[17] = {0};
+                int  addr_len;
+
+                NRF_LOG_INFO("Loading application production config");
+
+                /* IEEE address is automatically parsed and set by the ZBOSS stack. */
+                addr_len = ieee_addr_to_str(ieee_addr_buf, sizeof(ieee_addr_buf), prod_conf->extended_address);
+                if (addr_len < 0)
+                {
+                    strcpy(ieee_addr_buf, "unknown");
+                }
+                NRF_LOG_INFO("\tIEEE address: %s", NRF_LOG_PUSH(ieee_addr_buf));
+
+                /* Channel mask has to be parsed and applied manually. */
+                zb_set_bdb_primary_channel_set(prod_conf->aps_channel_mask);
+                zb_set_bdb_secondary_channel_set(prod_conf->aps_channel_mask);
+                NRF_LOG_INFO("\tChannel mask %08lx", prod_conf->aps_channel_mask);
+
                 NRF_LOG_INFO("Production configuration successfully loaded");
             }
             break;
@@ -267,6 +326,7 @@ zb_ret_t zigbee_default_signal_handler(zb_bufid_t bufid)
              *
              * Next step: perform BDB initialization procedure (see BDB specification section 7.1).
              */
+            m_stack_initialised = ZB_TRUE;
             NRF_LOG_INFO("Zigbee stack initialized");
             comm_status = bdb_start_top_level_commissioning(ZB_BDB_INITIALIZATION);
             break;
@@ -287,7 +347,7 @@ zb_ret_t zigbee_default_signal_handler(zb_bufid_t bufid)
                 if (role != ZB_NWK_DEVICE_TYPE_COORDINATOR)
                 {
                     NRF_LOG_INFO("Start network steering");
-                    comm_status = bdb_start_top_level_commissioning(ZB_BDB_NETWORK_STEERING);
+                    start_network_rejoin();
                 }
                 else
                 {
@@ -321,6 +381,8 @@ zb_ret_t zigbee_default_signal_handler(zb_bufid_t bufid)
                     strcpy(ieee_addr_buf, "unknown");
                 }
 
+                /* Device has joined the network so stop the network rejoin procedure. */
+                stop_network_rejoin(ZB_FALSE);
                 NRF_LOG_INFO("Joined network successfully on reboot signal (Extended PAN ID: %s, PAN ID: 0x%04hx)", NRF_LOG_PUSH(ieee_addr_buf), ZB_PIBCACHE_PAN_ID());
             }
             else
@@ -328,7 +390,7 @@ zb_ret_t zigbee_default_signal_handler(zb_bufid_t bufid)
                 if (role != ZB_NWK_DEVICE_TYPE_COORDINATOR)
                 {
                     NRF_LOG_INFO("Unable to join the network, start network steering");
-                    comm_status = bdb_start_top_level_commissioning(ZB_BDB_NETWORK_STEERING);
+                    start_network_rejoin();
                 }
                 else
                 {
@@ -360,23 +422,28 @@ zb_ret_t zigbee_default_signal_handler(zb_bufid_t bufid)
                 }
 
                 NRF_LOG_INFO("Joined network successfully (Extended PAN ID: %s, PAN ID: 0x%04hx)", NRF_LOG_PUSH(ieee_addr_buf), ZB_PIBCACHE_PAN_ID());
+
+                /* Device has joined the network so stop the network rejoin procedure. */
+                if (role != ZB_NWK_DEVICE_TYPE_COORDINATOR)
+                {
+                    stop_network_rejoin(ZB_FALSE);
+                }
             }
             else
             {
                 if (role != ZB_NWK_DEVICE_TYPE_COORDINATOR)
                 {
-                    NRF_LOG_INFO("Restart network steering after 1 second (status: %d)", status);
-                    ret_code = ZB_SCHEDULE_APP_ALARM(
-                                    (zb_callback_t)bdb_start_top_level_commissioning,
-                                    ZB_BDB_NETWORK_STEERING,
-                                    ZB_TIME_ONE_SECOND
-                                   );
+                    NRF_LOG_INFO("Network steering was not successful (status: %d)", status);
+                    start_network_rejoin();
                 }
                 else
                 {
                     NRF_LOG_INFO("Network steering failed on Zigbee coordinator (status: %d)", status);
                 }
             }
+#ifndef ZB_ED_ROLE
+            zb_enable_auto_pan_id_conflict_resolution(ZB_FALSE);
+#endif
             break;
 
         case ZB_BDB_SIGNAL_FORMATION:
@@ -428,11 +495,17 @@ zb_ret_t zigbee_default_signal_handler(zb_bufid_t bufid)
             {
                 zb_zdo_signal_leave_params_t * p_leave_params = ZB_ZDO_SIGNAL_GET_PARAMS(p_sg_p, zb_zdo_signal_leave_params_t);
                 NRF_LOG_INFO("Network left (leave type: %d)", p_leave_params->leave_type);
+
+                /* Start network rejoin procedure */
+                start_network_rejoin();
             }
             else
             {
                 NRF_LOG_ERROR("Unable to leave network (status: %d)", status);
             }
+#ifndef ZB_ED_ROLE
+            zb_enable_auto_pan_id_conflict_resolution(ZB_FALSE);
+#endif
             break;
 
         case ZB_ZDO_SIGNAL_LEAVE_INDICATION:
@@ -553,6 +626,30 @@ zb_ret_t zigbee_default_signal_handler(zb_bufid_t bufid)
             NRF_LOG_INFO("Find and bind target finished (status: %d)", status);
             break;
 
+#ifndef ZB_ED_ROLE
+        case ZB_NWK_SIGNAL_PANID_CONFLICT_DETECTED:
+            /* This signal informs the Router and Coordinator that conflict PAN ID has been detected
+             * and needs to be resolved. In order to do that *zb_start_pan_id_conflict_resolution* is called.
+             */
+            {
+                NRF_LOG_INFO("PAN ID conflict detected, trying to resolve... ");
+
+                zb_bufid_t buf_copy = zb_buf_get_out();
+                if (buf_copy)
+                {
+                    zb_buf_copy(buf_copy, bufid);
+                    ZVUNUSED(ZB_ZDO_SIGNAL_CUT_HEADER(buf_copy));
+
+                    zb_start_pan_id_conflict_resolution(buf_copy);
+                }
+                else
+                {
+                    NRF_LOG_ERROR("No free buffer available, skipping conflict resolving this time.")
+                }
+            }
+            break;
+#endif
+
         case ZB_ZDO_SIGNAL_DEFAULT_START:
         case ZB_NWK_SIGNAL_DEVICE_ASSOCIATED:
             /* Obsolete signals, used for pre-R21 ZBOSS API. Ignore. */
@@ -563,6 +660,9 @@ zb_ret_t zigbee_default_signal_handler(zb_bufid_t bufid)
             NRF_LOG_INFO("Unimplemented signal (signal: %d, status: %d)", sig, status);
             break;
     }
+
+    /* If configured, process network rejoin procedure. */
+    rejoin_the_network(0);
 
     if ((ret_code == RET_OK) && (comm_status != ZB_TRUE))
     {
@@ -601,4 +701,253 @@ void zigbee_led_status_update(zb_bufid_t bufid, uint32_t led_idx)
         default:
             break;
     }
+}
+
+/**@brief Start network steering.
+ */
+static void start_network_steering(zb_uint8_t param)
+{
+    ZVUNUSED(param);
+    ZVUNUSED(bdb_start_top_level_commissioning(ZB_BDB_NETWORK_STEERING));
+}
+
+/**@brief Process rejoin procedure. To be called in signal handler.
+ */
+static void rejoin_the_network(zb_uint8_t param)
+{
+    ZVUNUSED(param);
+
+    if (m_stack_initialised && m_is_rejoin_procedure_started)
+    {
+        if (m_is_rejoin_stop_requested)
+        {
+            m_is_rejoin_procedure_started = ZB_FALSE;
+            m_is_rejoin_stop_requested = ZB_FALSE;
+
+#if defined ZB_ED_ROLE
+            NRF_LOG_INFO("Network rejoin procedure stopped as %sscheduled.", (m_wait_for_user_input) ? "" : "NOT ");
+#elif defined ZB_ROUTER_ROLE
+            NRF_LOG_INFO("Network rejoin procedure stopped.");
+#endif
+        }
+        else if (!m_is_rejoin_in_progress)
+        {
+            /* Calculate new timeout */
+            zb_time_t timeout_s;
+            if ((1 << m_rejoin_attempt_cnt) > REJOIN_INTERVAL_MAX_S)
+            {
+                timeout_s = REJOIN_INTERVAL_MAX_S;
+            }
+            else
+            {
+                timeout_s = (1 << m_rejoin_attempt_cnt);
+                m_rejoin_attempt_cnt++;
+            }
+
+            zb_ret_t zb_err_code = ZB_SCHEDULE_APP_ALARM(start_network_steering, ZB_FALSE, ZB_MILLISECONDS_TO_BEACON_INTERVAL(timeout_s * 1000));
+            ZB_ERROR_CHECK(zb_err_code);
+
+            m_is_rejoin_in_progress= ZB_TRUE;
+        }
+    }
+}
+
+/**@brief Function for starting rejoin network procedure.
+ *
+ * @note  For Router device if stack is initialised, device is not joined
+ *        and rejoin procedure is not running, start rejoin procedure.
+ *
+ * @note  For End Device if stack is initialised, rejoin procedure is not running,
+ *        device is not joined and device is not waiting for the user input, start rejoin procedure.
+ *        Additionally, schedule alarm to stop rejoin procedure after the timeout defined by ZB_DEV_REJOIN_TIMEOUT_MS.
+ */
+static void start_network_rejoin(void)
+{
+#if defined ZB_ED_ROLE
+    if (!ZB_JOINED() && m_stack_initialised && !m_wait_for_user_input)
+#elif defined ZB_ROUTER_ROLE
+    if (!ZB_JOINED() && m_stack_initialised)
+#endif
+    {
+        m_is_rejoin_in_progress         = ZB_FALSE;
+
+        if (!m_is_rejoin_procedure_started)
+        {
+            m_is_rejoin_procedure_started   = ZB_TRUE;
+            m_is_rejoin_stop_requested      = ZB_FALSE;
+            m_is_rejoin_in_progress         = ZB_FALSE;
+            m_rejoin_attempt_cnt            = 0;
+
+#if defined ZB_ED_ROLE
+            m_wait_for_user_input           = ZB_FALSE;
+            m_is_rejoin_start_scheduled     = ZB_FALSE;
+
+            zb_ret_t zb_err_code = ZB_SCHEDULE_APP_ALARM(stop_network_rejoin, ZB_TRUE, ZB_MILLISECONDS_TO_BEACON_INTERVAL(ZB_DEV_REJOIN_TIMEOUT_MS));
+            ZB_ERROR_CHECK(zb_err_code);
+#endif
+
+            NRF_LOG_INFO("Started network rejoin procedure.");
+        }
+    }
+}
+
+/**@brief Function for stopping rejoin network procedure and related scheduled alarms.
+ *
+ * @param[in] was_scheduled   Zigbee flag to indicate if the function was scheduled or called directly.
+ */
+static void stop_network_rejoin(zb_uint8_t was_scheduled)
+{
+    /* For Router and End Device:
+     *   Try to stop scheduled network steering. Stop rejoin procedure or if no network steering was scheduled,
+     *   request rejoin stop on next rejoin_the_network() call.
+     * For End Device only:
+     *   If stop_network_rejoin() was called from scheduler, the rejoin procedure has reached timeout,
+     *   set m_wait_for_user_input to ZB_TRUE so the rejoin procedure can only be started by calling user_input_indicate().
+     *   If not, set m_wait_for_user_input to ZB_FALSE.
+     */
+
+    zb_ret_t zb_err_code;
+
+#if defined ZB_ED_ROLE
+    /* Set m_wait_for_user_input depending on if the device should retry joining on user_input_indication() */
+    m_wait_for_user_input = was_scheduled;
+#elif defined ZB_ROUTER_ROLE
+    ZVUNUSED(was_scheduled);
+#endif
+
+    if (m_is_rejoin_procedure_started)
+    {
+        zb_err_code = ZB_SCHEDULE_APP_ALARM_CANCEL(start_network_steering, ZB_ALARM_ANY_PARAM);
+        if (zb_err_code == RET_OK)
+        {
+            /* Stop rejoin procedure */
+            m_is_rejoin_procedure_started = ZB_FALSE;
+            m_is_rejoin_stop_requested = ZB_FALSE;
+#if defined ZB_ED_ROLE
+            NRF_LOG_INFO("Network rejoin procedure stopped as %sscheduled.", (m_wait_for_user_input) ? "" : "not ");
+#elif defined ZB_ROUTER_ROLE
+            NRF_LOG_INFO("Network rejoin procedure stopped.");
+#endif
+        }
+        else
+        {
+            /* Request rejoin procedure stop */
+            m_is_rejoin_stop_requested = ZB_TRUE;
+        }
+    }
+
+#if defined ZB_ED_ROLE
+    /* Make sure scheduled stop alarm is canceled. */
+    zb_err_code = ZB_SCHEDULE_APP_ALARM_CANCEL(stop_network_rejoin, ZB_ALARM_ANY_PARAM);
+    if (zb_err_code != RET_NOT_FOUND)
+    {
+        ZB_ERROR_CHECK(zb_err_code);
+    }
+#endif
+}
+
+#if defined ZB_ED_ROLE
+/* Function to be scheduled when user_input_indicate() is called and m_wait_for_user_input is ZB_TRUE */
+static void start_network_rejoin_ED(zb_uint8_t param)
+{
+    ZVUNUSED(param);
+    if (!ZB_JOINED() && m_wait_for_user_input)
+    {
+        zb_ret_t zb_err_code;
+
+        m_wait_for_user_input = ZB_FALSE;
+        start_network_rejoin();
+
+        zb_err_code = ZB_SCHEDULE_APP_ALARM(rejoin_the_network, 0, ZB_TIME_ONE_SECOND);
+        ZB_ERROR_CHECK(zb_err_code);
+    }
+    m_is_rejoin_start_scheduled = ZB_FALSE;
+}
+
+/* Function to be called by an application e.g. inside button handler function */
+void user_input_indicate(void)
+{
+    if (m_wait_for_user_input && !(m_is_rejoin_start_scheduled))
+    {
+        zb_ret_t zb_err_code = RET_OK;
+
+        zb_err_code = ZB_SCHEDULE_APP_CALLBACK(start_network_rejoin_ED, 0);
+        ZB_ERROR_CHECK(zb_err_code);
+
+        /* Prevent scheduling multiple rejoin starts */
+        if (!zb_err_code)
+        {
+            m_is_rejoin_start_scheduled = ZB_TRUE;
+        }
+    }
+}
+#endif
+
+/**@bried Calculate bottom addresss of RAM bank with given id.
+ *
+ * @param[in] bank_id  ID of RAM bank to get start address of.
+ *
+ * @return    Start address of RAM bank.
+ */
+static inline uint32_t ram_bank_bottom_addr(uint8_t bank_id)
+{
+    return RAM_START_ADDRESS + bank_id * RAM_BANK_0_7_SECTION_SIZE * RAM_BANK_0_7_SECTIONS_NBR;
+}
+
+/* Function for powering down unused RAM. */
+void zigbee_power_down_unused_ram(void)
+{
+#if defined(NRF52811_XXAA) || defined(NRF52833_XXAA) || defined(NRF52840_XXAA)
+
+    /* ID of top RAM bank */
+#if defined(NRF52811_XXAA)
+    uint8_t     bank_id                 = 3;
+#elif defined(NRF52833_XXAA) || defined(NRF52840_XXAA)
+    uint8_t     bank_id                 = 8;
+#endif
+    uint8_t     section_id              = 5;
+    uint32_t    section_size            = 0;
+    /* Mask to power down whole RAM bank */
+    uint32_t    ram_bank_power_off_mask = 0xFFFFFFFF;
+
+    /* Power off banks with unused RAM only */
+    while (RAM_END_ADDRESS <= ram_bank_bottom_addr(bank_id))
+    {
+        NRF_LOG_DEBUG("Powering off bank: %d.", bank_id);
+#ifdef SOFTDEVICE_PRESENT
+        ret_code_t ret_val;
+
+        ret_val = sd_power_ram_power_clr(bank_id, ram_bank_power_off_mask);
+        APP_ERROR_CHECK(ret_val);
+#else
+        nrf_power_rampower_mask_off(bank_id, ram_bank_power_off_mask);
+#endif /* defined SOFTDEVICE_PRESENT*/
+        bank_id--;
+    }
+
+    /* Set id of top section and section size for given bank */
+    section_id = (bank_id == 8) ? (RAM_BANK_8_SECTIONS_NBR - 1) : (RAM_BANK_0_7_SECTIONS_NBR - 1);
+    section_size = (bank_id == 8) ? RAM_BANK_8_SECTION_SIZE : RAM_BANK_0_7_SECTION_SIZE;
+
+    /* Power off remaining sections of unused RAM */
+    while (RAM_END_ADDRESS <= (ram_bank_bottom_addr(bank_id) + section_id * section_size))
+    {
+        NRF_LOG_DEBUG("Powering off section %d of bank %d.", section_id, bank_id);
+#ifdef SOFTDEVICE_PRESENT
+        ret_code_t ret_val;
+
+        ret_val = sd_power_ram_power_clr(bank_id, ((NRF_POWER_RAMPOWER_S0POWER << section_id) |
+                                                   (NRF_POWER_RAMPOWER_S0RETENTION << section_id)));
+        APP_ERROR_CHECK(ret_val);
+#else
+        nrf_power_rampower_mask_off(bank_id, ((NRF_POWER_RAMPOWER_S0POWER << section_id) |
+                                              (NRF_POWER_RAMPOWER_S0RETENTION << section_id)));
+#endif /* defined SOFTDEVICE_PRESENT*/
+
+        section_id--;
+    }
+
+#else
+#warning "Unsupported MCU - No RAM is powered down"
+#endif /* defined NRF52811_XXAA || defined NRF52833_XXAA || defined NRF52840_XXAA */
 }

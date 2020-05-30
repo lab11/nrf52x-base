@@ -195,17 +195,18 @@
           <state>OPENTHREAD_CONFIG_LINK_RAW_ENABLE=1</state>
           <state>OPENTHREAD_CONFIG_MAC_FILTER_ENABLE=1</state>
           <state>OPENTHREAD_CONFIG_NCP_UART_ENABLE=1</state>
+          <state>OPENTHREAD_CONFIG_THREAD_VERSION=2</state>
           <state>OPENTHREAD_CONFIG_TMF_NETWORK_DIAG_MTD_ENABLE=1</state>
           <state>OPENTHREAD_CORE_CONFIG_PLATFORM_CHECK_FILE="openthread-core-nrf52811-config-check.h"</state>
           <state>OPENTHREAD_ENABLE_NCP_SPINEL_ENCRYPTER=0</state>
-          <state>OPENTHREAD_ENABLE_POSIX_APP_DAEMON=0</state>
           <state>OPENTHREAD_ENABLE_VENDOR_EXTENSION=0</state>
-          <state>OPENTHREAD_PLATFORM_POSIX_APP=0</state>
+          <state>OPENTHREAD_EXAMPLES_SIMULATION=0</state>
+          <state>OPENTHREAD_PLATFORM_POSIX=0</state>
+          <state>OPENTHREAD_POSIX_CONFIG_DAEMON_ENABLE=0</state>
           <state>OPENTHREAD_PROJECT_CORE_CONFIG_FILE="openthread-core-nrf52811-config.h"</state>
           <state>RAAL_SINGLE_PHY=1</state>
           <state>UART_AS_SERIAL_TRANSPORT=1</state>
-          <state>_BSD_SOURCE=1</state>
-          <state>_DEFAULT_SOURCE=1</state>
+          <state>USE_APP_CONFIG=1</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -344,13 +345,14 @@
           <state>$PROJ_DIR$\..\..\..\..\openthread\src\core</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\cmsis</state>
+          <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\config</state>
+          <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\config\nrf52811\config</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\dependencies</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\drivers\clock</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\drivers\common</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\drivers\power</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\drivers\radio\fem</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\drivers\radio\fem\three_pin_gpio</state>
-          <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\drivers\radio\hal</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\drivers\radio\mac_features</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\drivers\radio\mac_features\ack_generator</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\drivers\radio\rsch</state>
@@ -362,7 +364,6 @@
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\libraries\atfifo</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\libraries\atomic</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\libraries\block_dev</state>
-          <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\libraries\crypto</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\libraries\delay</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\libraries\nrf_security\mbedtls_plat_config</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\libraries\usb</state>
@@ -556,17 +557,18 @@
           <state>OPENTHREAD_CONFIG_LINK_RAW_ENABLE=1</state>
           <state>OPENTHREAD_CONFIG_MAC_FILTER_ENABLE=1</state>
           <state>OPENTHREAD_CONFIG_NCP_UART_ENABLE=1</state>
+          <state>OPENTHREAD_CONFIG_THREAD_VERSION=2</state>
           <state>OPENTHREAD_CONFIG_TMF_NETWORK_DIAG_MTD_ENABLE=1</state>
           <state>OPENTHREAD_CORE_CONFIG_PLATFORM_CHECK_FILE="openthread-core-nrf52811-config-check.h"</state>
           <state>OPENTHREAD_ENABLE_NCP_SPINEL_ENCRYPTER=0</state>
-          <state>OPENTHREAD_ENABLE_POSIX_APP_DAEMON=0</state>
           <state>OPENTHREAD_ENABLE_VENDOR_EXTENSION=0</state>
-          <state>OPENTHREAD_PLATFORM_POSIX_APP=0</state>
+          <state>OPENTHREAD_EXAMPLES_SIMULATION=0</state>
+          <state>OPENTHREAD_PLATFORM_POSIX=0</state>
+          <state>OPENTHREAD_POSIX_CONFIG_DAEMON_ENABLE=0</state>
           <state>OPENTHREAD_PROJECT_CORE_CONFIG_FILE="openthread-core-nrf52811-config.h"</state>
           <state>RAAL_SINGLE_PHY=1</state>
           <state>UART_AS_SERIAL_TRANSPORT=1</state>
-          <state>_BSD_SOURCE=1</state>
-          <state>_DEFAULT_SOURCE=1</state>
+          <state>USE_APP_CONFIG=1</state>
         </option>
         <option>
           <name>AList</name>
@@ -672,13 +674,14 @@
           <state>$PROJ_DIR$\..\..\..\..\openthread\src\core</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\cmsis</state>
+          <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\config</state>
+          <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\config\nrf52811\config</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\dependencies</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\drivers\clock</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\drivers\common</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\drivers\power</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\drivers\radio\fem</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\drivers\radio\fem\three_pin_gpio</state>
-          <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\drivers\radio\hal</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\drivers\radio\mac_features</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\drivers\radio\mac_features\ack_generator</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\drivers\radio\rsch</state>
@@ -690,7 +693,6 @@
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\libraries\atfifo</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\libraries\atomic</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\libraries\block_dev</state>
-          <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\libraries\crypto</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\libraries\delay</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\libraries\nrf_security\mbedtls_plat_config</state>
           <state>$PROJ_DIR$\..\..\..\..\openthread\third_party\NordicSemiconductor\libraries\usb</state>

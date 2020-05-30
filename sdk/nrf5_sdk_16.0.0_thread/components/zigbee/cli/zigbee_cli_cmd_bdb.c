@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018 - 2019, Nordic Semiconductor ASA
+ * Copyright (c) 2018 - 2020, Nordic Semiconductor ASA
  *
  * All rights reserved.
  *
@@ -450,7 +450,7 @@ static void cmd_zb_install_code(nrf_cli_t const * p_cli, size_t argc, char **arg
         print_usage(p_cli, argv[0],
                     "ic - set or add install code. Enable IC policy.\r\n"
                     "ic set <h:install code> - set the ic code to <install_code>\r\n"
-                    "ic add <h:install code> <h:eui64> - add ic for device with given eui43\r\n"
+                    "ic add <h:install code> <h:eui64> - add ic for device with given eui64\r\n"
                     "ic policy - set Trust Center install code policy");
         return;
     }
@@ -471,6 +471,13 @@ static void cmd_zb_install_code(nrf_cli_t const * p_cli, size_t argc, char **arg
     }
     else if ((argc == 3) && (strcmp(argv[0], "add") == 0))
     {
+        /* Check if stack is initialized as Install Code can not be added until production config is initialised.*/
+        if (!m_stack_is_started)
+        {
+            print_error(p_cli, "Stack not started", ZB_FALSE);
+            return;
+        }
+
         if (!parse_hex_str(argv[1], strlen(argv[1]), ic, sizeof(ic), false))
         {
             p_err_msg = "Failed to parse IC";
@@ -659,6 +666,66 @@ static void cmd_zb_factory_reset(nrf_cli_t const * p_cli, size_t argc, char **ar
     print_done(p_cli, ZB_FALSE);
 }
 
+/** @brief Set amount of the child devices which can be connected to the device.
+ *
+ * @code
+ * bdb child_max <d:children_nbr>
+ * @endcode
+ *
+ *  @pre Setting only before @ref start "bdb start".
+ *
+ * If the argument is provided and `children_nbr` is in [0:32] range, set to that number.
+ * Otherwise, return error.
+ *
+ *
+ * Example:
+ * @code
+ * > bdb child_max 16
+ * Setting max children to: 16
+ * Done
+ * @endcode
+ */
+static void cmd_child_max(nrf_cli_t const * p_cli, size_t argc, char **argv)
+{
+    uint32_t child_max = 0xFFFFFFFF;
+
+    if (nrf_cli_help_requested(p_cli))
+    {
+        print_usage(p_cli, argv[0],
+                    "child_max <d:children_nbr> - set the amount of child devices to <children_nbr>\r\n"
+                    "If n is [0:32], set to that number. Otherwise, return error.");
+        return;
+    }
+
+    /* Two argc - set the amount of the max_children */
+    if (argc == 2)
+    {
+        if (m_stack_is_started)
+        {
+            print_error(p_cli, "Stack already started", ZB_FALSE);
+            return;
+        }
+
+        sscanf(argv[1], "%ld", &child_max);
+        if (child_max > 32)
+        {
+            print_error(p_cli, "Children device number must be within [0:32]", ZB_FALSE);
+            return;
+        }
+        else
+        {
+            /* Set the value by calling ZBOSS API */
+            zb_set_max_children(child_max);
+            nrf_cli_fprintf(p_cli, NRF_CLI_NORMAL, "Setting max children to: %d", child_max);
+        }
+
+        print_done(p_cli, ZB_TRUE);
+    }
+    else
+    {
+        print_error(p_cli, "Wrong number of arguments", ZB_FALSE);
+    }
+}
 
 zb_bool_t zb_cli_is_stack_started(void)
 {
@@ -684,6 +751,7 @@ NRF_CLI_CREATE_STATIC_SUBCMD_SET(m_sub_bdb)
     NRF_CLI_CMD(legacy, NULL, "legacy mode enable/disable", cmd_zb_legacy),
     NRF_CLI_CMD(nwkkey, NULL, "network key set", cmd_zb_nwkkey),
     NRF_CLI_CMD(factory_reset, NULL, "factory reset", cmd_zb_factory_reset),
+    NRF_CLI_CMD(child_max, NULL, "max_child set", cmd_child_max),
     NRF_CLI_SUBCMD_SET_END
 };
 

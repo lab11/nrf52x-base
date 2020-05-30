@@ -70,7 +70,7 @@ PURPOSE: Mains power outlet device definition
     @snippet doxygen_snippets.dox HANDLER_snippet_ha_mains_power_outlet_sample_c
     @par
 
-    The complete set of Mains Power Outlet device samples can be found in /snippet/ha_mains_power_outlet_sample.c. 
+    The complete set of Mains Power Outlet device samples can be found in /application/HA_samples/mains_power_outlet
 */
 
 #define ZB_HA_DEVICE_VER_MAINS_POWER_OUTLET 0  /*!< Mains power outlet device version */

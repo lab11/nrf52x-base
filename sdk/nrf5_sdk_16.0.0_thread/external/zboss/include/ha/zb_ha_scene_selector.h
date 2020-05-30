@@ -69,7 +69,7 @@ PURPOSE: Scene selector device definition
     @snippet doxygen_snippets.dox HANDLER_snippet_ha_scene_selector_sample_c
     @par
 
-    The complete set of Scene Selector device samples can be found in /snippet/ha_scene_selector_sample.c.
+    The complete set of Scene Selector device samples can be found in /application/HA_samples/scene_selector
 */
 
 #define ZB_HA_DEVICE_VER_SCENE_SELECTOR 0  /*!< Scene selector device version */

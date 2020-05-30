@@ -71,7 +71,7 @@ PURPOSE: IAS Control and Indicating Equipment device definition
     @snippet doxygen_snippets.dox HANDLER_snippet_color_scene_controller_c
     @par
 
-    The complete set of IAS Control and Indicating Equipment samples can be found in /snippet/color_scene_control.c
+    The complete set of IAS Control and Indicating Equipment samples can be found in /application/HA_samples/ias_control_indicating_equipment
 */
 
 #define ZB_HA_IAS_CONTROL_INDICATING_EQUIPMENT_VER 0   /*!< IAS ACE device version */

@@ -1254,10 +1254,16 @@ typedef enum zb_zcl_device_callback_id_e
    *
    */
   ZB_ZCL_WWAH_DISABLE_APP_EVENT_RETRY_ALGORITHM_CB_ID,
-  /** @b Server. Inform user about Control4 Network ZAP information changes */
+  /** @b Server. Inform user application about Control4 Network ZAP information
+   * changes (event=ZB_ZCL_CONTROL4_NETWORK_ZAP_UPDATED) or failure to get changes
+   * (event=ZB_ZCL_CONTROL4_NETWORK_ZAP_DISCOVER_FAILED) after expiring the
+   * ZB_ZCL_CONTROL4_NETWORK_SEARCHING_ZAP_ATTEMPTS retries
+   *
+   * @param[in] param_in zb_zcl_control4_zap_info_notify_t
+   */
   ZB_ZCL_CONTROL4_NETWORK_ZAP_INFO_CB_ID,
   /** @b Server. Inform user about receiving "Debug Report Query" command.
-   * If debug report exists, application must return pointer to tjis report   
+   * If debug report exists, application must return pointer to tjis report
    * User's application callback is initialized by RET_NOT_FOUND status of device
    * callback parameter.
    *
@@ -1267,7 +1273,7 @@ typedef enum zb_zcl_device_callback_id_e
    *                  For example:
    *                  zb_zcl_wwah_debug_report_t debug_report_table[10]
    *                  ZB_ZCL_DEVICE_CMD_PARAM_OUT_SET(param, &debug_report_table[4]);
-   * @return RET_ERROR, RET_NOT_FOUND - command is handled with errors. 
+   * @return RET_ERROR, RET_NOT_FOUND - command is handled with errors.
    *                  Default Response will be send.
    */
   ZB_ZCL_WWAH_DEBUG_REPORT_QUERY_CB_ID,
@@ -1710,8 +1716,8 @@ zb_uint32_t zb_get_bdb_secondary_channel_set(void);
 
 /**
  Enable Zigbee PRO complaint commissioning support
- @param state - 1 to enable trust center require key exchange; 0 -
- disable.
+ @param state - 1 to disable trust center require key exchange; 0 -
+ to enable.
 */
 void zb_bdb_set_legacy_device_support(zb_uint8_t state);
 

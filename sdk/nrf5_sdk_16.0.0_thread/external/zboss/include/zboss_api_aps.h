@@ -43,8 +43,10 @@
 
 /*! \addtogroup aps_api */
 /*! @{ */
-/*! \addtogroup aps_common_constants APS common constants */
-/*! @{ */
+
+/** @addtogroup aps_common_constants APS common constants
+  * @{
+  */
 
 #include "zb_config.h"
 #include "zb_address.h"
@@ -244,13 +246,12 @@ typedef ZB_PACKED_PRE struct zb_aps_hdr_s
 typedef zb_aps_hdr_t zb_apsde_data_indication_t;
 
 /** @} */ /* APS data service */
-
 /** @} */
 
 /** @addtogroup aps_api
- * @{
+ *  @{
  */
- 
+
 /** @addtogroup aps_management_service APS management service
   * @{
   */
@@ -441,7 +442,7 @@ zb_uint8_t zb_aps_get_max_buffer_size(zb_uint16_t short_addr);
 /** @addtogroup aps_api
  * @{
  */
-/*! \addtogroup aps_user_payload APS user payload */
+/*! @addtogroup aps_user_payload APS user payload */
 /*! @{ */
 
 /*!
@@ -486,10 +487,10 @@ typedef enum zb_aps_user_payload_cb_status_e
  * @param *payload_ptr - pointer to user data
  * @param payload_size - size of user data; not more than 82 bytes
  *
- * @return @RET_OK - if transmission was successful scheduled;
- * @return @RET_INVALID_PARAMETER_1 - if the buffer is invalid
- * @return @RET_INVALID_PARAMETER_2 - if the payload_ptr parameter is invalid
- * @return @RET_INVALID_PARAMETER_3 - if the payload_size parameter is too large
+ * @return RET_OK - if transmission was successful scheduled;
+ * @return RET_INVALID_PARAMETER_1 - if the buffer is invalid
+ * @return RET_INVALID_PARAMETER_2 - if the payload_ptr parameter is invalid
+ * @return RET_INVALID_PARAMETER_3 - if the payload_size parameter is too large
  */
 zb_ret_t zb_aps_send_user_payload(
   zb_uint8_t param,

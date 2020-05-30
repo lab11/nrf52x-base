@@ -71,7 +71,7 @@ PURPOSE: Door lock device definition
     @snippet doxygen_snippets.dox HANDLER_snippet_ha_door_lock_sample_c
     @par
 
-    The complete set of Door Lock device samples can be found in /snippet/ha_door_lock_sample.c.
+    The complete set of Door Lock device samples can be found in /application/HA_samples/door_lock
 */
 
 #define ZB_HA_DEVICE_VER_DOOR_LOCK      0   /*!< Door Lock device version */

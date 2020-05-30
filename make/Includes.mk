@@ -716,6 +716,8 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
       THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-platform-utils.a
       THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-nrf52840-sdk.a
       THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-radio.a
+      THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-nrf52840-transport.a
+      THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-nrf52840-transport-none.a
       THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libnordicsemi-nrf52840-radio-driver.a
       THREAD_LIB_FILES += $(NRF_SECURITY)lib/libmbedcrypto_glue.a
       THREAD_LIB_FILES += $(NRF_SECURITY)lib/libmbedcrypto_glue_cc310.a

@@ -1,3 +1,4 @@
+
 /* ZBOSS Zigbee 3.0
  *
  * Copyright (c) 2012-2018 DSR Corporation, Denver CO, USA.
@@ -251,6 +252,9 @@ constants etc.
 
 #define ZB_ZGP_LED_COMMISSIONING_PARAMS ZB_LED_ARG_CREATE(0, ZB_LED_BLINK_HALF_SEC)
 
+/* Enable Control4 Network support */
+#define ZB_CONTROL4_NETWORK_SUPPORT
+
 /* some preconditions and dependencies */
 #ifdef ZB_BDB_TOUCHLINK
 #define ZB_ENABLE_ZLL
@@ -445,6 +449,9 @@ constants etc.
 #define ZB_NO_NVRAM_VER_MIGRATION
 #endif /* ZB_NVRAM_ENABLE_VER_MIGRATION */
 #define ZB_NVRAM_RADIO_OFF_DURING_TRANSACTION
+
+/* Enable Control4 Network support */
+#define ZB_CONTROL4_NETWORK_SUPPORT
 
 #ifndef ZB_CONFIGURABLE_MEM
 #define ZB_CHILD_HASH_TABLE_SIZE (((ZB_IEEE_ADDR_TABLE_SIZE + ZB_IEEE_ADDR_TABLE_SIZE / 3) + 31) / 32 * 32)

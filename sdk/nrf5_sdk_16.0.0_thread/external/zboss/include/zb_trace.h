@@ -47,51 +47,11 @@ PURPOSE: ZigBee trace. Application should include it.
  * @{
  */
 
-#if defined ZB_TRACE_LEVEL || defined DOXYGEN
-
-/** @cond ZBOSS_INTERNAL */
-#define TRACE_ENABLED_(mask,lev) ((lev) <= ZB_TRACE_LEVEL && ((mask) & ZB_TRACE_MASK))
-/** @endcond */ /* ZBOSS_INTERNAL */
-
-/** @cond ZBOSS_INTERNAL */
-/**
- *  @brief Check that trace is enabled for provided level.
- *  To be used in constructions like:
- *  @code
- *  if (TRACE_ENABLED(TRACE_APS3))
- *  {
- *    call_some_complex_trace();
- *  }
- *  @endcode
- *  @param m - trace level macro.
- *  @return 1 if enabled, 0 if disabled.
- */
-#define TRACE_ENABLED(m) TRACE_ENABLED_(m)
-/** @endcond */ /* ZBOSS_INTERNAL */
-
-/** @cond ZBOSS_INTERNAL */
-zb_uint32_t zb_trace_get_counter(void);
-/** @endcond */ /* ZBOSS_INTERNAL */
-
-/** @cond ZBOSS_INTERNAL */
-#ifdef DOXYGEN
-/**
-   Trace file id used by win_com_dump to identify source file.
-
-   Must be first define in the .c file, just before first include directive.
-  @par Example
-  @snippet doxygen_snippets.dox trace_file_id_light_sample_dimmable_light_bulb_c
-  @par
-*/
-#define ZB_TRACE_FILE_ID 12345
-#endif
-/** @endcond */ /* ZBOSS_INTERNAL */
-
-/** @cond ZBOSS_INTERNAL */
+/** @cond internals_doc */
 extern zb_uint8_t g_trace_level, g_o_trace_level;
 extern zb_uint16_t g_trace_mask;
 extern zb_uint_t g_trace_inside_intr;
-/** @endcond */ /* ZBOSS_INTERNAL */
+/** @endcond */ /* internals_doc */
 
 /**
    Set trace level at runtime
@@ -132,7 +92,112 @@ extern zb_uint_t g_trace_inside_intr;
  */
 #define ZB_SET_TRACE_ON() g_trace_level = g_o_trace_level
 
-/** @cond ZBOSS_INTERNAL */
+/** @cond DSR_TRACE */
+/**
+ *  @addtogroup TRACE_SUBSYSTEMS
+ *  @{
+ */
+#define TRACE_SUBSYSTEM_COMMON    0x0001  /**< Common subsystem. */
+#define TRACE_SUBSYSTEM_MEM       0x0002  /**< MEM subsystem (buffers pool). */
+#define TRACE_SUBSYSTEM_MAC       0x0004  /**< MAC subsystem. */
+#define TRACE_SUBSYSTEM_NWK       0x0008  /**< NWK subsystem. */
+
+#define TRACE_SUBSYSTEM_APS       0x0010  /**< APS subsystem. */
+#define TRACE_SUBSYSTEM_CLOUD     0x0020  /**< Interface to the Cloud if used, else free */
+#define TRACE_SUBSYSTEM_ZDO       0x0040  /**< ZDO subsystem. */
+#define TRACE_SUBSYSTEM_SECUR     0x0080  /**< Security subsystem. */
+
+#define TRACE_SUBSYSTEM_ZCL       0x0100  /**< ZCL subsystem. */
+/** @cond DOXYGEN_ZLL_SECTION*/
+#define TRACE_SUBSYSTEM_ZLL       0x0200  /**< ZLL subsystem. */
+/** @endcond */ /* DOXYGEN_ZLL_SECTION */
+/** @cond internals_doc */
+#define TRACE_SUBSYSTEM_JSON      TRACE_SUBSYSTEM_ZLL  /**< JSON decoding is used in app,
+                                           * else free */
+#define TRACE_SUBSYSTEM_SSL       0x0400  /**< SSL subsystem */
+/** @endcond */ /* internals_doc */
+/** @endcond */ /* DSR_TRACE */
+#define TRACE_SUBSYSTEM_APP       0x0800  /**< User Application */
+
+/** @cond internals_doc */
+#define TRACE_SUBSYSTEM_LWIP      0x1000  /* LWIP is used, else free */
+#define TRACE_SUBSYSTEM_ALIEN     0x2000  /* Some special debug */
+/** @endcond */ /* internals_doc */
+#define TRACE_SUBSYSTEM_ZGP       0x4000  /**< ZGP subsystem */
+/** @cond internals_doc */
+#define TRACE_SUBSYSTEM_USB       0x8000
+/** @endcond */ /* internals_doc */
+
+#define TRACE_SUBSYSTEM_OTA TRACE_SUBSYSTEM_ZGP /**< OTA subsystem */
+#define TRACE_SUBSYSTEM_ZSE       TRACE_SUBSYSTEM_CLOUD  /**< ZSE subsystem. Not conflicting
+                                                          * with cloud, let's use it */
+/** @cond DSR_TRACE */
+/** @cond internals_doc */
+/* SPI trace usage is limited (now only in
+ * application\comcast\spi\css_sensor_spi.c). Not conflict with USB, so let's
+ * use it. */
+#define TRACE_SUBSYSTEM_SPI TRACE_SUBSYSTEM_USB
+#define TRACE_SUBSYSTEM_HTTP TRACE_SUBSYSTEM_USB /* HTTP == LWIP usage (tcp),
+                                                  * but not SSL */
+
+#define TRACE_SUBSYSTEM_TRANSPORT TRACE_SUBSYSTEM_LWIP
+#define TRACE_SUBSYSTEM_UART TRACE_SUBSYSTEM_LWIP
+
+#define TRACE_SUBSYSTEM_SPECIAL1 TRACE_SUBSYSTEM_ALIEN
+#define TRACE_SUBSYSTEM_MACLL   TRACE_SUBSYSTEM_ALIEN
+#define TRACE_SUBSYSTEM_VENSTAR TRACE_SUBSYSTEM_ALIEN
+
+#define TRACE_SUBSYSTEM_BATTERY TRACE_SUBSYSTEM_SSL
+#define TRACE_SUBSYSTEM_MAC_API TRACE_SUBSYSTEM_SSL
+/** @endcond */ /* internals_doc */
+/* to be continued... */
+
+/** @} */ /* TRACE_SUBSYSTEMS */
+/** @endcond */ /* DSR_TRACE */
+/** @} */ /* ZB_TRACE */
+
+/** @cond DSR_TRACE */
+/**
+ * @addtogroup ZB_TRACE Debug trace
+ * @{
+ */
+#if defined ZB_TRACE_LEVEL || defined DOXYGEN
+
+/** @cond internals_doc */
+#define TRACE_ENABLED_(mask,lev) ((lev) <= ZB_TRACE_LEVEL && ((mask) & ZB_TRACE_MASK))
+/** @endcond */ /* internals_doc */
+
+/**
+ *  @brief Check that trace is enabled for provided level.
+ *  To be used in constructions like:
+ *  @code
+ *  if (TRACE_ENABLED(TRACE_APS3))
+ *  {
+ *    call_some_complex_trace();
+ *  }
+ *  @endcode
+ *  @param m - trace level macro.
+ *  @return 1 if enabled, 0 if disabled.
+ */
+#define TRACE_ENABLED(m) TRACE_ENABLED_(m)
+
+/** @cond internals_doc */
+zb_uint32_t zb_trace_get_counter(void);
+/** @endcond */ /* internals_doc */
+
+#ifdef DOXYGEN
+/**
+   Trace file id used by win_com_dump to identify source file.
+
+   Must be first define in the .c file, just before first include directive.
+  @par Example
+  @snippet doxygen_snippets.dox trace_file_id_light_sample_dimmable_light_bulb_c
+  @par
+*/
+#define ZB_TRACE_FILE_ID 12345
+#endif
+
+/** @cond internals_doc */
 #ifdef ZB_INTERRUPT_SAFE_CALLBACKS
 /* If HW can detect that we are inside ISR, let's use it and do not trace from ISR. */
 zb_bool_t zb_osif_is_inside_isr(void);
@@ -153,7 +218,7 @@ zb_bool_t zb_osif_is_inside_isr(void);
 /** @endcond */
 
 #if defined ZB_TRACE_TO_FILE || defined ZB_TRACE_TO_SYSLOG || defined DOXYGEN
-/** @cond ZBOSS_INTERNAL */
+/** @cond internals_doc */
 /**
    \par Trace to file means trace to disk file using printf() or its analog.
    Tricks to decrease code size by excluding format strings are not used.
@@ -203,9 +268,8 @@ void zb_trace_msg_file(
 #define _T1(s, l, fmts, args) if ((zb_int_t)ZB_TRACE_LEVEL>=(zb_int_t)l && ((s) & ZB_TRACE_MASK)) zb_trace_msg_file(s, l, fmts, _T0 args)
 #endif
 
-/** @endcond */ /* ZBOSS_INTERNAL */
+/** @endcond */ /* internals_doc */
 
-/** @cond ZBOSS_INTERNAL */
 /**
  *  @brief Put trace output.
  *  @param lm - trace subsystem and level marker.
@@ -220,7 +284,6 @@ void zb_trace_msg_file(
   do { \
     _T1(lm, fmts, args); \
   } while (0)
-/** @endcond */ /* ZBOSS_INTERNAL */
 
 #elif (defined ZB_TRACE_TO_PORT || defined ZB_TRACE_OVER_SIF)
 
@@ -320,41 +383,34 @@ void zb_trace_msg_port(
 
 #if defined ZB_TRACE_TO_FILE || defined ZB_TRACE_TO_SYSLOG || defined DOXYGEN
 
-/** @cond ZBOSS_INTERNAL */
 /**
    Trace format for 64-bit address.
 
    @snippet doxygen_snippets.dox trace_64_tests_zdo_startup_dll_zdo_start_zr_c
 */
 #define TRACE_FORMAT_64 "%hx.%hx.%hx.%hx.%hx.%hx.%hx.%hx"
-/** @endcond */ /* ZBOSS_INTERNAL */
 
-/** @cond ZBOSS_INTERNAL */
 /**
  Trace format for 128-bit number (key etc).
 
  @snippet doxygen_snippets.dox trace_128_snippet_cs_ick_tc_02_thr1_c
 */
 #define TRACE_FORMAT_128 "%02hx:%02hx:%02hx:%02hx:%02hx:%02hx:%02hx:%02hx:%02hx:%02hx:%02hx:%02hx:%02hx:%02hx:%02hx:%02hx"
-/** @endcond */ /* ZBOSS_INTERNAL */
 
-/** @cond ZBOSS_INTERNAL */
 /**
    Trace format arguments for 64-bit address.
 
    @snippet doxygen_snippets.dox trace_64_tests_zdo_startup_dll_zdo_start_zr_c
 */
 #define TRACE_ARG_64(a) (zb_uint8_t)((a)[7]),(zb_uint8_t)((a)[6]),(zb_uint8_t)((a)[5]),(zb_uint8_t)((a)[4]),(zb_uint8_t)((a)[3]),(zb_uint8_t)((a)[2]),(zb_uint8_t)((a)[1]),(zb_uint8_t)((a)[0])
-/** @endcond */ /* ZBOSS_INTERNAL */
 
-/** @cond ZBOSS_INTERNAL */
 /**
    Trace format arguments for 128-bit numver.
 
    @snippet doxygen_snippets.dox trace_128_snippet_cs_ick_tc_02_thr1_c
 */
 #define TRACE_ARG_128(a) (zb_uint8_t)((a)[0]),(zb_uint8_t)((a)[1]),(zb_uint8_t)((a)[2]),(zb_uint8_t)((a)[3]),(zb_uint8_t)((a)[4]),(zb_uint8_t)((a)[5]),(zb_uint8_t)((a)[6]),(zb_uint8_t)((a)[7]),(zb_uint8_t)((a)[8]),(zb_uint8_t)((a)[9]),(zb_uint8_t)((a)[10]),(zb_uint8_t)((a)[11]),(zb_uint8_t)((a)[12]),(zb_uint8_t)((a)[13]),(zb_uint8_t)((a)[14]),(zb_uint8_t)((a)[15])
-/** @endcond */ /* ZBOSS_INTERNAL */
+
 
 #else
 
@@ -362,7 +418,7 @@ void zb_trace_msg_port(
 #define TRACE_FORMAT_64 "%A"
 #define TRACE_FORMAT_128 "%A:%A"
 
-/** @cond ZBOSS_INTERNAL */
+/** @cond internals_doc */
 
 typedef struct zb_addr64_struct_s
 {
@@ -381,10 +437,10 @@ typedef struct zb_byte128_struct_s
 
 #endif  /* ti file / !to file */
 
-/** @endcond */ /* ZBOSS_INTERNAL */
+/** @endcond */ /* internals_doc */
 
+/** @cond DSR_TRACE */
 /**
- *  @cond ZBOSS_INTERNAL
  *  @addtogroup TRACE_GENERAL_MESSAGES
  *  @{
  */
@@ -398,70 +454,6 @@ typedef struct zb_byte128_struct_s
 #define TRACE_INFO3 (zb_uint_t)-1, 4
 
 /** @} */ /* TRACE_GENERAL_MESSAGES */
-/** @endcond */ /* ZBOSS_INTERNAL */
-
-/**
- *  @cond ZBOSS_INTERNAL
- *  @addtogroup TRACE_SUBSYSTEMS
- *  @{
- */
-#define TRACE_SUBSYSTEM_COMMON    0x0001  /**< Common subsystem. */
-#define TRACE_SUBSYSTEM_MEM       0x0002  /**< MEM subsystem (buffers pool). */
-#define TRACE_SUBSYSTEM_MAC       0x0004  /**< MAC subsystem. */
-#define TRACE_SUBSYSTEM_NWK       0x0008  /**< NWK subsystem. */
-
-#define TRACE_SUBSYSTEM_APS       0x0010  /**< APS subsystem. */
-#define TRACE_SUBSYSTEM_CLOUD     0x0020  /**< Interface to the Cloud if used, else free */
-#define TRACE_SUBSYSTEM_ZDO       0x0040  /**< ZDO subsystem. */
-#define TRACE_SUBSYSTEM_SECUR     0x0080  /**< Security subsystem. */
-
-#define TRACE_SUBSYSTEM_ZCL       0x0100  /**< ZCL subsystem. */
-/** @cond DOXYGEN_ZLL_SECTION*/
-#define TRACE_SUBSYSTEM_ZLL       0x0200  /**< ZLL subsystem. */
-/** @endcond */ /* DOXYGEN_ZLL_SECTION */
-/** @cond ZBOSS_INTERNAL */
-#define TRACE_SUBSYSTEM_JSON      TRACE_SUBSYSTEM_ZLL  /**< JSON decoding is used in app,
-                                           * else free */
-#define TRACE_SUBSYSTEM_SSL       0x0400  /**< SSL subsystem */
-/** @endcond */ /* ZBOSS_INTERNAL */
-#define TRACE_SUBSYSTEM_APP       0x0800  /**< User Application */
-
-/** @cond ZBOSS_INTERNAL */
-#define TRACE_SUBSYSTEM_LWIP      0x1000  /* LWIP is used, else free */
-#define TRACE_SUBSYSTEM_ALIEN     0x2000  /* Some special debug */
-/** @endcond */ /* ZBOSS_INTERNAL */
-#define TRACE_SUBSYSTEM_ZGP       0x4000  /**< ZGP subsystem */
-/** @cond ZBOSS_INTERNAL */
-#define TRACE_SUBSYSTEM_USB       0x8000
-/** @endcond */ /* ZBOSS_INTERNAL */
-
-#define TRACE_SUBSYSTEM_OTA TRACE_SUBSYSTEM_ZGP /**< OTA subsystem */
-#define TRACE_SUBSYSTEM_ZSE       TRACE_SUBSYSTEM_CLOUD  /**< ZSE subsystem. Not conflicting
-                                                          * with cloud, let's use it */
-
-/** @cond ZBOSS_INTERNAL */
-/* SPI trace usage is limited (now only in
- * application\comcast\spi\css_sensor_spi.c). Not conflict with USB, so let's
- * use it. */
-#define TRACE_SUBSYSTEM_SPI TRACE_SUBSYSTEM_USB
-#define TRACE_SUBSYSTEM_HTTP TRACE_SUBSYSTEM_USB /* HTTP == LWIP usage (tcp),
-                                                  * but not SSL */
-
-#define TRACE_SUBSYSTEM_TRANSPORT TRACE_SUBSYSTEM_LWIP
-#define TRACE_SUBSYSTEM_UART TRACE_SUBSYSTEM_LWIP
-
-#define TRACE_SUBSYSTEM_SPECIAL1 TRACE_SUBSYSTEM_ALIEN
-#define TRACE_SUBSYSTEM_MACLL   TRACE_SUBSYSTEM_ALIEN
-#define TRACE_SUBSYSTEM_VENSTAR TRACE_SUBSYSTEM_ALIEN
-
-#define TRACE_SUBSYSTEM_BATTERY TRACE_SUBSYSTEM_SSL
-#define TRACE_SUBSYSTEM_MAC_API TRACE_SUBSYSTEM_SSL
-/** @endcond */ /* ZBOSS_INTERNAL */
-/* to be continued... */
-
-/** @} */ /* TRACE_SUBSYSTEMS */
-/** @endcond */ /* ZBOSS_INTERNAL */
-
 
 #ifdef ZB_TRACE_LEVEL
 #ifndef ZB_TRACE_MASK
@@ -470,7 +462,6 @@ typedef struct zb_byte128_struct_s
 #endif  /* if defined trace level */
 
 /**
- *  @cond ZBOSS_INTERNAL
  *  @addtogroup TRACE_DATA_FORMAT
  *  @{
  */
@@ -890,10 +881,8 @@ typedef struct zb_byte128_struct_s
 
 
 /** @} */ /* TRACE_DATA_FORMAT */
-/** @endcond */ /* ZBOSS_INTERNAL */
 
 /**
- * @cond ZBOSS_INTERNAL
  *  @addtogroup TRACE_FIRST_ARG
  *  @{
  */
@@ -901,7 +890,7 @@ typedef struct zb_byte128_struct_s
 #define TRACE_COMMON2 TRACE_SUBSYSTEM_COMMON, 2
 #define TRACE_COMMON3 TRACE_SUBSYSTEM_COMMON, 3
 
-/** @cond ZBOSS_INTERNAL */
+/** @cond internals_doc */
 /* osif subsystem is nearly not used. Place it to the same with common and free
  * 1 bit for buffers. */
 #define TRACE_OSIF1 TRACE_SUBSYSTEM_COMMON, 1
@@ -1019,7 +1008,7 @@ typedef struct zb_byte128_struct_s
 #define TRACE_MAC_API1 TRACE_SUBSYSTEM_MAC_API, 1
 #define TRACE_MAC_API2 TRACE_SUBSYSTEM_MAC_API, 2
 #define TRACE_MAC_API3 TRACE_SUBSYSTEM_MAC_API, 3
-/** @endcond */ /* ZBOSS_INTERNAL */
+/** @endcond */ /* internals_doc */
 
 #ifndef ZB_SET_TRACE_LEVEL
 
@@ -1034,15 +1023,15 @@ typedef struct zb_byte128_struct_s
 #endif
 
 /** @} */ /* TRACE_FIRST_ARG */
-/** @endcond */ /* ZBOSS_INTERNAL */
 /** @} */ /* Debug trace */
+/** @endcond */ /* DSR_TRACE */
 
 /**
    @addtogroup DUMP_ON_OFF
    @{
 */
 #if defined ZB_TRAFFIC_DUMP_ON || defined DOXYGEN
-/** @cond ZBOSS_INTERNAL */
+/** @cond internals_doc */
 extern zb_uint8_t g_traf_dump;
 /** @endcond */
 

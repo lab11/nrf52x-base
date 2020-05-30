@@ -44,6 +44,9 @@
 /** \addtogroup nwk_api */
 /** @{ */
 
+/** @addtogroup nwk_common_constants NWK common constants
+ * @{
+ */
 /** @brief Network broadcast addresses types. */
 typedef enum zb_nwk_broadcast_address_e
 {
@@ -55,14 +58,22 @@ typedef enum zb_nwk_broadcast_address_e
   ZB_NWK_BROADCAST_RESERVED           = 0xFFF8 /**< Reserved value */
 }
 zb_nwk_broadcast_address_t;
+/** @} */ /* nwk_common_constants */
 
+/** @addtogroup nwk_management_service NWK management service
+ *  @{
+ */
 /** @brief Check that address is broadcast.
   * @param addr - 16-bit address
   * @return TRUE if address is broadcast, FALSE otherwise
   */
 /* #define ZB_NWK_IS_ADDRESS_BROADCAST(addr) ( ((addr) & 0xFFF0) == 0xFFF0 ) */
 #define ZB_NWK_IS_ADDRESS_BROADCAST(addr) ( (addr) >= ZB_NWK_BROADCAST_RESERVED )
+/** @} */ /* nwk_management_service */
 
+/** @addtogroup nwk_common_constants NWK common constants
+ * @{
+ */
 /**
    Network device type
 */
@@ -82,6 +93,8 @@ typedef enum zb_nwk_leave_type_e
   ZB_NWK_LEAVE_TYPE_RESET                            = 0x00, /**< Leave without rejoin */
   ZB_NWK_LEAVE_TYPE_REJOIN                           = 0x01  /**< Leave with rejoin */
 } zb_nwk_leave_type_t;
+
+
 /** @cond internals_doc */
 /** @brief Network command status codes. */
 typedef enum zb_nwk_command_status_e
@@ -108,7 +121,10 @@ typedef enum zb_nwk_command_status_e
   ZB_NWK_COMMAND_STATUS_UNKNOWN_COMMAND              = 0x13, /**< Command received is not known */
 }
 zb_nwk_command_status_t;
+/** @endcond */ /* internals_doc */
+/** @} */ /* nwk_common_constants */
 
+/** @cond internals_doc */
 /** @brief Arguments of the NLME-STATUS.indication routine. */
 typedef ZB_PACKED_PRE struct zb_nlme_status_indication_s
 {
@@ -119,6 +135,10 @@ typedef ZB_PACKED_PRE struct zb_nlme_status_indication_s
 } ZB_PACKED_STRUCT
 zb_nlme_status_indication_t;
 /** @endcond */ /* internals_doc */
+
+/** @addtogroup nwk_common_constants NWK common constants
+ * @{
+ */
 /**
    LQI undefined value
  */
@@ -283,10 +303,10 @@ zb_nlme_status_indication_t;
 
 #define ZB_CHANNEL_PAGE_MAX_CHANNELS_COUNT ZB_PAGE28_SUB_GHZ_MAX_CHANNELS_COUNT
 /** @endcond */ /* DOXYGEN_SE_SECTION */
-
+/** @} */ /* nwk_common_constants */
 
 /** @cond internals_doc */
-/** @name PIB cache
+/** @addtogroup nwk_pib_cache PIB cache
  *  @{
  */
 
@@ -377,8 +397,9 @@ void zb_nlme_permit_joining_request(zb_uint8_t param);
 
 
 /** @} */
+/** @endcond */ /* internals_doc */
 
-/** @name PAN ID conflicts.
+/** @addtogroup nwk_panid_conflicts NWK PAN ID conflicts
  *  @{
  */
 
@@ -387,11 +408,11 @@ void zb_nlme_permit_joining_request(zb_uint8_t param);
 /** Structure describing a detected PAN ID conflict */
 typedef ZB_PACKED_PRE struct zb_pan_id_conflict_info_s
 {
-  zb_uint16_t panid_count;      /* <! Count of neighboring PAN IDs. */
+  zb_uint16_t panid_count;      /*<!Count of neighboring PAN IDs. */
   zb_uint16_t panids[ZB_PAN_ID_CONFLICT_INFO_MAX_PANIDS_COUNT];
-                                /* <! Array of such PAN IDs. 
-                                 *  Only values at indices 0..(panid_count - 1) will be taken 
-                                 *  into consideration. */
+                                /*<!Array of such PAN IDs.
+                                 * Only values at indices 0..(panid_count - 1) will be taken
+                                 * into consideration. */
 } ZB_PACKED_STRUCT zb_pan_id_conflict_info_t;
 
 /**
@@ -451,7 +472,12 @@ void zb_enable_auto_pan_id_conflict_resolution(zb_bool_t status);
  */
 void zb_enable_panid_conflict_resolution(void);
 /** @endcond */ /* internals_doc */
+/** @} */ /* nwk_panid_conflicts */
+
 #ifdef ZB_LOW_SECURITY_MODE
+/** @addtogroup nwk_management_service NWK management service
+ * @{
+ */
 /**
     Public API to set device security level to 0
 */
@@ -470,8 +496,12 @@ void zb_enable_nwk_security(void);
    Default value is ZB_TRUE.
 */
 void zb_nwk_set_ieee_policy(zb_bool_t put_always);
+/** @} */ /* nwk_management_service */
 #endif /*ZB_LOW_SECURITY_MODE*/
 
+/** @addtogroup nwk_mtorr NWK MTORR functionality
+ * @{
+ */
 /**
    Enable Concentrator mode for the device (disabled by default).
    It's possible to call this function to send MTORR immediately, e.g. after a new device joined the network.
@@ -489,6 +519,7 @@ void zb_start_concentrator_mode(zb_uint8_t radius, zb_uint32_t disc_time);
    It does affect only for Coordinator role.
 */
 void zb_stop_concentrator_mode(void);
+/** @} */ /* nwk_mtorr */
 
 /** @cond internals_doc */
 /**
@@ -513,13 +544,16 @@ void zb_set_nbt_transmit_failure_threshold(zb_uint8_t transmit_failure_cnt);
 void zb_set_nbt_transmit_failure_timeout(zb_uint8_t transmit_failure_timeout);
 /** @endcond */ /* internals_doc */
 
+/** @addtogroup nwk_management_service NWK management service
+ * @{
+ */
 /**
    Get short address of the parent node.
 
    @return Short address of the parent node or ZB_UNKNOWN_SHORT_ADDR if the device isn't joined to a network.
  */
 zb_uint16_t zb_nwk_get_parent(void);
-
+/** @} */ /* nwk_management_service */
 /** @} */
 
 #endif /*#ifndef ZB_ZBOSS_API_NWK_H*/

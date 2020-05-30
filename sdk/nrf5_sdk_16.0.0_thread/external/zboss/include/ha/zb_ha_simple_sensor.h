@@ -68,7 +68,7 @@ PURPOSE: Simple sensor device definition
     @snippet doxygen_snippets.dox HANDLER_snippet_ha_simple_sensor_sample_c
     @par
 
-    The complete set of Simple Sensor device samples can be found in /snippet/ha_simple_sensor_sample.c.
+    The complete set of Simple Sensor device samples can be found in /application/HA_samples/simple_sensor
 */
 
 

@@ -55,6 +55,7 @@ BOARD_SOURCES += \
 	nrf_queue.c\
 	nrf_drv_clock.c\
 	nrf_nvmc.c\
+	nrfx_nvmc.c\
 	mem_manager.c\
 	nrfx_gpiote.c\
 	nrfx_ppi.c\

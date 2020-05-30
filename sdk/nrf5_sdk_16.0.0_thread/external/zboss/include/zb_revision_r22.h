@@ -40,4 +40,4 @@ PURPOSE: ZBOSS SDK versioning (revision number)
 */
 
 /* First, increment revision number. Next, build SDK */
-#define ZBOSS_SDK_REVISION 2
+#define ZBOSS_SDK_REVISION 4

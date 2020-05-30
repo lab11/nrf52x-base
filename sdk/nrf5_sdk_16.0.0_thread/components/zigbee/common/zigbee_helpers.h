@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018 - 2019, Nordic Semiconductor ASA
+ * Copyright (c) 2018 - 2020, Nordic Semiconductor ASA
  *
  * All rights reserved.
  *
@@ -221,5 +221,18 @@ zb_ret_t zigbee_default_signal_handler(zb_bufid_t bufid);
  */
 void zigbee_led_status_update(zb_bufid_t bufid, uint32_t led_idx);
 
-#endif /* ZIGBEE_HELPERS_H__ */
+/**@brief Function for indicating the default signal handler about user input on the device.
+ *        If the device is not commissioned, the rejoin procedure is started.
+ *
+ * @note This function is to be used with End Devices only.
+ *
+ */
+#if defined ZB_ED_ROLE
+void user_input_indicate(void);
+#endif
 
+/**@brief Function for powering down unused RAM. Powers down all unused sections in RAM banks.
+ */
+void zigbee_power_down_unused_ram(void);
+
+#endif /* ZIGBEE_HELPERS_H__ */

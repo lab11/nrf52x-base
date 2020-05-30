@@ -67,7 +67,7 @@ PURPOSE: Range extender defice definition
     @snippet doxygen_snippets.dox HANDLER_CODE_snippet_ha_range_extender_sample_c
     @par
 
-    The complete set of Range Extended device samples can be found in /snippet/ha_range_extender_sample.c.
+    The complete set of Range Extended device samples can be found in /application/HA_samples/range_extender
 */
 
 #define ZB_HA_DEVICE_VER_RANGE_EXTENDER 0  /*!< Range extender device version */
