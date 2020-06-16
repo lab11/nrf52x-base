@@ -122,6 +122,27 @@ If you're using submodules in your project, you may want to use this to make
 git automatically update them:
 https://gist.github.com/brghena/fc4483a2df83c47660a5
 
+Other Features
+--------------
+
+The build system supports generating protobuf \*.c/\*.h files with
+[nanopb](https://github.com/lab11/nrf5x-base/tree/master/lib/nanopb/). To
+enable this, you must install the protobuf compiler `protoc` and build nanopb.
+
+On Ubuntu:
+```
+sudo apt install libprotobuf-dev libprotoc-dev protobuf-compiler python3-protobuf
+```
+On Mac Os:
+```
+brew install protobuf
+```
+
+Build nanopb:
+```
+cd nrf52x-base/lib/nanopb/generator/proto
+make
+```
 
 BLE Tools for Other Platforms
 -----------------
