@@ -48,6 +48,8 @@ APP_SOURCE_PATHS_PERSON_DETECTION = \
 	./tensorflow/lite/micro/tools/make/downloads/person_model_int8/images/96x96/\
 	./tensorflow/lite/micro/tools/make/downloads/person_model_int8/images/192x192/\
 	./tensorflow/lite/micro/tools/make/downloads/person_model_int8/images/48x48/\
+	./tensorflow/lite/micro/tools/make/downloads/person_model_int8/images/120x120/\
+	./tensorflow/lite/micro/tools/make/downloads/person_model_int8/images/72x72/\
 
 APP_SOURCE_PATHS += $(APP_SOURCE_PATHS_PERSON_DETECTION)
 
@@ -113,6 +115,7 @@ TF_SOURCES_PERSON_DETECTION = \
 	tensorflow/lite/micro/examples/person_detection/person_detect_model_data.cc\
 	tensorflow/lite/micro/tools/make/downloads/person_image_int8/images/96x96/person_image_data.cc\
 	tensorflow/lite/micro/tools/make/downloads/person_image_int8/images/96x96/no_person_image_data.cc\
+	tensorflow/lite/micro/tools/make/downloads/person_image_int8/images/96x96/man_image_data.cc\
 	tensorflow/lite/micro/tools/make/downloads/person_image_int8/images/48x48/lady_image_data_48.cc\
 	tensorflow/lite/micro/tools/make/downloads/person_image_int8/images/48x48/pineapple_image_data_48.cc\
 	tensorflow/lite/micro/tools/make/downloads/person_image_int8/images/48x48/man_image_data_48.cc\
