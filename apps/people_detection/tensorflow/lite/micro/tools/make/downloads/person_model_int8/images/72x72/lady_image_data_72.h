@@ -1,0 +1,11 @@
+//Second image trying to see what can be done
+
+#ifndef TENSORFLOW_LITE_EXPERIMENTAL_MICRO_EXAMPLES_PERSON_DETECTION_LADY_IMAGE_DATA_72_H_2
+#define TENSORFLOW_LITE_EXPERIMENTAL_MICRO_EXAMPLES_PERSON_DETECTION_LADY_IMAGE_DATA_72_H_2
+
+#include <cstdint>
+
+extern const int lady_data_72_size;
+extern const uint8_t lady_data_72[];
+
+#endif  // TENSORFLOW_LITE_EXPERIMENTAL_MICRO_EXAMPLES_PERSON_DETECTION_LADY_IMAGE_DATA_72_H_

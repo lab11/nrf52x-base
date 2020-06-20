@@ -1,0 +1,11 @@
+//Second image trying to see what can be done
+
+#ifndef TENSORFLOW_LITE_EXPERIMENTAL_MICRO_EXAMPLES_PERSON_DETECTION_PINEAPPLE_120
+#define TENSORFLOW_LITE_EXPERIMENTAL_MICRO_EXAMPLES_PERSON_DETECTION_PINEAPPLE_120
+
+#include <cstdint>
+
+extern const int pineapple_data_120_size;
+extern const uint8_t pineapple_data_120[];
+
+#endif  // TENSORFLOW_LITE_EXPERIMENTAL_MICRO_EXAMPLES_PERSON_DETECTION_PINEAPPLE_DATA_120_H_

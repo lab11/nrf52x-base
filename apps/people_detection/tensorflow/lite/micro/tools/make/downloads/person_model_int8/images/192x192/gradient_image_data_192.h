@@ -1,0 +1,11 @@
+//Second image trying to see what can be done
+
+#ifndef TENSORFLOW_LITE_EXPERIMENTAL_MICRO_EXAMPLES_PERSON_DETECTION_GRADIENT_192
+#define TENSORFLOW_LITE_EXPERIMENTAL_MICRO_EXAMPLES_PERSON_DETECTION_GRADIENT_192
+
+#include <cstdint>
+
+extern const int gradient_data_192_size;
+extern const uint8_t gradient_data_192[];
+
+#endif  // TENSORFLOW_LITE_EXPERIMENTAL_MICRO_EXAMPLES_PERSON_DETECTION_GRADIENT_DATA_192_H_
