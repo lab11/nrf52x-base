@@ -21,8 +21,8 @@ limitations under the License.
 
 // All of these values are derived from the values used during model training,
 // if you change your model you'll need to update these constants.
-constexpr int kNumCols = 48;
-constexpr int kNumRows = 48;
+constexpr int kNumCols = 96;
+constexpr int kNumRows = 96;
 constexpr int kNumChannels = 1;
 
 constexpr int kMaxImageSize = kNumCols * kNumRows * kNumChannels;

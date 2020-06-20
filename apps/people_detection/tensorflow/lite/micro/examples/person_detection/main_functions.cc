@@ -19,9 +19,11 @@ limitations under the License.
 //#include "tensorflow/lite/micro/examples/person_detection/image_provider.h"
 #include "tensorflow/lite/micro/examples/person_detection/model_settings.h"
 #include "tensorflow/lite/micro/examples/person_detection/person_detect_model_data.h"
+#include "tensorflow/lite/micro/tools/make/downloads/person_model_int8/images/96x96/man_image_data.h"
+
 // #include "tensorflow/lite/micro/tools/make/downloads/person_model_int8/images/48x48/man_image_data_48.h"
 // #include "tensorflow/lite/micro/tools/make/downloads/person_model_int8/images/48x48/indian_image_data_48.h"
-#include "tensorflow/lite/micro/tools/make/downloads/person_model_int8/images/48x48/meninshower_image_data_48.h"
+// #include "tensorflow/lite/micro/tools/make/downloads/person_model_int8/images/48x48/meninshower_image_data_48.h"
 // #include "tensorflow/lite/micro/tools/make/downloads/person_model_int8/images/48x48/pineapple_image_data_48.h"
 // #include "tensorflow/lite/micro/tools/make/downloads/person_model_int8/images/48x48/lady_image_data_48.h"
 #include "tensorflow/lite/micro/kernels/micro_ops.h"
@@ -139,7 +141,7 @@ void GetQuantizedImage(int8_t* input, void * image, int image_size, int32_t zero
 // The name of this function is important for Arduino compatibility.
 void loop() {
 
-  GetQuantizedImage(input->data.int8, (void *) meninshower_data_48, kMaxImageSize, -128, 1.0f);
+  GetQuantizedImage(input->data.int8, (void *) man_data, kMaxImageSize, -128, 1.0f);
 
   virtual_timer_init();
   volatile uint32_t start_time = read_timer();
