@@ -14,7 +14,7 @@ JLINK_GDBSERVER = JLinkGDBServer
 JLINK_RTTCLIENT = JLinkRTTClient
 
 # nrfutil tools
-MERGEHEX = $(NRF_BASE_DIR)/make/intelhex/scripts/hexmerge.py
+MERGEHEX = python3 $(NRF_BASE_DIR)/make/intelhex/scripts/hexmerge.py
 NRFUTIL = nrfutil
 PRIVATE_KEY ?= private.pem
 
