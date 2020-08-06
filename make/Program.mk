@@ -124,7 +124,7 @@ flash_bootloader: bootloader flash_mbr $(BUILDDIR) $(MBR_PATH)
 	$(Q)printf "loadfile $(BOOTLOADER_HEX) \nr\ng\nexit\n" > $(BUILDDIR)flash_bootloader.jlink
 	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)flash_bootloader.jlink
 
-
+#https://devzone.nordicsemi.com/f/nordic-q-a/12484/approtect-and-dap
 .PHONY: erase
 erase: $(BUILDDIR)
 	$(Q)printf "SWDSelect\nSWDWriteDP 1 0x50000000\nSWDWriteDP 2 0x01000000\nSWDWriteAP 1 0x00000001\n sleep 100\nr\nexit\n" > $(BUILDDIR)erase.jlink
