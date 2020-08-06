@@ -127,12 +127,7 @@ flash_bootloader: bootloader flash_mbr $(BUILDDIR) $(MBR_PATH)
 
 .PHONY: erase
 erase: $(BUILDDIR)
-	$(Q)printf "w4 4001e504 2\nw4 4001e50c 1\nsleep 100\nr\nexit\n" > $(BUILDDIR)erase.jlink
-	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)erase.jlink
-
-.PHONY: erase_all
-erase_all: $(BUILDDIR)
-	$(Q)printf "erase\nsleep 100\nr\nexit\n" > $(BUILDDIR)erase.jlink
+	$(Q)printf "SWDSelect\nSWDWriteDP 1 0x50000000\nSWDWriteDP 2 0x01000000\nSWDWriteAP 1 0x00000001\n sleep 100\nr\nexit\n" > $(BUILDDIR)erase.jlink
 	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)erase.jlink
 
 .PHONY: gdb
