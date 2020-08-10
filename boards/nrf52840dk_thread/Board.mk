@@ -75,6 +75,7 @@ BOARD_SOURCES += \
 	thread_coap_block.c\
 	thread_dns.c\
 	thread_ntp.c\
+	linked_list.c\
 
 endif
 endif

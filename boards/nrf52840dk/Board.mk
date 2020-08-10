@@ -72,6 +72,7 @@ BOARD_SOURCES += \
 	SEGGER_RTT.c\
 	SEGGER_RTT_Syscalls_GCC.c\
 	SEGGER_RTT_printf.c\
+	linked_list.c\
 
 ifeq ($(USE_THREAD), 1)
 BOARD_SOURCES += \
