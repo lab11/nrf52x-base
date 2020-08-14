@@ -73,7 +73,7 @@ endif
 
 .PHONY: flash
 ifeq ($(USE_BOOTLOADER),1)
-flash: all test_softdevice flash_bootloader
+flash: all bootloader test_softdevice flash_bootloader
 else
 flash: all test_softdevice
 endif
