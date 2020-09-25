@@ -23,11 +23,47 @@ void __attribute__((weak)) thread_coap_receive_handler(
     NRF_LOG_INFO("Received CoAP message that does not match any request or resource\r\n");
 }
 
-void thread_coap_client_init(otInstance* instance) {
-    otError error = otCoapStart(instance, OT_DEFAULT_COAP_PORT);
+void thread_coap_client_init(otInstance* instance, bool secure) {
+    otError error = OT_ERROR_NONE;
+    if (secure) {
+      error = otCoapSecureStart(instance, OT_DEFAULT_COAP_SECURE_PORT);
+    } else {
+      error = otCoapStart(instance, OT_DEFAULT_COAP_PORT);
+    }
     ASSERT(error == OT_ERROR_NONE);
 
     otCoapSetDefaultHandler(instance, thread_coap_receive_handler, NULL);
+}
+
+otError thread_coap_secure_connect(otInstance* instance,
+                                   const otIp6Address* dest,
+                                   const uint16_t port,
+                                   const uint8_t* psk_secret,
+                                   size_t psk_secret_len,
+                                   const uint8_t* psk_identity,
+                                   size_t psk_identity_len,
+                                   otHandleCoapSecureClientConnect connect_handler)
+{
+    otError error = OT_ERROR_NONE;
+
+    otSockAddr sock_addr;
+    memset(&sock_addr, 0, sizeof(sock_addr));
+
+    sock_addr.mPort = port;
+    memcpy(&sock_addr.mAddress, dest, sizeof(otIp6Address));
+
+    otCoapSecureSetPsk(instance,
+                       psk_secret,
+                       psk_secret_len,
+                       psk_identity,
+                       psk_identity_len);
+
+    error = otCoapSecureConnect(instance,
+                                &sock_addr,
+                                connect_handler,
+                                NULL);
+
+    return error;
 }
 
 otError thread_coap_send(otInstance* instance,
