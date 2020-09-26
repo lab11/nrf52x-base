@@ -141,13 +141,13 @@ int main(void) {
 
     thread_coap_client_init(thread_instance, true);
     thread_process();
-    app_sched_execute();
+    //app_sched_execute();
 
 
     // Enter main loop.
     while (1) {
         thread_process();
-        app_sched_execute();
+        //app_sched_execute();
 
         if (NRF_LOG_PROCESS() == false)
         {
