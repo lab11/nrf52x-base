@@ -59,10 +59,6 @@ APP_TIMER_DEF(coap_send_timer);
 "+N+C+Qgg6vN4ZfgM+wGerLalElDJObn0gQ==\r\n"                             \
 "-----END EC PRIVATE KEY-----\r\n"
 
-#define LED0 NRF_GPIO_PIN_MAP(0,4)
-#define LED1 NRF_GPIO_PIN_MAP(0,5)
-#define LED2 NRF_GPIO_PIN_MAP(0,6)
-
 #define DEFAULT_CHILD_TIMEOUT    40                                         /**< Thread child timeout [s]. */
 #define DEFAULT_POLL_PERIOD      1000                                       /**< Thread Sleepy End Device polling period when MQTT-SN Asleep. [ms] */
 #define NUM_SLAAC_ADDRESSES      4                                          /**< Number of SLAAC addresses. */
@@ -90,7 +86,7 @@ static void log_init(void)
 void send_timer_callback() {
   const uint8_t* data = (uint8_t*)"hello";
   otInstance* thread_instance = thread_get_instance();
-  thread_coap_send(thread_instance, OT_COAP_CODE_PUT, OT_COAP_TYPE_NON_CONFIRMABLE, &m_peer_address, "test", data, strnlen((char*)data, 6), NULL);
+  thread_coap_send(thread_instance, OT_COAP_CODE_PUT, OT_COAP_TYPE_NON_CONFIRMABLE, &m_peer_address, "test", data, strnlen((char*)data, 6), true, NULL);
   NRF_LOG_INFO("Sent test message!");
 }
 
@@ -124,9 +120,6 @@ int main(void) {
     log_init();
 
     // Initialize.
-    nrf_gpio_cfg_output(LED2);
-    nrf_gpio_pin_set(LED2);
-
     otIp6AddressFromString(GCP_COAP_IOT_CORE_SERVER_ADDRESS, &m_peer_address);
 
     for(size_t i = 0; i < 8; i++) {
@@ -151,15 +144,11 @@ int main(void) {
     app_sched_execute();
 
 
-    //APP_SCHED_INIT(SCHED_EVENT_DATA_SIZE, SCHED_QUEUE_SIZE);
-    //app_timer_init();
-    //app_timer_create(&coap_send_timer, APP_TIMER_MODE_REPEATED, send_timer_callback);
-    //app_timer_start(coap_send_timer, APP_TIMER_TICKS(5000), NULL);
-
     // Enter main loop.
     while (1) {
         thread_process();
         app_sched_execute();
+
         if (NRF_LOG_PROCESS() == false)
         {
           thread_sleep();

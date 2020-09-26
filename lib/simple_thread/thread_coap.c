@@ -73,6 +73,7 @@ otError thread_coap_send(otInstance* instance,
                          const char* path,
                          const uint8_t* data,
                          size_t len,
+                         bool secure,
                          otCoapResponseHandler response_handler) {
   otError       error = OT_ERROR_NONE;
   otMessage   * message;
@@ -80,8 +81,14 @@ otError thread_coap_send(otInstance* instance,
 
   if (otIp6IsAddressEqual(dest, &m_unspecified_ipv6))
   {
-    NRF_LOG_INFO("Failed to send the CoAP Request to the Unspecified IPv6 Address\r\n");
+    NRF_LOG_ERROR("Failed to send the CoAP Request to the Unspecified IPv6 Address\r\n");
     return OT_ERROR_INVALID_ARGS;
+  }
+
+  if (secure && !otCoapSecureIsConnected(instance) && !otCoapSecureIsConnectionActive(instance))
+  {
+      NRF_LOG_ERROR("Not connected to CoAP peer\r\n");
+      return OT_ERROR_INVALID_STATE;
   }
 
   message = otCoapNewMessage(instance, NULL);
@@ -108,11 +115,20 @@ otError thread_coap_send(otInstance* instance,
   message_info.mPeerPort    = OT_DEFAULT_COAP_PORT;
   memcpy(&message_info.mPeerAddr, dest, sizeof(message_info.mPeerAddr));
 
-  error = otCoapSendRequest(instance,
-      message,
-      &message_info,
-      response_handler,
-      NULL);
+  if (secure)
+  {
+    error = otCoapSecureSendRequest(instance,
+                                    message,
+                                    response_handler,
+                                    NULL);
+  }
+  else {
+    error = otCoapSendRequest(instance,
+                              message,
+                              &message_info,
+                              response_handler,
+                              NULL);
+  }
 
   if (error != OT_ERROR_NONE && message != NULL)
   {

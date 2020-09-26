@@ -23,4 +23,5 @@ otError thread_coap_send(otInstance* instance,
                          const char* path,
                          const uint8_t* data,
                          size_t len,
+                         bool secure,
                          otCoapResponseHandler response_handler);
