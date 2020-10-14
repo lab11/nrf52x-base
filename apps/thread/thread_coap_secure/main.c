@@ -25,18 +25,11 @@
 #include <openthread/platform/alarm-milli.h>
 #include <openthread/platform/openthread-system.h>
 
-#include <mbedtls/sha256.h>
-#include <mbedtls/base64.h>
-#include <mbedtls/pk.h>
-#include <mbedtls/ecdsa.h>
-#include <mbedtls/ctr_drbg.h>
-
 #include "simple_thread.h"
+#include "gc_iot.h"
 #include "thread_coap.h"
 
 #include "config.h"
-
-static char buffer[256] = "test";
 
 /***************************************************************************************************
  * @section Example Configuration.
@@ -56,11 +49,6 @@ APP_TIMER_DEF(m_test_timer);
 
 #define TEST_MEASUREMENT_INTERVAL             5000
 #define SNTP_QUERY_INTERVAL                   120000
-
-/**
- * Temporary buffer size.
- */
-#define BUFFER_LENGTH                         512
 
 /**
  * SNTP server address.
@@ -108,7 +96,6 @@ static int32_t test_counter = 0;
 /**
  * Forward declarations.
  */
-static void coap_publish(void);
 static void sntp_query(void);
 
 static otIp6Address m_peer_address;
@@ -122,7 +109,6 @@ static otIp6Address m_sntp_address;
 void coap_secure_connect_handler(bool connected, void *aContext) {
     if (connected) {
       NRF_LOG_INFO("CONNECTED!");
-      //coap_publish();
     } else {
       NRF_LOG_INFO("CONNECT FAILED!");
     }
@@ -220,7 +206,9 @@ static void test_timer_handler(void * p_context)
 {
     (void)p_context;
     test_counter++;
-    coap_publish();
+    char test[64];
+    snprintf(test, 64, "counter: %ld", test_counter);
+    gc_iot_coap_publish(&m_peer_address, GCP_COAP_IOT_CORE_SERVER_SECURE_PORT, m_unix_time, (uint8_t*) test, strlen(test), coap_response_handler);
 }
 
 /***************************************************************************************************
@@ -243,249 +231,6 @@ static void sntp_query(void)
 
     error = otSntpClientQuery(thread_get_instance(), &query, sntp_response_handler, NULL);
     ASSERT(error == OT_ERROR_NONE);
-}
-
-
-/***************************************************************************************************
- * @section JWT generation.
- **************************************************************************************************/
-
-static otError base64_url_encode(uint8_t *p_output, uint16_t *p_output_len, const uint8_t *p_buff, uint16_t length)
-{
-    otError error = OT_ERROR_NONE;
-    int     result;
-    size_t  encoded_len = 0;
-
-    result = mbedtls_base64_encode(p_output, *p_output_len, &encoded_len, p_buff, length);
-
-    if (result != 0)
-    {
-        return OT_ERROR_NO_BUFS;
-    }
-
-    // JWT uses URI as defined in RFC4648, while mbedtls as is in RFC1421.
-    for (uint32_t index = 0; index < encoded_len; index++)
-    {
-        if (p_output[index] == '+')
-        {
-            p_output[index] = '-';
-        }
-        else if (p_output[index] == '/')
-        {
-            p_output[index] = '_';
-        }
-        else if (p_output[index] == '=')
-        {
-            p_output[index] = 0;
-            encoded_len  = index;
-            break;
-        }
-    }
-
-    *p_output_len = encoded_len;
-
-    return error;
-}
-
-static otError jwt_create(uint8_t       * p_output,
-                          uint16_t      * p_output_len,
-                          const uint8_t * p_claims,
-                          uint16_t        claims_len,
-                          const uint8_t * p_private_key,
-                          uint16_t        private_key_len)
-{
-    otError                error = OT_ERROR_NONE;
-    uint8_t                hash[32];
-    uint8_t                signature[JWT_SIGNATURE_SIZE];
-    uint16_t               signature_size    = JWT_SIGNATURE_SIZE;
-    uint16_t               output_max_length = *p_output_len;
-    uint16_t               length;
-
-    // Encode JWT Header using Base64 URL.
-    length = output_max_length;
-
-    error = base64_url_encode(p_output, &length, (const uint8_t *)JWT_HEADER_TYPE_ES256,
-                              strlen(JWT_HEADER_TYPE_ES256));
-    ASSERT(error == OT_ERROR_NONE);
-
-    *p_output_len = length;
-
-    // Append delimiter.
-    p_output[*p_output_len] = JWT_DELIMETER;
-    *p_output_len += 1;
-
-    // Encode JWT Claim using Base64 URL.
-    length = output_max_length - *p_output_len;
-
-    error = base64_url_encode(p_output + *p_output_len, &length, p_claims, claims_len);
-    ASSERT(error == OT_ERROR_NONE);
-
-    *p_output_len += length;
-
-    // Create SHA256 Hash from encoded JWT Header and JWT Claim.
-    int err = mbedtls_sha256_ret(p_output, *p_output_len, hash, 0);
-    ASSERT(err == 0);
-
-    // Append delimiter.
-    p_output[*p_output_len] = JWT_DELIMETER;
-    *p_output_len += 1;
-
-
-    //mbedtls_ecdsa_context ctx;
-    //mbedtls_pk_context    pkCtx;
-    //mbedtls_ecp_keypair  *keypair;
-    //mbedtls_mpi           rMpi;
-    //mbedtls_mpi           sMpi;
-
-    //int ret = mbedtls_pk_parse_key(&pkCtx, p_private_key, private_key_len, NULL, 0);
-    //NRF_LOG_INFO("PK PARSE ERROR: %d", ret);
-    //int key_type = mbedtls_pk_get_type(&pkCtx);
-    //NRF_LOG_INFO("PK key type: %d, %d", key_type, MBEDTLS_PK_ECKEY);
-    //keypair = mbedtls_pk_ec(pkCtx);
-    //NRF_LOG_INFO("ECDSA keypair: %x", keypair);
-    //mbedtls_ecdsa_init(&ctx);
-    //NRF_LOG_INFO("ECDSA INIT: %d", ret);
-    //ret = mbedtls_ecdsa_from_keypair(&ctx, keypair);
-    //NRF_LOG_INFO("ECDSA from keypair: %d", ret);
-    //ret = mbedtls_ecdsa_sign_det(&ctx.grp, &rMpi, &sMpi, &ctx.d, hash, sizeof(hash), MBEDTLS_MD_SHA256);
-    //NRF_LOG_INFO("ECDSA sign: %x", ret);
-    //mbedtls_strerror(ret, buffer, 256);
-    //printf("ECDSA sign: %s\n", buffer);
-
-
-    // Create ECDSA Sign.
-    error = otCryptoEcdsaSign(signature, &signature_size, hash, sizeof(hash), p_private_key, private_key_len);
-    ASSERT(error == OT_ERROR_NONE);
-
-    // Encode JWT Sign using Base64 URL.
-    length = output_max_length - *p_output_len;
-
-    error = base64_url_encode(p_output + *p_output_len, &length, signature, signature_size);
-    ASSERT(error == OT_ERROR_NONE);
-
-    *p_output_len += length;
-
-    return error;
-}
-
-/***************************************************************************************************
- * @section CoAP messages.
- **************************************************************************************************/
-
-static void coap_header_proxy_uri_append(otMessage * p_message, const char * p_action)
-{
-    otError error = OT_ERROR_NONE;
-    char    jwt[BUFFER_LENGTH];
-    char    claims[BUFFER_LENGTH];
-
-    memset(jwt, 0, sizeof(jwt));
-    memset(claims, 0, sizeof(claims));
-
-    uint16_t offset = snprintf(jwt, sizeof(jwt), "%s/%s/%s/%s/%s?jwt=",
-                               GCP_COAP_IOT_CORE_PROJECT_ID, GCP_COAP_IOT_CORE_REGION,
-                               GCP_COAP_IOT_CORE_REGISTRY_ID, GCP_COAP_IOT_CORE_DEVICE_ID,
-                               p_action);
-
-    uint16_t output_len = sizeof(jwt) - offset;
-
-    uint64_t timeout = m_unix_time + (SNTP_QUERY_INTERVAL/1000) * 2;
-
-    uint16_t length = snprintf(claims, sizeof(claims), "{\"iat\":%ld,\"exp\":%ld,\"aud\":\"%s\"}",
-                               (uint32_t)(m_unix_time), (uint32_t)(timeout), GCP_COAP_IOT_CORE_PROJECT_ID);
-    ASSERT(length > 0);
-
-    error = jwt_create((uint8_t *)&jwt[offset], &output_len, (const uint8_t *)claims, strlen(claims),
-                               (const uint8_t *)GCP_COAP_IOT_CORE_DEVICE_KEY, sizeof(GCP_COAP_IOT_CORE_DEVICE_KEY));
-    ASSERT(error == OT_ERROR_NONE);
-
-    error = otCoapMessageAppendProxyUriOption(p_message, jwt);
-    ASSERT(error == OT_ERROR_NONE);
-}
-
-
-/*
- * So they harcode adding the relevent data to the coap packet here
-*/
-static void coap_payload_append(otMessage * p_message) {
-    char payload[BUFFER_LENGTH];
-
-    memset(payload, 0, sizeof(payload));
-
-    uint16_t length = snprintf(payload, sizeof(payload), "{\"test\":%ld}",
-                               test_counter);
-
-    otError error = otMessageAppend(p_message, payload, length);
-    ASSERT(error == OT_ERROR_NONE);
-}
-
-static void coap_publish(void)
-{
-    otError       error = OT_ERROR_NONE;
-    otMessage   * p_message;
-    otMessageInfo message_info;
-
-#if GCP_COAP_SECURE_ENABLED
-    if (!otCoapSecureIsConnected(thread_get_instance()) && !otCoapSecureIsConnectionActive(thread_get_instance()))
-    {
-      // connect to server
-      error = thread_coap_secure_connect(thread_get_instance(),
-          &m_peer_address,
-          GCP_COAP_IOT_CORE_SERVER_SECURE_PORT,
-          (uint8_t*) GCP_COAP_SECURE_PSK_SECRET,
-          strlen(GCP_COAP_SECURE_PSK_SECRET),
-          (uint8_t*) GCP_COAP_SECURE_PSK_IDENTITY,
-          strlen(GCP_COAP_SECURE_PSK_IDENTITY),
-          coap_secure_connect_handler);
-        return;
-    }
-#endif
-
-    do
-    {
-        p_message = otCoapNewMessage(thread_get_instance(), NULL);
-        if (p_message == NULL)
-        {
-            break;
-        }
-
-        otCoapMessageInit(p_message, OT_COAP_TYPE_NON_CONFIRMABLE, OT_COAP_CODE_POST);
-        otCoapMessageGenerateToken(p_message, 2);
-
-        error = otCoapMessageAppendUriPathOptions(p_message, GCP_COAP_IOT_CORE_PATH);
-        ASSERT(error == OT_ERROR_NONE);
-
-        coap_header_proxy_uri_append(p_message, GCP_COAP_IOT_CORE_PUBLISH);
-
-        error = otCoapMessageSetPayloadMarker(p_message);
-        ASSERT(error == OT_ERROR_NONE);
-
-        coap_payload_append(p_message);
-
-        // Set message info structure to point on GCP server.
-        memset(&message_info, 0, sizeof(message_info));
-        message_info.mPeerPort = GCP_COAP_IOT_CORE_SERVER_PORT;
-
-        error = otIp6AddressFromString(GCP_COAP_IOT_CORE_SERVER_ADDRESS, &message_info.mPeerAddr);
-        ASSERT(error == OT_ERROR_NONE);
-
-#if GCP_COAP_SECURE_ENABLED
-        error = otCoapSecureSendRequest(thread_get_instance(),
-                                        p_message,
-                                        coap_response_handler,
-                                        NULL);
-#else
-        error = otCoapSendRequest(thread_get_instance(),
-                                  p_message,
-                                  &message_info,
-                                  coap_response_handler,
-                                  NULL);
-#endif
-    } while (false);
-
-    if (error != OT_ERROR_NONE && p_message != NULL)
-    {
-        otMessageFree(p_message);
-    }
 }
 
 
@@ -564,6 +309,12 @@ int main(int argc, char * argv[])
     otInstance* thread_instance = thread_get_instance();
 
     thread_coap_client_init(thread_instance, true);
+
+    gc_iot_coap_set_core_params(GCP_COAP_IOT_CORE_PATH,
+        GCP_COAP_IOT_CORE_DEVICE_ID, GCP_COAP_IOT_CORE_DEVICE_KEY,
+        GCP_COAP_IOT_CORE_PROJECT_ID, GCP_COAP_IOT_CORE_REGISTRY_ID,
+        GCP_COAP_IOT_CORE_REGION, GCP_COAP_IOT_CORE_PUBLISH,
+        GCP_COAP_IOT_CORE_CONFIG);
 
     while (true)
     {
