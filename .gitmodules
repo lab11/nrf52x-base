@@ -1,7 +1,3 @@
-[submodule "lib/tensorflow"]
-	path = lib/tensorflow
-	url = https://github.com/tensorflow/tensorflow.git
-	branch = master
 [submodule "lib/nanopb"]
 	path = lib/nanopb
 	branch = nordic_patch
