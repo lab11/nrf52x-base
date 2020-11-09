@@ -84,13 +84,13 @@ otError gateway_coap_send(const otIp6Address* dest_addr,
 
   memcpy(&(msg->header), &header, sizeof(header));
 
-  uint8_t packed_data [256];
+  uint8_t packed_data [512];
 
   pb_ostream_t stream;
   stream = pb_ostream_from_buffer(packed_data, sizeof(packed_data));
   pb_encode(&stream, Message_fields, msg);
   size_t len = stream.bytes_written;
-  APP_ERROR_CHECK_BOOL(len < 256);
+  APP_ERROR_CHECK_BOOL(len < 512);
 
   otCoapType coap_type = confirmable ? OT_COAP_TYPE_CONFIRMABLE : OT_COAP_TYPE_NON_CONFIRMABLE;
 
