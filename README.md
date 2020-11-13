@@ -134,7 +134,7 @@ enable this, you must install the protobuf compiler `protoc` and build nanopb.
 
 On Ubuntu:
 ```
-sudo apt install libprotobuf-dev libprotoc-dev protobuf-compiler python3-protobuf
+sudo apt install python python3 libprotobuf-dev libprotoc-dev protobuf-compiler python3-protobuf
 ```
 On Mac Os:
 ```
