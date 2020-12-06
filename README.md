@@ -75,16 +75,19 @@ folder.
 Flash an Application
 --------------------
 
-To flash an application, there is some setup
+To build and flash an application, there is some setup
 you must do.
 
-1. Install the [`arm-none-eabi-gcc`](https://launchpad.net/gcc-arm-embedded) compiler.
+1. Install the [gcc-arm-none-eabi toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads).
 
     On Ubuntu:
 
-        sudo add-apt-repository ppa:team-gcc-arm-embedded/ppa
-        sudo apt-get update
-        sudo apt-get install gcc-arm-embedded
+        cd /tmp \
+        && wget -c https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2020q2/gcc-arm-none-eabi-9-2020-q2-update-x86_64-linux.tar.bz2 \
+        && tar xjf gcc-arm-none-eabi-9-2020-q2-update-x86_64-linux.tar.bz2 \
+        && sudo mv gcc-arm-none-eabi-9-2020-q2-update /opt/gcc-arm-none-eabi-9-2020-q2-update \
+        && rm gcc-arm-none-eabi-9-2020-q2-update-x86_64-linux.tar.bz2 \
+        && sudo ln -s /opt/gcc-arm-none-eabi-9-2020-q2-update/bin/* /usr/local/bin/.
 
     On MacOS:
 
@@ -131,7 +134,7 @@ enable this, you must install the protobuf compiler `protoc` and build nanopb.
 
 On Ubuntu:
 ```
-sudo apt install libprotobuf-dev libprotoc-dev protobuf-compiler python3-protobuf
+sudo apt install python python3 libprotobuf-dev libprotoc-dev protobuf-compiler python3-protobuf
 ```
 On Mac Os:
 ```

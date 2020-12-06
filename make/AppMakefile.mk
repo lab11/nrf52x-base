@@ -39,7 +39,7 @@ include $(NRF_BASE_DIR)/make/Program.mk
 # ---- Rules for building apps
 .PHONY:	all
 ifeq ($(USE_BOOTLOADER),1)
-all: $(PBGENS) $(OBJS) $(OBJS_AS) $(MERGED_HEX) bootloader
+all: $(PBGENS) $(OBJS) $(OBJS_AS) $(MERGED_HEX)
 else
 all: $(PBGENS) $(OBJS) $(OBJS_AS) $(HEX)
 endif
