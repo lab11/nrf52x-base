@@ -27,7 +27,7 @@ REPO_HEADER_PATHS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/DSP/Include/
 
 # ---- CMSIS DSP Library
 ifeq ($(USE_DSP), 1)
-  REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)lib/CMSIS_5/CMSIS/DSP/Source/*/))
+  REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/DSP/Source/*/))
   #REPO_SOURCES = $(notdir $(wildcard $(NRF_BASE_DIR)lib/CMSIS_5/CMSIS/DSP/Source/*/arm*.c))
   REPO_SOURCES += BasicMathFunctions.c
   REPO_SOURCES += MatrixFunctions.c
