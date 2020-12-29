@@ -18,6 +18,7 @@
 
 #include "pb_encode.h"
 
+static otCoapResponseHandler response_handler = NULL;
 static uint32_t seq_no = 0;
 static uint8_t* message_buf = NULL;
 static bool alloc = false;
@@ -32,6 +33,10 @@ static const otIp6Address unspecified_ipv6 =
     }
 };
 
+inline void gateway_set_response_handler(otCoapResponseHandler handler) {
+  response_handler = handler;
+}
+
 void gateway_block_finalize(uint8_t code, otError result) {
   if (alloc) {
     free(message_buf);
@@ -40,7 +45,7 @@ void gateway_block_finalize(uint8_t code, otError result) {
   callback(code, result);
 }
 
-void gateway_response_handler (void* context, otMessage* message, const
+static void gateway_response_handler (void* context, otMessage* message, const
                                  otMessageInfo* message_info, otError result) {
   if (result == OT_ERROR_NONE) {
     //NRF_LOG_INFO("Sent Message Successfully!");
@@ -60,6 +65,10 @@ void gateway_response_handler (void* context, otMessage* message, const
       strncpy(msg.data.discovery, GATEWAY_PARSE_ADDR, sizeof(msg.data.discovery));
       gateway_coap_send(&(message_info->mPeerAddr), "discovery", false, &msg);
     }
+  }
+
+  if (response_handler) {
+    response_handler(context, message, message_info, result);
   }
 }
 
@@ -95,7 +104,7 @@ otError gateway_coap_send(const otIp6Address* dest_addr,
   otCoapType coap_type = confirmable ? OT_COAP_TYPE_CONFIRMABLE : OT_COAP_TYPE_NON_CONFIRMABLE;
 
   otError error = thread_coap_send(thread_instance, OT_COAP_CODE_PUT, coap_type, dest_addr, path, packed_data, len, gateway_response_handler);
-
+  NRF_LOG_ERROR("thread_coap_send error: %d", error);
   // increment sequence number if successful
   if (error == OT_ERROR_NONE) {
     seq_no++;
@@ -105,7 +114,7 @@ otError gateway_coap_send(const otIp6Address* dest_addr,
 }
 
 otError gateway_coap_block_send(const otIp6Address* dest_addr, block_info* b_info,
-    Message* msg, block_finalize_cb cb, const uint8_t* existing_buffer) {
+    Message* msg, block_finalize_cb cb, uint8_t* existing_buffer) {
   otInstance * thread_instance = thread_get_instance();
   callback = cb;
 
