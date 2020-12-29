@@ -59,7 +59,7 @@ extern "C" {
 typedef nrfx_wdt_config_t nrf_drv_wdt_config_t;
 
 /** @brief Macro for forwarding the new implementation. */
-#define NRF_DRV_WDT_DEAFULT_CONFIG  NRFX_WDT_DEAFULT_CONFIG
+#define NRF_DRV_WDT_DEFAULT_CONFIG  NRFX_WDT_DEFAULT_CONFIG
 
 /** @brief Macro for forwarding the new implementation. */
 #define nrf_wdt_event_handler_t     nrfx_wdt_event_handler_t
@@ -96,7 +96,7 @@ __STATIC_INLINE ret_code_t nrf_drv_wdt_init(nrf_drv_wdt_config_t const * p_confi
 {
     if (p_config == NULL)
     {
-        static const nrfx_wdt_config_t default_config = NRFX_WDT_DEAFULT_CONFIG;
+        static const nrfx_wdt_config_t default_config = NRFX_WDT_DEFAULT_CONFIG;
         p_config = &default_config;
     }
     return nrfx_wdt_init(p_config, wdt_event_handler);
