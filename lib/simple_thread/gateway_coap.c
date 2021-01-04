@@ -12,10 +12,6 @@
 #include "custom_board.h"
 #include "config.h"
 
-#ifdef RTC_CS
-#include "ab1815.h"
-#endif
-
 #include "pb_encode.h"
 
 static otCoapResponseHandler response_handler = NULL;
@@ -63,7 +59,8 @@ static void gateway_response_handler (void* context, otMessage* message, const
       // send discovery!
       Message msg = Message_init_default;
       strncpy(msg.data.discovery, GATEWAY_PARSE_ADDR, sizeof(msg.data.discovery));
-      gateway_coap_send(&(message_info->mPeerAddr), "discovery", false, &msg);
+      struct timeval dummy = {0};
+      gateway_coap_send(&(message_info->mPeerAddr), "discovery", false, dummy, &msg);
     }
   }
 
@@ -73,7 +70,7 @@ static void gateway_response_handler (void* context, otMessage* message, const
 }
 
 otError gateway_coap_send(const otIp6Address* dest_addr,
-    const char* path, bool confirmable, Message* msg) {
+    const char* path, bool confirmable, struct timeval time, Message* msg) {
   if (otIp6IsAddressEqual(dest_addr, &unspecified_ipv6)) {
     return OT_ERROR_ADDRESS_QUERY;
   }
@@ -84,11 +81,10 @@ otError gateway_coap_send(const otIp6Address* dest_addr,
   memcpy(header.id.bytes, device_id, sizeof(device_id));
   strncpy(header.device_type, GATEWAY_DEVICE_TYPE, sizeof(header.device_type));
   header.id.size = sizeof(device_id);
-#ifdef RTC_CS
-    struct timeval time = ab1815_get_time_unix();
-    header.tv_sec = time.tv_sec;
-    header.tv_usec = time.tv_usec;
-#endif
+
+  header.tv_sec = time.tv_sec;
+  header.tv_usec = time.tv_usec;
+
   header.seq_no = seq_no;
 
   memcpy(&(msg->header), &header, sizeof(header));
@@ -114,7 +110,7 @@ otError gateway_coap_send(const otIp6Address* dest_addr,
 }
 
 otError gateway_coap_block_send(const otIp6Address* dest_addr, block_info* b_info,
-    Message* msg, block_finalize_cb cb, uint8_t* existing_buffer) {
+    struct timeval time, Message* msg, block_finalize_cb cb, uint8_t* existing_buffer) {
   otInstance * thread_instance = thread_get_instance();
   callback = cb;
 
@@ -123,11 +119,10 @@ otError gateway_coap_block_send(const otIp6Address* dest_addr, block_info* b_inf
   memcpy(header.id.bytes, device_id, sizeof(device_id));
   strncpy(header.device_type, GATEWAY_DEVICE_TYPE, sizeof(header.device_type));
   header.id.size = sizeof(device_id);
-#ifdef RTC_CS
-  struct timeval time = ab1815_get_time_unix();
+
   header.tv_sec = time.tv_sec;
   header.tv_usec = time.tv_usec;
-#endif
+
   header.seq_no = seq_no;
 
   memcpy(&(msg->header), &header, sizeof(header));
