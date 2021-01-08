@@ -23,9 +23,13 @@ HW_VERSION ?= 52
 # Default port for GDB
 GDB_PORT_NUMBER ?= 2331
 
+# Pick a random port for each RTT session
+RAND_PORT_NUMBER := $(shell python3 -c 'from random import randint; print(randint(1023, 65535));' || echo '19021')
+
 # Configuration flags for JTAG tools
 JLINK_FLAGS = -device $(FULL_IC) -if swd -speed 4000
 JLINK_GDBSERVER_FLAGS = -port $(GDB_PORT_NUMBER)
+JLINK_RTT_PORT = -RTTTelnetPort $(RAND_PORT_NUMBER)
 
 # Configuration flags for nrfutil tools
 BOOTLOADER_DEV = /dev/ttyACM0
@@ -159,13 +163,13 @@ endif
 .PHONY: rtt
 rtt:
 ifeq ($(UNAME_S),Darwin)
-	$(Q)$(TERMINAL) "$(JLINK) $(JLINK_FLAGS) -AutoConnect 1"'
+	$(Q)$(TERMINAL) "$(JLINK) $(JLINK_FLAGS) $(JLINK_RTT_PORT) -AutoConnect 1"'
 	$(Q)sleep 1
-	$(Q)$(TERMINAL) "$(JLINK_RTTCLIENT)"'
+	$(Q)$(TERMINAL) "$(JLINK_RTTCLIENT) $(JLINK_RTT_PORT)"'
 else
-	$(Q)$(TERMINAL) -e "$(JLINK) $(JLINK_FLAGS) -AutoConnect 1"
+	$(Q)$(TERMINAL) -e "$(JLINK) $(JLINK_FLAGS) $(JLINK_RTT_PORT) -AutoConnect 1"
 	$(Q)sleep 1
-	$(Q)$(TERMINAL) -e "$(JLINK_RTTCLIENT)"
+	$(Q)$(TERMINAL) -e "$(JLINK_RTTCLIENT) $(JLINK_RTT_PORT)"
 endif
 
 # ---- nrfutil bootloader rules
