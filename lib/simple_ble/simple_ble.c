@@ -1284,6 +1284,34 @@ void simple_ble_set_adv(ble_advdata_t* adv_data, ble_advdata_t* scan_rsp_data) {
     advertising_start();
 }
 
+void simple_ble_adv_raw(uint8_t* buf, size_t len) {
+    ret_code_t err_code;
+
+    // stop advertising. We must do this before changing the advertisement data
+    advertising_stop();
+
+    // limit size to maximum advertisement size
+    size_t min_len = BLE_GAP_ADV_SET_DATA_SIZE_MAX;
+    if (len < min_len) {
+        min_len = len;
+    }
+
+    // copy over advertisement payload
+    memcpy(m_advertising.adv_data.adv_data.p_data, buf, min_len);
+    m_advertising.adv_data.adv_data.len = min_len;
+
+    // clear scan response
+    memset(m_advertising.adv_data.scan_rsp_data.p_data, 0, BLE_GAP_ADV_SET_DATA_SIZE_MAX);
+    m_advertising.adv_data.scan_rsp_data.len = 0;
+
+    // actually set the advertisement
+    err_code = sd_ble_gap_adv_set_configure(&m_advertising.adv_handle, &m_advertising.adv_data, &m_advertising.adv_params);
+    APP_ERROR_CHECK(err_code);
+
+    // Start the advertisement
+    advertising_start();
+}
+
 
 /*******************************************************************************
  *   EDDYSTONE
