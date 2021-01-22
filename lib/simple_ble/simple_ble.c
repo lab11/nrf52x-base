@@ -682,7 +682,7 @@ void __attribute__((weak)) advertising_init(void) {
 
     init.config.ble_adv_fast_enabled  = true;
     init.config.ble_adv_fast_interval = APP_ADV_INTERVAL;
-    init.config.ble_adv_fast_timeout  = 18000;
+    init.config.ble_adv_fast_timeout  = 0;
 
     init.evt_handler = on_adv_evt;
 
