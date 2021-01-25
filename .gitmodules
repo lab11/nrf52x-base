@@ -2,12 +2,18 @@
 	path = lib/nanopb
 	branch = nordic_patch
 	url = https://github.com/lab11/nanopb.git
+	shallow = true
 [submodule "lib/CMSIS_5"]
 	path = lib/CMSIS_5
 	url = https://github.com/ARM-software/CMSIS_5.git
+	shallow = true
 [submodule "make/intelhex"]
 	path = make/intelhex
 	url = https://github.com/python-intelhex/intelhex.git
+	shallow = true
 [submodule "lib/base64"]
 	path = lib/base64
 	url = https://github.com/rafagafe/base64.git
+	shallow = true
+[submodule "CMSIS5"]
+	shallow = true
