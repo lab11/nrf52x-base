@@ -1,4 +1,4 @@
-# Board-specific configurations for the nRF52 development kit (pca10040)
+# Board-specific configurations for the nRF52 development kit (pca10056)
 
 # Ensure that this file is only included once
 ifndef BOARD_MAKEFILE

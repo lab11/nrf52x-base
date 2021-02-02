@@ -1,4 +1,4 @@
-// Pin definitions for nRF52 development kit (PCA10040)
+// Pin definitions for nRF52 development kit (PCA10056)
 
 #pragma once
 
@@ -14,6 +14,6 @@
 #define BUTTON3 NRF_GPIO_PIN_MAP(0,24)
 #define BUTTON4 NRF_GPIO_PIN_MAP(0,25)
 
-#define UART_TXD NRF_GPIO_PIN_MAP(0,27)
-#define UART_RXD NRF_GPIO_PIN_MAP(0,26)
+#define UART_TXD NRF_GPIO_PIN_MAP(0,6)
+#define UART_RXD NRF_GPIO_PIN_MAP(0,8)
 

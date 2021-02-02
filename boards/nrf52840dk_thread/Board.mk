@@ -67,6 +67,7 @@ BOARD_SOURCES += \
 	SEGGER_RTT.c\
 	SEGGER_RTT_Syscalls_GCC.c\
 	SEGGER_RTT_printf.c\
+	base64.c\
 
 ifeq ($(USE_THREAD), 1)
 BOARD_SOURCES += \
@@ -75,6 +76,7 @@ BOARD_SOURCES += \
 	thread_coap_block.c\
 	thread_dns.c\
 	thread_ntp.c\
+	gc_iot.c\
 
 endif
 endif

@@ -99,8 +99,8 @@ otError gateway_coap_send(const otIp6Address* dest_addr,
 
   otCoapType coap_type = confirmable ? OT_COAP_TYPE_CONFIRMABLE : OT_COAP_TYPE_NON_CONFIRMABLE;
 
-  otError error = thread_coap_send(thread_instance, OT_COAP_CODE_PUT, coap_type, dest_addr, path, packed_data, len, gateway_response_handler);
-  NRF_LOG_ERROR("thread_coap_send error: %d", error);
+  otError error = thread_coap_send(thread_instance, OT_COAP_CODE_PUT, coap_type, dest_addr, path, packed_data, len, false, gateway_response_handler);
+
   // increment sequence number if successful
   if (error == OT_ERROR_NONE) {
     seq_no++;
