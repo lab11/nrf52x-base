@@ -79,7 +79,7 @@ typedef void (*nrfx_wdt_event_handler_t)(void);
 typedef nrf_wdt_rr_register_t nrfx_wdt_channel_id;
 
 /** @brief WDT driver default configuration. */
-#define NRFX_WDT_DEAFULT_CONFIG                                               \
+#define NRFX_WDT_DEFAULT_CONFIG                                               \
     {                                                                         \
         .behaviour          = (nrf_wdt_behaviour_t)NRFX_WDT_CONFIG_BEHAVIOUR, \
         .reload_value       = NRFX_WDT_CONFIG_RELOAD_VALUE,                   \

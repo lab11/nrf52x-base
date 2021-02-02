@@ -29,7 +29,7 @@ REPO_HEADER_PATHS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/DSP/Include/
 
 # ---- CMSIS DSP Library
 ifeq ($(USE_DSP), 1)
-  REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)lib/CMSIS_5/CMSIS/DSP/Source/*/))
+  REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/DSP/Source/*/))
   #REPO_SOURCES = $(notdir $(wildcard $(NRF_BASE_DIR)lib/CMSIS_5/CMSIS/DSP/Source/*/arm*.c))
   REPO_SOURCES += BasicMathFunctions.c
   REPO_SOURCES += MatrixFunctions.c
@@ -368,12 +368,11 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
         THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-mtd.a
       endif
 
-      THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-platform-utils.a
+      THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-nrf52840.a
       THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-nrf52840-sdk.a
-      THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-diag.a
-      THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-radio.a
+      THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-nrf52840-transport.a
+      THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-platform-utils.a
       THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libnordicsemi-nrf52840-radio-driver.a
-      THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libmbedcrypto.a
       THREAD_LIB_FILES += $(SDK_ROOT)external/nrf_cc310/lib/libnrf_cc310_0.9.10.a
       THREAD_LIB_FILES += $(SDK_ROOT)external/nrf_cc310_bl/lib/libnrf_cc310_bl_0.9.10.a
       LIBS += $(THREAD_LIB_FILES)
@@ -715,12 +714,12 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
       SDK_HEADER_PATHS += $(SDK_ROOT)components/thread/utils/
       SDK_SOURCE_PATHS += $(SDK_ROOT)components/thread/utils/
 
-      THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-platform-utils.a
+      THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-nrf52840.a
       THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-nrf52840-sdk.a
-      THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-radio.a
       THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-nrf52840-transport.a
-      THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-nrf52840-transport-none.a
       THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libnordicsemi-nrf52840-radio-driver.a
+      THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-platform-utils.a
+
       THREAD_LIB_FILES += $(NRF_SECURITY)lib/libmbedcrypto_glue.a
       THREAD_LIB_FILES += $(NRF_SECURITY)lib/libmbedcrypto_glue_cc310.a
       THREAD_LIB_FILES += $(NRF_SECURITY)lib/libmbedcrypto_glue_vanilla.a
