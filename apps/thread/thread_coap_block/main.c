@@ -141,7 +141,7 @@ int main(void) {
 
     thread_init(&thread_config);
     otInstance* thread_instance = thread_get_instance();
-    thread_coap_client_init(thread_instance);
+    thread_coap_client_init(thread_instance, false);
 
     APP_SCHED_INIT(SCHED_EVENT_DATA_SIZE, SCHED_QUEUE_SIZE);
     app_timer_init();
