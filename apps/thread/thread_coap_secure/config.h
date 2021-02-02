@@ -51,8 +51,8 @@
  */
 #define GCP_COAP_IOT_CORE_SERVER_ADDRESS      "64:ff9b::23ee:2ab0"
 #define GCP_COAP_IOT_CORE_PATH                "gcp"
-#define GCP_COAP_IOT_CORE_PROJECT_ID          "blue-iris-labs-289016"
-#define GCP_COAP_IOT_CORE_REGISTRY_ID         "pupil"
+#define GCP_COAP_IOT_CORE_PROJECT_ID          "project-id"
+#define GCP_COAP_IOT_CORE_REGISTRY_ID         "registry-id"
 #define GCP_COAP_IOT_CORE_REGION              "us-central1"
 #define GCP_COAP_IOT_CORE_PUBLISH             "publishEvent"
 #define GCP_COAP_IOT_CORE_CONFIG              "config"
@@ -62,7 +62,7 @@
  * Must be configured by the user.
  */
 #define GCP_COAP_IOT_CORE_DEVICE_ID          "example"
-#define GCP_COAP_IOT_CORE_DEVICE_KEY          "blah add your own"
+#define GCP_COAP_IOT_CORE_DEVICE_KEY         "blah add your own"
 
 /**
  * The JSON representation of the header with ES256 algorithm.
