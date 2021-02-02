@@ -39,7 +39,6 @@
 
 #include <openthread/backbone_router.h>
 #include <openthread/ip6.h>
-#include <openthread/netdata.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -158,18 +157,6 @@ uint8_t otBackboneRouterGetRegistrationJitter(otInstance *aInstance);
  *
  */
 void otBackboneRouterSetRegistrationJitter(otInstance *aInstance, uint8_t aJitter);
-
-/**
- * This method gets the local Domain Prefix configuration.
- *
- * @param[in]  aInstance A pointer to an OpenThread instance.
- * @param[out] aConfig   A pointer to the Domain Prefix configuration.
- *
- * @retval OT_ERROR_NONE       Successfully got the Domain Prefix configuration.
- * @retval OT_ERROR_NOT_FOUND  No Domain Prefix was configured.
- *
- */
-otError otBackboneRouterGetDomainPrefix(otInstance *aInstance, otBorderRouterConfig *aConfig);
 
 /**
  * @}

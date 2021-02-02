@@ -257,8 +257,11 @@ otError otCoapSecureSendRequest(otInstance *          aInstance,
  * @param[in]  aInstance  A pointer to an OpenThread instance.
  * @param[in]  aResource  A pointer to the resource.
  *
+ * @retval OT_ERROR_NONE     Successfully added @p aResource.
+ * @retval OT_ERROR_ALREADY  The @p aResource was already added.
+ *
  */
-void otCoapSecureAddResource(otInstance *aInstance, otCoapResource *aResource);
+otError otCoapSecureAddResource(otInstance *aInstance, otCoapResource *aResource);
 
 /**
  * This function removes a resource from the CoAP Secure server.
