@@ -79,7 +79,7 @@ static otError base64_url_encode(uint8_t *p_output, uint16_t *p_output_len, cons
 
     if (result != 0)
     {
-        NRF_LOG_INFO("MBEDTLS b64 encode: %d", result);
+        //NRF_LOG_INFO("MBEDTLS b64 encode: %d", result);
         return OT_ERROR_NO_BUFS;
     }
 
@@ -163,7 +163,6 @@ static otError jwt_create(uint8_t       * p_output,
     error = otCryptoEcdsaSign(signature, &signature_size, hash, sizeof(hash), p_private_key, private_key_len);
     if (error != OT_ERROR_NONE) {
       NRF_LOG_INFO("jwt ecdsa sign fail");
-      NRF_LOG_INFO("%s\n%d", p_private_key, private_key_len);
       return error;
     }
 
@@ -237,10 +236,10 @@ static void gc_iot_coap_payload_append(otMessage * p_message, uint8_t* data, siz
 
     uint16_t length = snprintf(payload, sizeof(payload), "{\"d\":\"%s\"}",
                                b64encoded);
-    NRF_LOG_INFO("sent payload: %s", payload);
+    //NRF_LOG_INFO("sent payload: %s", payload);
     otError error = otMessageAppend(p_message, payload, length);
     if (error != OT_ERROR_NONE) {
-      NRF_LOG_INFO("message append failed");
+      NRF_LOG_INFO("message append failed: %d", error);
       return;
     }
 }
