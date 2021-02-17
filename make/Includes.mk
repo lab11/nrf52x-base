@@ -720,17 +720,13 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
       THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libnordicsemi-nrf52840-radio-driver.a
       THREAD_LIB_FILES += $(SDK_ROOT)external/openthread/lib/nrf52840/gcc/libopenthread-platform-utils.a
 
-      THREAD_LIB_FILES += $(NRF_SECURITY)lib/libmbedcrypto_glue.a
-      THREAD_LIB_FILES += $(NRF_SECURITY)lib/libmbedcrypto_glue_cc310.a
-      THREAD_LIB_FILES += $(NRF_SECURITY)lib/libmbedcrypto_glue_vanilla.a
-      THREAD_LIB_FILES += $(NRF_SECURITY)lib/libmbedcrypto_cc310_backend.a
-      THREAD_LIB_FILES += $(NRF_SECURITY)lib/libmbedcrypto_vanilla_backend.a
+      THREAD_LIB_FILES += $(NRF_SECURITY)lib/libmbedcrypto_shared.a
       THREAD_LIB_FILES += $(NRF_SECURITY)lib/libmbedtls_tls_vanilla.a
       THREAD_LIB_FILES += $(NRF_SECURITY)lib/libmbedtls_x509_vanilla.a
+      THREAD_LIB_FILES += $(NRF_SECURITY)lib/libmbedcrypto_cc3xx.a
+      THREAD_LIB_FILES += $(NRF_SECURITY)lib/libnrf_cc310_platform_0.9.4.a
+      THREAD_LIB_FILES += $(NRF_SECURITY)lib/libmbedcrypto_oberon.a
       THREAD_LIB_FILES += $(NRF_SECURITY)lib/libmbedtls_base_vanilla.a
-      THREAD_LIB_FILES += $(NRF_SECURITY)lib/libnrf_cc310_platform_0.9.1.a
-      THREAD_LIB_FILES += $(SDK_ROOT)external/nrf_cc310/lib/cortex-m4/hard-float/libnrf_cc310_0.9.12.a
-      THREAD_LIB_FILES += $(SDK_ROOT)external/nrf_cc310_bl/lib/cortex-m4/hard-float/libnrf_cc310_bl_0.9.12.a
       LIBS += $(THREAD_LIB_FILES)
 
       SDK_HEADER_PATHS += $(SDK_ROOT)external/openthread/include

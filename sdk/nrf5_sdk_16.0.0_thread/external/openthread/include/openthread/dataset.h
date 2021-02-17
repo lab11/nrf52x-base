@@ -44,7 +44,7 @@ extern "C" {
 #endif
 
 /**
- * @addtogroup api-thread-general
+ * @addtogroup api-operational-dataset
  *
  * @{
  *
@@ -99,23 +99,13 @@ struct otExtendedPanId
  */
 typedef struct otExtendedPanId otExtendedPanId;
 
-#define OT_MESH_LOCAL_PREFIX_SIZE 8 ///< Size of the Mesh Local Prefix (bytes)
+#define OT_MESH_LOCAL_PREFIX_SIZE OT_IP6_PREFIX_SIZE ///< Size of the Mesh Local Prefix (bytes)
 
 /**
  * This structure represents a Mesh Local Prefix.
  *
  */
-OT_TOOL_PACKED_BEGIN
-struct otMeshLocalPrefix
-{
-    uint8_t m8[OT_MESH_LOCAL_PREFIX_SIZE]; ///< Byte values
-} OT_TOOL_PACKED_END;
-
-/**
- * This structure represents a Mesh Local Prefix.
- *
- */
-typedef struct otMeshLocalPrefix otMeshLocalPrefix;
+typedef otIp6NetworkPrefix otMeshLocalPrefix;
 
 #define OT_PSKC_MAX_SIZE 16 ///< Maximum size of the PSKc (bytes)
 
@@ -235,6 +225,24 @@ typedef struct otOperationalDataset
 } otOperationalDataset;
 
 /**
+ * Maximum length of Operational Dataset in bytes.
+ *
+ */
+#define OT_OPERATIONAL_DATASET_MAX_LENGTH 254
+
+/**
+ * This structure represents an Active or Pending Operational Dataset.
+ *
+ * The Operational Dataset is TLV encoded as specified by Thread.
+ *
+ */
+typedef struct otOperationalDatasetTlvs
+{
+    uint8_t mTlvs[OT_OPERATIONAL_DATASET_MAX_LENGTH]; ///< Operational Dataset TLVs.
+    uint8_t mLength;                                  ///< Size of Operational Dataset in bytes.
+} otOperationalDatasetTlvs;
+
+/**
  * This enumeration represents meshcop TLV types.
  *
  */
@@ -279,6 +287,7 @@ typedef enum otMeshcopTlvType
     OT_MESHCOP_TLV_ENERGY_LIST              = 57,  ///< meshcop Energy List TLV
     OT_MESHCOP_TLV_DISCOVERYREQUEST         = 128, ///< meshcop Discovery Request TLV
     OT_MESHCOP_TLV_DISCOVERYRESPONSE        = 129, ///< meshcop Discovery Response TLV
+    OT_MESHCOP_TLV_JOINERADVERTISEMENT      = 241, ///< meshcop Joiner Advertisement TLV
 } otMeshcopTlvType;
 
 /**
@@ -298,10 +307,22 @@ bool otDatasetIsCommissioned(otInstance *aInstance);
  * @param[out]  aDataset  A pointer to where the Active Operational Dataset will be placed.
  *
  * @retval OT_ERROR_NONE          Successfully retrieved the Active Operational Dataset.
- * @retval OT_ERROR_INVALID_ARGS  @p aDataset was NULL.
+ * @retval OT_ERROR_NOT_FOUND     No corresponding value in the setting store.
  *
  */
 otError otDatasetGetActive(otInstance *aInstance, otOperationalDataset *aDataset);
+
+/**
+ * This function gets the Active Operational Dataset.
+ *
+ * @param[in]   aInstance A pointer to an OpenThread instance.
+ * @param[out]  aDataset  A pointer to where the Active Operational Dataset will be placed.
+ *
+ * @retval OT_ERROR_NONE          Successfully retrieved the Active Operational Dataset.
+ * @retval OT_ERROR_NOT_FOUND     No corresponding value in the setting store.
+ *
+ */
+otError otDatasetGetActiveTlvs(otInstance *aInstance, otOperationalDatasetTlvs *aDataset);
 
 /**
  * This function sets the Active Operational Dataset.
@@ -322,12 +343,38 @@ otError otDatasetGetActive(otInstance *aInstance, otOperationalDataset *aDataset
  * @param[in]  aInstance A pointer to an OpenThread instance.
  * @param[in]  aDataset  A pointer to the Active Operational Dataset.
  *
- * @retval OT_ERROR_NONE          Successfully set the Active Operational Dataset.
- * @retval OT_ERROR_NO_BUFS       Insufficient buffer space to set the Active Operational Dataset.
- * @retval OT_ERROR_INVALID_ARGS  @p aDataset was NULL.
+ * @retval OT_ERROR_NONE             Successfully set the Active Operational Dataset.
+ * @retval OT_ERROR_NO_BUFS          Insufficient buffer space to set the Active Operational Dataset.
+ * @retval OT_ERROR_NOT_IMPLEMENTED  The platform does not implement settings functionality.
  *
  */
 otError otDatasetSetActive(otInstance *aInstance, const otOperationalDataset *aDataset);
+
+/**
+ * This function sets the Active Operational Dataset.
+ *
+ * If the dataset does not include an Active Timestamp, the dataset is only partially complete.
+ *
+ * If Thread is enabled on a device that has a partially complete Active Dataset, the device will attempt to attach to
+ * an existing Thread network using any existing information in the dataset. Only the Thread Master Key is needed to
+ * attach to a network.
+ *
+ * If channel is not included in the dataset, the device will send MLE Announce messages across different channels to
+ * find neighbors on other channels.
+ *
+ * If the device successfully attaches to a Thread network, the device will then retrieve the full Active Dataset from
+ * its Parent. Note that a router-capable device will not transition to the Router or Leader roles until it has a
+ * complete Active Dataset.
+ *
+ * @param[in]  aInstance A pointer to an OpenThread instance.
+ * @param[in]  aDataset  A pointer to the Active Operational Dataset.
+ *
+ * @retval OT_ERROR_NONE             Successfully set the Active Operational Dataset.
+ * @retval OT_ERROR_NO_BUFS          Insufficient buffer space to set the Active Operational Dataset.
+ * @retval OT_ERROR_NOT_IMPLEMENTED  The platform does not implement settings functionality.
+ *
+ */
+otError otDatasetSetActiveTlvs(otInstance *aInstance, const otOperationalDatasetTlvs *aDataset);
 
 /**
  * This function gets the Pending Operational Dataset.
@@ -336,10 +383,22 @@ otError otDatasetSetActive(otInstance *aInstance, const otOperationalDataset *aD
  * @param[out]  aDataset  A pointer to where the Pending Operational Dataset will be placed.
  *
  * @retval OT_ERROR_NONE          Successfully retrieved the Pending Operational Dataset.
- * @retval OT_ERROR_INVALID_ARGS  @p aDataset was NULL.
+ * @retval OT_ERROR_NOT_FOUND     No corresponding value in the setting store.
  *
  */
 otError otDatasetGetPending(otInstance *aInstance, otOperationalDataset *aDataset);
+
+/**
+ * This function gets the Pending Operational Dataset.
+ *
+ * @param[in]   aInstance A pointer to an OpenThread instance.
+ * @param[out]  aDataset  A pointer to where the Pending Operational Dataset will be placed.
+ *
+ * @retval OT_ERROR_NONE          Successfully retrieved the Pending Operational Dataset.
+ * @retval OT_ERROR_NOT_FOUND     No corresponding value in the setting store.
+ *
+ */
+otError otDatasetGetPendingTlvs(otInstance *aInstance, otOperationalDatasetTlvs *aDataset);
 
 /**
  * This function sets the Pending Operational Dataset.
@@ -347,12 +406,25 @@ otError otDatasetGetPending(otInstance *aInstance, otOperationalDataset *aDatase
  * @param[in]  aInstance A pointer to an OpenThread instance.
  * @param[in]  aDataset  A pointer to the Pending Operational Dataset.
  *
- * @retval OT_ERROR_NONE          Successfully set the Pending Operational Dataset.
- * @retval OT_ERROR_NO_BUFS       Insufficient buffer space to set the Pending Operational Dataset.
- * @retval OT_ERROR_INVALID_ARGS  @p aDataset was NULL.
+ * @retval OT_ERROR_NONE             Successfully set the Pending Operational Dataset.
+ * @retval OT_ERROR_NO_BUFS          Insufficient buffer space to set the Pending Operational Dataset.
+ * @retval OT_ERROR_NOT_IMPLEMENTED  The platform does not implement settings functionality.
  *
  */
 otError otDatasetSetPending(otInstance *aInstance, const otOperationalDataset *aDataset);
+
+/**
+ * This function sets the Pending Operational Dataset.
+ *
+ * @param[in]  aInstance A pointer to an OpenThread instance.
+ * @param[in]  aDataset  A pointer to the Pending Operational Dataset.
+ *
+ * @retval OT_ERROR_NONE             Successfully set the Pending Operational Dataset.
+ * @retval OT_ERROR_NO_BUFS          Insufficient buffer space to set the Pending Operational Dataset.
+ * @retval OT_ERROR_NOT_IMPLEMENTED  The platform does not implement settings functionality.
+ *
+ */
+otError otDatasetSetPendingTlvs(otInstance *aInstance, const otOperationalDatasetTlvs *aDataset);
 
 /**
  * This function sends MGMT_ACTIVE_GET.

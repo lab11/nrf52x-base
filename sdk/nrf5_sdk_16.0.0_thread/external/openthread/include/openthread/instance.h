@@ -46,6 +46,16 @@ extern "C" {
 #endif
 
 /**
+ * The OpenThread API monotonic version number.
+ *
+ * This number MUST increase by one each time the contents of public OpenThread API include headers change.
+ *
+ * @note This number versions both OpenThread platform and user APIs.
+ *
+ */
+#define OPENTHREAD_API_VERSION (69)
+
+/**
  * @addtogroup api-instance
  *
  * @brief
@@ -145,11 +155,13 @@ enum
     OT_CHANGED_SECURITY_POLICY              = 1 << 20, ///< Security Policy changed
     OT_CHANGED_CHANNEL_MANAGER_NEW_CHANNEL  = 1 << 21, ///< Channel Manager new pending Thread channel changed
     OT_CHANGED_SUPPORTED_CHANNEL_MASK       = 1 << 22, ///< Supported channel mask changed
-    OT_CHANGED_BORDER_AGENT_STATE           = 1 << 23, ///< Border agent state changed
+    OT_CHANGED_COMMISSIONER_STATE           = 1 << 23, ///< Commissioner state changed
     OT_CHANGED_THREAD_NETIF_STATE           = 1 << 24, ///< Thread network interface state changed
     OT_CHANGED_THREAD_BACKBONE_ROUTER_STATE = 1 << 25, ///< Backbone Router state changed
     OT_CHANGED_THREAD_BACKBONE_ROUTER_LOCAL = 1 << 26, ///< Local Backbone Router configuration changed
     OT_CHANGED_JOINER_STATE                 = 1 << 27, ///< Joiner state changed
+    OT_CHANGED_ACTIVE_DATASET               = 1 << 28, ///< Active Operational Dataset changed
+    OT_CHANGED_PENDING_DATASET              = 1 << 29, ///< Pending Operational Dataset changed
 };
 
 /**

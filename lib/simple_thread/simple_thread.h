@@ -4,18 +4,19 @@
 #include <stdint.h>
 
 #include <openthread/thread.h>
-#include <openthread/platform/openthread-system.h>
 #include <openthread/ip6.h>
 #include <openthread/tasklet.h>
+#include <openthread/dataset.h>
 
 typedef struct {
-  uint8_t   channel;
-  int8_t    tx_power;
-  uint16_t  panid;
-  bool      sed; // sleepy end device
-  uint32_t  poll_period;
-  uint32_t  child_period;
-  bool      autocommission;
+  uint8_t     channel;
+  uint16_t    panid;
+  otMasterKey masterkey;
+  int8_t      tx_power;
+  bool        sed; // sleepy end device
+  uint32_t    poll_period;
+  uint32_t    child_period;
+  bool        autocommission;
 } thread_config_t;
 
 void thread_state_changed_callback(uint32_t flags, void * p_context);

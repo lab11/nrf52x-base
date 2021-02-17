@@ -12,7 +12,7 @@ typedef struct block_info {
     size_t data_len;
     size_t block_number;
     size_t last_block_number;
-    otCoapBlockSize block_size;
+    otCoapBlockSzx block_size;
     char path[64]; // arbitrary for now!
     block_finalize_cb callback;
 

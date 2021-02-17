@@ -17,7 +17,7 @@ void __attribute__((weak)) thread_state_changed_callback(uint32_t flags, void * 
 
 }
 
-static void* ot_calloc(size_t n, size_t size)
+void* otPlatCAlloc(size_t n, size_t size)
 {
     void *p_ptr = NULL;
 
@@ -26,7 +26,7 @@ static void* ot_calloc(size_t n, size_t size)
     return p_ptr;
 }
 
-static void ot_free(void *p_ptr)
+void otPlatFree(void *p_ptr)
 {
     nrf_free(p_ptr);
 }
@@ -37,13 +37,11 @@ static void platform_init(void)
 
     int ret;
 
-    ret = mbedtls_platform_set_calloc_free(ot_calloc, ot_free);
+    ret = mbedtls_platform_set_calloc_free(otPlatCAlloc, otPlatFree);
     ASSERT(ret == 0);
 
     ret = mbedtls_platform_setup(NULL);
     ASSERT(ret == 0);
-
-    otHeapSetCAllocFree(ot_calloc, ot_free);
 }
 
 
@@ -81,6 +79,16 @@ void __attribute__((weak)) thread_init(const thread_config_t* config)
         error = otLinkSetPanId(m_ot_instance, config->panid);
         ASSERT(error == OT_ERROR_NONE);
         NRF_LOG_INFO("Thread PANID: 0x%lx", (uint32_t)otLinkGetPanId(m_ot_instance));
+
+        error = otThreadSetMasterKey(m_ot_instance, &(config->masterkey));
+        ASSERT(error == OT_ERROR_NONE);
+        const otMasterKey * masterkey = otThreadGetMasterKey(m_ot_instance);
+        char masterkey_str[128];
+        size_t k = 0;
+        for (size_t i = 0; i < sizeof(masterkey->m8); i++) {
+          k += snprintf(masterkey_str+k, 128-k, "%2x", masterkey->m8[i]);
+        }
+        NRF_LOG_INFO("Thread MasterKey: %s", masterkey_str);
     }
 
     otLinkModeConfig mode;
@@ -88,14 +96,12 @@ void __attribute__((weak)) thread_init(const thread_config_t* config)
 
     if (config->sed) {
       // sleepy end device
-      mode.mSecureDataRequests = true;
       mode.mRxOnWhenIdle       = false; // Join network as SED.
       otLinkSetPollPeriod(m_ot_instance, config->poll_period);
     }
     else {
       // regular device
       mode.mRxOnWhenIdle       = true;
-      mode.mSecureDataRequests = true;
       mode.mDeviceType         = true;
       mode.mNetworkData        = true;
     }

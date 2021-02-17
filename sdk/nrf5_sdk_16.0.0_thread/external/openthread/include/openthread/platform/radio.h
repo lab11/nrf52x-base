@@ -72,9 +72,10 @@ enum
     OT_RADIO_BIT_RATE          = 250000, ///< 2.4 GHz IEEE 802.15.4 (bits per second)
     OT_RADIO_BITS_PER_OCTET    = 8,      ///< Number of bits per octet
 
-    OT_RADIO_SYMBOL_TIME  = ((OT_RADIO_BITS_PER_OCTET / OT_RADIO_SYMBOLS_PER_OCTET) * 1000000) / OT_RADIO_BIT_RATE,
-    OT_RADIO_LQI_NONE     = 0,   ///< LQI measurement not supported
-    OT_RADIO_RSSI_INVALID = 127, ///< Invalid or unknown RSSI value
+    OT_RADIO_SYMBOL_TIME   = ((OT_RADIO_BITS_PER_OCTET / OT_RADIO_SYMBOLS_PER_OCTET) * 1000000) / OT_RADIO_BIT_RATE,
+    OT_RADIO_LQI_NONE      = 0,   ///< LQI measurement not supported
+    OT_RADIO_RSSI_INVALID  = 127, ///< Invalid or unknown RSSI value
+    OT_RADIO_POWER_INVALID = 127, ///< Invalid or unknown power value
 };
 
 /**
@@ -124,6 +125,8 @@ enum
     OT_RADIO_CAPS_TRANSMIT_RETRIES = 1 << 2, ///< Radio supports tx retry logic with collision avoidance (CSMA).
     OT_RADIO_CAPS_CSMA_BACKOFF     = 1 << 3, ///< Radio supports CSMA backoff for frame transmission (but no retry).
     OT_RADIO_CAPS_SLEEP_TO_TX      = 1 << 4, ///< Radio supports direct transition from sleep to TX with CSMA.
+    OT_RADIO_CAPS_TRANSMIT_SEC     = 1 << 5, ///< Radio supports tx security.
+    OT_RADIO_CAPS_TRANSMIT_TIMING  = 1 << 6, ///< Radio supports tx at specific time.
 };
 
 #define OT_PANID_BROADCAST 0xffff ///< IEEE 802.15.4 Broadcast PAN ID
@@ -143,6 +146,21 @@ typedef uint16_t otShortAddress;
 #define OT_EXT_ADDRESS_SIZE 8 ///< Size of an IEEE 802.15.4 Extended Address (bytes)
 
 /**
+ * This enumeration defines constants about size of header IE in ACK.
+ *
+ */
+enum
+{
+    OT_IE_HEADER_SIZE               = 2,  ///< Size of IE header in bytes.
+    OT_CSL_IE_SIZE                  = 4,  ///< Size of CSL IE content in bytes.
+    OT_ACK_IE_MAX_SIZE              = 16, ///< Max length for header IE in ACK.
+    OT_ENH_PROBING_IE_DATA_MAX_SIZE = 2,  ///< Max length of Link Metrics data in Vendor-Specific IE.
+};
+
+#define CSL_IE_HEADER_BYTES_LO 0x04 ///< Fixed CSL IE header first byte
+#define CSL_IE_HEADER_BYTES_HI 0x0d ///< Fixed CSL IE header second byte
+
+/**
  * @struct otExtAddress
  *
  * This structure represents the IEEE 802.15.4 Extended Address.
@@ -159,6 +177,26 @@ struct otExtAddress
  *
  */
 typedef struct otExtAddress otExtAddress;
+
+#define OT_MAC_KEY_SIZE 16 ///< Size of the MAC Key in bytes.
+
+/**
+ * @struct otMacKey
+ *
+ * This structure represents a MAC Key.
+ *
+ */
+OT_TOOL_PACKED_BEGIN
+struct otMacKey
+{
+    uint8_t m8[OT_MAC_KEY_SIZE]; ///< MAC Key bytes.
+} OT_TOOL_PACKED_END;
+
+/**
+ * This structure represents a MAC Key.
+ *
+ */
+typedef struct otMacKey otMacKey;
 
 /**
  * This structure represents the IEEE 802.15.4 Header IE (Information Element) related information of a radio frame.
@@ -180,6 +218,8 @@ typedef struct otRadioFrame
     uint16_t mLength;  ///< Length of the PSDU.
     uint8_t  mChannel; ///< Channel used to transmit/receive the frame.
 
+    uint8_t mRadioType; ///< Radio link type - should be ignored by radio driver.
+
     /**
      * The union of transmit and receive information for a radio frame.
      */
@@ -190,12 +230,16 @@ typedef struct otRadioFrame
          */
         struct
         {
-            const uint8_t *mAesKey;            ///< The key used for AES-CCM frame security.
-            otRadioIeInfo *mIeInfo;            ///< The pointer to the Header IE(s) related information.
-            uint8_t        mMaxCsmaBackoffs;   ///< Maximum number of backoffs attempts before declaring CCA failure.
-            uint8_t        mMaxFrameRetries;   ///< Maximum number of retries allowed after a transmission failure.
-            bool           mIsARetx : 1;       ///< True if this frame is a retransmission (ignored by radio driver).
-            bool           mCsmaCaEnabled : 1; ///< Set to true to enable CSMA-CA for this packet, false otherwise.
+            const otMacKey *mAesKey;            ///< The key used for AES-CCM frame security.
+            otRadioIeInfo * mIeInfo;            ///< The pointer to the Header IE(s) related information.
+            uint32_t        mTxDelay;           ///< The delay time for this transmission (based on `mTxDelayBaseTime`).
+            uint32_t        mTxDelayBaseTime;   ///< The base time for the transmission delay.
+            uint8_t         mMaxCsmaBackoffs;   ///< Maximum number of backoffs attempts before declaring CCA failure.
+            uint8_t         mMaxFrameRetries;   ///< Maximum number of retries allowed after a transmission failure.
+            bool            mIsARetx : 1;       ///< True if this frame is a retransmission (ignored by radio driver).
+            bool            mCsmaCaEnabled : 1; ///< Set to true to enable CSMA-CA for this packet, false otherwise.
+            bool            mCslPresent : 1;    ///< Set to true if CSL header IE is present.
+            bool            mIsSecurityProcessed : 1; ///< True if SubMac should skip the AES processing of this frame.
         } mTxInfo;
 
         /**
@@ -212,11 +256,14 @@ typedef struct otRadioFrame
              */
             uint64_t mTimestamp;
 
-            int8_t  mRssi; ///< Received signal strength indicator in dBm for received frames.
-            uint8_t mLqi;  ///< Link Quality Indicator for received frames.
+            uint32_t mAckFrameCounter; ///< ACK security frame counter (applicable when `mAckedWithSecEnhAck` is set).
+            uint8_t  mAckKeyId;        ///< ACK security key index (applicable when `mAckedWithSecEnhAck` is set).
+            int8_t   mRssi;            ///< Received signal strength indicator in dBm for received frames.
+            uint8_t  mLqi;             ///< Link Quality Indicator for received frames.
 
             // Flags
-            bool mAckedWithFramePending : 1; /// This indicates if this frame was acknowledged with frame pending set.
+            bool mAckedWithFramePending : 1; ///< This indicates if this frame was acknowledged with frame pending set.
+            bool mAckedWithSecEnhAck : 1; ///< This indicates if this frame was acknowledged with secured enhance ACK.
         } mRxInfo;
     } mInfo;
 } otRadioFrame;
@@ -276,6 +323,19 @@ typedef struct otRadioCoexMetrics
     uint32_t mNumRxGrantNone;                     ///< Number of rx requests that completed without receiving grant.
     bool     mStopped;                            ///< Stats collection stopped due to saturation.
 } otRadioCoexMetrics;
+
+/**
+ * This structure represents what metrics are specified to query.
+ *
+ */
+typedef struct otLinkMetrics
+{
+    bool mPduCount : 1;   ///< Pdu count.
+    bool mLqi : 1;        ///< Link Quality Indicator.
+    bool mLinkMargin : 1; ///< Link Margin.
+    bool mRssi : 1;       ///< Received Signal Strength Indicator.
+    bool mReserved : 1;   ///< Reserved, this is for reference device.
+} otLinkMetrics;
 
 /**
  * @}
@@ -365,6 +425,9 @@ void otPlatRadioSetShortAddress(otInstance *aInstance, otShortAddress aShortAddr
 /**
  * Get the radio's transmit power in dBm.
  *
+ * @note The transmit power returned will be no larger than the power specified in the max power table for
+ * the current channel.
+ *
  * @param[in] aInstance  The OpenThread instance structure.
  * @param[out] aPower    The transmit power in dBm.
  *
@@ -378,6 +441,9 @@ otError otPlatRadioGetTransmitPower(otInstance *aInstance, int8_t *aPower);
 /**
  * Set the radio's transmit power in dBm.
  *
+ * @note The real transmit power will be no larger than the power specified in the max power table for
+ * the current channel.
+ *
  * @param[in] aInstance  The OpenThread instance structure.
  * @param[in] aPower     The transmit power in dBm.
  *
@@ -388,7 +454,7 @@ otError otPlatRadioGetTransmitPower(otInstance *aInstance, int8_t *aPower);
 otError otPlatRadioSetTransmitPower(otInstance *aInstance, int8_t aPower);
 
 /**
- * Get the radio's CCA ED threshold in dBm.
+ * Get the radio's CCA ED threshold in dBm measured at antenna connector per IEEE 802.15.4 - 2015 section 10.1.4.
  *
  * @param[in] aInstance    The OpenThread instance structure.
  * @param[out] aThreshold  The CCA ED threshold in dBm.
@@ -401,7 +467,7 @@ otError otPlatRadioSetTransmitPower(otInstance *aInstance, int8_t aPower);
 otError otPlatRadioGetCcaEnergyDetectThreshold(otInstance *aInstance, int8_t *aThreshold);
 
 /**
- * Set the radio's CCA ED threshold in dBm.
+ * Set the radio's CCA ED threshold in dBm measured at antenna connector per IEEE 802.15.4 - 2015 section 10.1.4.
  *
  * @param[in] aInstance   The OpenThread instance structure.
  * @param[in] aThreshold  The CCA ED threshold in dBm.
@@ -412,6 +478,31 @@ otError otPlatRadioGetCcaEnergyDetectThreshold(otInstance *aInstance, int8_t *aT
  *
  */
 otError otPlatRadioSetCcaEnergyDetectThreshold(otInstance *aInstance, int8_t aThreshold);
+
+/**
+ * Get the external FEM's Rx LNA gain in dBm.
+ *
+ * @param[in]  aInstance  The OpenThread instance structure.
+ * @param[out] aGain     The external FEM's Rx LNA gain in dBm.
+ *
+ * @retval OT_ERROR_NONE             Successfully retrieved the external FEM's LNA gain.
+ * @retval OT_ERROR_INVALID_ARGS     @p aGain was NULL.
+ * @retval OT_ERROR_NOT_IMPLEMENTED  External FEM's LNA setting is not implemented.
+ *
+ */
+otError otPlatRadioGetFemLnaGain(otInstance *aInstance, int8_t *aGain);
+
+/**
+ * Set the external FEM's Rx LNA gain in dBm.
+ *
+ * @param[in] aInstance  The OpenThread instance structure.
+ * @param[in] aGain      The external FEM's Rx LNA gain in dBm.
+ *
+ * @retval OT_ERROR_NONE             Successfully set the external FEM's LNA gain.
+ * @retval OT_ERROR_NOT_IMPLEMENTED  External FEM's LNA gain setting is not implemented.
+ *
+ */
+otError otPlatRadioSetFemLnaGain(otInstance *aInstance, int8_t aGain);
 
 /**
  * Get the status of promiscuous mode.
@@ -432,6 +523,58 @@ bool otPlatRadioGetPromiscuous(otInstance *aInstance);
  *
  */
 void otPlatRadioSetPromiscuous(otInstance *aInstance, bool aEnable);
+
+/**
+ * Update MAC keys and key index
+ *
+ * This function is used when radio provides OT_RADIO_CAPS_TRANSMIT_SEC capability.
+ *
+ * @param[in]   aInstance    A pointer to an OpenThread instance.
+ * @param[in]   aKeyIdMode   The key ID mode.
+ * @param[in]   aKeyId       Current MAC key index.
+ * @param[in]   aPrevKey     A pointer to the previous MAC key.
+ * @param[in]   aCurrKey     A pointer to the current MAC key.
+ * @param[in]   aNextKey     A pointer to the next MAC key.
+ *
+ */
+void otPlatRadioSetMacKey(otInstance *    aInstance,
+                          uint8_t         aKeyIdMode,
+                          uint8_t         aKeyId,
+                          const otMacKey *aPrevKey,
+                          const otMacKey *aCurrKey,
+                          const otMacKey *aNextKey);
+
+/**
+ * This method sets the current MAC frame counter value.
+ *
+ * This function is used when radio provides `OT_RADIO_CAPS_TRANSMIT_SEC` capability.
+ *
+ * @param[in]   aInstance         A pointer to an OpenThread instance.
+ * @param[in]   aMacFrameCounter  The MAC frame counter value.
+ *
+ */
+void otPlatRadioSetMacFrameCounter(otInstance *aInstance, uint32_t aMacFrameCounter);
+
+/**
+ * Get the current estimated time (64bits width) of the radio chip.
+ *
+ * @param[in]   aInstance    A pointer to an OpenThread instance.
+ *
+ * @returns The current time in microseconds. UINT64_MAX when platform does not support or radio time is not ready.
+ *
+ */
+uint64_t otPlatRadioGetNow(otInstance *aInstance);
+
+/**
+ * Get the bus speed in bits/second between the host and the radio chip.
+ *
+ * @param[in]   aInstance    A pointer to an OpenThread instance.
+ *
+ * @returns The bus speed in bits/second between the host and the radio chip.
+ *          Return 0 when the MAC and above layer and Radio layer resides on the same chip.
+ *
+ */
+uint32_t otPlatRadioGetBusSpeed(otInstance *aInstance);
 
 /**
  * @}
@@ -592,6 +735,9 @@ extern void otPlatRadioTxStarted(otInstance *aInstance, otRadioFrame *aFrame);
 /**
  * The radio driver calls this function to notify OpenThread that the transmit operation has completed,
  * providing both the transmitted frame and, if applicable, the received ack frame.
+ *
+ * When radio provides `OT_RADIO_CAPS_TRANSMIT_SEC` capability, radio platform layer updates @p aFrame
+ * with the security frame counter and key index values maintained by the radio.
  *
  * @param[in]  aInstance  The OpenThread instance structure.
  * @param[in]  aFrame     A pointer to the frame that was transmitted.
@@ -796,6 +942,103 @@ bool otPlatRadioIsCoexEnabled(otInstance *aInstance);
  * @retval OT_ERROR_INVALID_ARGS  @p aCoexMetrics was NULL.
  */
 otError otPlatRadioGetCoexMetrics(otInstance *aInstance, otRadioCoexMetrics *aCoexMetrics);
+
+/**
+ * Enable or disable CSL receiver.
+ *
+ * @param[in]  aInstance     The OpenThread instance structure.
+ * @param[in]  aCslPeriod    CSL period, 0 for disabling CSL.
+ * @param[in]  aExtAddr      The extended source address of CSL receiver's parent device (when the platforms generate
+ *                           enhanced ack, platforms may need to know acks to which address should include CSL IE).
+ *
+ * @retval  OT_ERROR_NOT_SUPPORTED  Radio driver doesn't support CSL.
+ * @retval  OT_ERROR_FAILED         Other platform specific errors.
+ * @retval  OT_ERROR_NONE           Successfully enabled or disabled CSL.
+ *
+ */
+otError otPlatRadioEnableCsl(otInstance *aInstance, uint32_t aCslPeriod, const otExtAddress *aExtAddr);
+
+/**
+ * Update CSL sample time in radio driver.
+ *
+ * Sample time is stored in radio driver as a copy to calculate phase when sending ACK with CSL IE.
+ *
+ * @param[in]  aInstance         The OpenThread instance structure.
+ * @param[in]  aCslSampleTime    The latest sample time.
+ *
+ */
+void otPlatRadioUpdateCslSampleTime(otInstance *aInstance, uint32_t aCslSampleTime);
+
+/**
+ * Set the max transmit power for a specific channel.
+ *
+ * @param[in]  aInstance    The OpenThread instance structure.
+ * @param[in]  aChannel     The radio channel.
+ * @param[in]  aMaxPower    The max power in dBm, passing OT_RADIO_RSSI_INVALID will disable this channel.
+ *
+ * @retval  OT_ERROR_NOT_IMPLEMENTED  The feature is not implemented
+ * @retval  OT_ERROR_INVALID_ARGS     The specified channel is not valid.
+ * @retval  OT_ERROR_FAILED           Other platform specific errors.
+ * @retval  OT_ERROR_NONE             Successfully set max transmit poewr.
+ *
+ */
+otError otPlatRadioSetChannelMaxTransmitPower(otInstance *aInstance, uint8_t aChannel, int8_t aMaxPower);
+
+/**
+ * Set the region code.
+ *
+ * The radio region format is the 2-bytes ascii representation of the
+ * ISO 3166 alpha-2 code.
+ *
+ * @param[in]  aInstance    The OpenThread instance structure.
+ * @param[in]  aRegionCode  The radio region.
+ *
+ * @retval  OT_ERROR_FAILED           Other platform specific errors.
+ * @retval  OT_ERROR_NONE             Successfully set region code.
+ *
+ */
+otError otPlatRadioSetRegion(otInstance *aInstance, uint16_t aRegionCode);
+
+/**
+ * Get the region code.
+ *
+ * The radio region format is the 2-bytes ascii representation of the
+ * ISO 3166 alpha-2 code.
+
+ * @param[in]  aInstance    The OpenThread instance structure.
+ * @param[out] aRegionCode  The radio region.
+ *
+ * @retval  OT_ERROR_INVALID_ARGS     @p aRegionCode is nullptr.
+ * @retval  OT_ERROR_FAILED           Other platform specific errors.
+ * @retval  OT_ERROR_NONE             Successfully got region code.
+ *
+ */
+otError otPlatRadioGetRegion(otInstance *aInstance, uint16_t *aRegionCode);
+
+/**
+ * Enable/disable or update Enhanced-ACK Based Probing in radio for a specific Initiator.
+ *
+ * After Enhanced-ACK Based Probing is configured by a specific Probing Initiator, the Enhanced-ACK sent to that
+ * node should include Vendor-Specific IE containing Link Metrics data. This method informs the radio to start/stop to
+ * collect Link Metrics data and include Vendor-Specific IE that containing the data in Enhanced-ACK sent to that
+ * Probing Initiator.
+ *
+ * @param[in]  aInstance     The OpenThread instance structure.
+ * @param[in]  aLinkMetrics  This parameter specifies what metrics to query. Per spec 4.11.3.4.4.6, at most 2 metrics
+ *                           can be specified. The probing would be disabled if @p `aLinkMetrics` is bitwise 0.
+ * @param[in]  aShortAddr    The short address of the Probing Initiator.
+ * @param[in]  aExtAddr      The extended source address of the Probing Initiator. @p aExtAddr MUST NOT be `NULL`.
+ *
+ * @retval  OT_ERROR_NONE            Successfully configured the Enhanced-ACK Based Probing.
+ * @retval  OT_ERROR_INVALID_ARGS    @p aExtAddress is `NULL`.
+ * @retval  OT_ERROR_NOT_FOUND       The Initiator indicated by @p aShortAddress is not found when trying to clear.
+ * @retval  OT_ERROR_NO_BUFS         No more Initiator can be supported.
+ *
+ */
+otError otPlatRadioConfigureEnhAckProbing(otInstance *        aInstance,
+                                          otLinkMetrics       aLinkMetrics,
+                                          otShortAddress      aShortAddress,
+                                          const otExtAddress *aExtAddress);
 
 /**
  * @}

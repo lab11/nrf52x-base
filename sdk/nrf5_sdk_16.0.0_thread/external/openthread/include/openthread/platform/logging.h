@@ -134,6 +134,12 @@ typedef enum otLogRegion
     OT_LOG_REGION_CLI      = 14, ///< CLI
     OT_LOG_REGION_CORE     = 15, ///< OpenThread Core
     OT_LOG_REGION_UTIL     = 16, ///< Utility module
+    OT_LOG_REGION_BBR      = 17, ///< Backbone Router (available since Thread 1.2)
+    OT_LOG_REGION_MLR      = 18, ///< Multicast Listener Registration (available since Thread 1.2)
+    OT_LOG_REGION_DUA      = 19, ///< Domain Unicast Address (available since Thread 1.2)
+    OT_LOG_REGION_BR       = 20, ///< Border Router
+    OT_LOG_REGION_SRP      = 21, ///< Service Registration Protocol (SRP)
+    OT_LOG_REGION_DNS      = 22, ///< DNS
 } otLogRegion;
 
 /**
@@ -146,6 +152,22 @@ typedef enum otLogRegion
  *
  */
 void otPlatLog(otLogLevel aLogLevel, otLogRegion aLogRegion, const char *aFormat, ...);
+
+/**
+ * This (optional) platform function outputs a prepared log line.
+ *
+ * This platform function is used by OpenThread core when `OPENTHREAD_CONFIG_LOG_DEFINE_AS_MACRO_ONLY` is not enabled
+ * (in this case, the OT core itself will prepare a full log line).
+ *
+ * Note that this function is optional and if not provided by platform layer, a default (weak) implementation is
+ * provided and used by OpenThread core as `otPlatLog(aLogLevel, aLogResion, "%s", aLogLine)`.
+ *
+ * @param[in]  aLogLevel   The log level.
+ * @param[in]  aLogRegion  The log region.
+ * @param[in]  aLogLine    A pointer to a log line string.
+ *
+ */
+void otPlatLogLine(otLogLevel aLogLevel, otLogRegion aLogRegion, const char *aLogLine);
 
 /**
  * @}
