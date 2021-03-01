@@ -23,7 +23,6 @@
 #include <openthread/tasklet.h>
 #include <openthread/thread.h>
 #include <openthread/platform/alarm-milli.h>
-#include <openthread/platform/openthread-system.h>
 
 #include "simple_thread.h"
 #include "gc_iot.h"

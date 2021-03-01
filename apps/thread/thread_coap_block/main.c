@@ -107,7 +107,7 @@ void send_timer_callback() {
     }
     NRF_LOG_INFO("Fits in %d blocks", info.data_len/block_size);
 
-    info.block_size = OT_COAP_BLOCK_SIZE_512;
+    info.block_size = OT_COAP_OPTION_BLOCK_SZX_512;
     info.code = OT_COAP_CODE_PUT;
     info.callback = blocks_sent_callback;
     info.etag = etag++;

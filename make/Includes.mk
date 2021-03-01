@@ -618,6 +618,9 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_SOURCE_PATHS += $(SDK_ROOT)external/segger_rtt/
     SDK_SOURCE_PATHS += $(SDK_ROOT)external/cifra_AES128-EAX/
 
+    LIBS += $(SDK_ROOT)external/nrf_cc310/lib/cortex-m4/hard-float/libnrf_cc310_0.9.12.a
+    LIBS += $(SDK_ROOT)external/nrf_cc310_bl/lib/cortex-m4/hard-float/libnrf_cc310_bl_0.9.12.a
+
     ifdef SERIALIZATION_MODE
       SDK_HEADER_PATHS += $(wildcard $(SDK_ROOT)components/serialization/*/)
       SDK_HEADER_PATHS += $(wildcard $(SDK_ROOT)components/serialization/common/transport/)
@@ -770,8 +773,6 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
       LIBS += $(NRF_SECURITY)lib/libmbedtls_x509_vanilla.a
       LIBS += $(NRF_SECURITY)lib/libmbedtls_base_vanilla.a
       LIBS += $(NRF_SECURITY)lib/libnrf_cc310_platform_0.9.1.a
-      LIBS += $(SDK_ROOT)external/nrf_cc310/lib/cortex-m4/hard-float/libnrf_cc310_0.9.12.a
-      LIBS += $(SDK_ROOT)external/nrf_cc310_bl/lib/cortex-m4/hard-float/libnrf_cc310_bl_0.9.12.a
 
     ifeq ($(ZIGBEE_ED), 1)
       LIBS += $(SDK_ROOT)/external/zboss/lib/gcc/libzboss.ed.a
