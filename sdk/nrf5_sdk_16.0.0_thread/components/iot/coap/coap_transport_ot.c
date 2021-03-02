@@ -76,7 +76,7 @@ static uint32_t port_create(uint32_t index, coap_port_t  * p_port)
     	memset(&addr, 0, sizeof(addr));
     	addr.mPort = p_port->port_number;
 
-        err_code = otUdpBind(p_socket, &addr);
+        err_code = otUdpBind(m_pinstance, p_socket, &addr);
     }
 
     return (err_code == OT_ERROR_NONE) ? NRF_SUCCESS : NRF_ERROR_INTERNAL;
@@ -160,7 +160,7 @@ uint32_t coap_transport_write(const coap_port_t    * p_port,
 		memcpy(msg_info.mPeerAddr.mFields.m8, p_remote->addr, OT_IP6_ADDRESS_SIZE);
 
 		COAP_MUTEX_UNLOCK();
-		if (otUdpSend(p_socket, p_msg, &msg_info) != OT_ERROR_NONE)
+		if (otUdpSend(m_pinstance, p_socket, p_msg, &msg_info) != OT_ERROR_NONE)
 		{
 		    NRF_LOG_ERROR("Message not sent!\r\n");
 			err_code = NRF_ERROR_INTERNAL;

@@ -38,11 +38,11 @@ static void platform_init(void)
 
     int ret;
 
-    ret = mbedtls_platform_set_calloc_free(otPlatCAlloc, otPlatFree);
-    ASSERT(ret == 0);
+    //ret = mbedtls_platform_set_calloc_free(otPlatCAlloc, otPlatFree);
+    //ASSERT(ret == 0);
 
-    ret = mbedtls_platform_setup(NULL);
-    ASSERT(ret == 0);
+    //ret = mbedtls_platform_setup(NULL);
+    //ASSERT(ret == 0);
 }
 
 

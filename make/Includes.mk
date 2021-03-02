@@ -746,7 +746,7 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
       SDK_HEADER_PATHS += $(NRF_SECURITY)mbedtls_plat_config
       SDK_HEADER_PATHS += $(NRF_SECURITY)include
       SDK_HEADER_PATHS += $(NRF_SECURITY)config
-      SDK_HEADER_PATHS += $(NRF_SECURITY)/nrf_cc310_plat/include
+      SDK_HEADER_PATHS += $(NRF_SECURITY)nrf_cc310_plat/include
 
       SDK_VARS += OPENTHREAD_ENABLE_APPLICATION_COAP
       SDK_VARS += OPENTHREAD_CONFIG_FILE=\"openthread-config-wrap.h\"
