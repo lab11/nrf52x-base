@@ -94,10 +94,10 @@ int main(void) {
     nrf_gpio_pin_clear(LED1);
 
     thread_config_t thread_config = {
-      .channel = 25,
       .tx_power = 8,
       .panid = 0xFACE,
       .masterkey.m8 = {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff},
+      .has_masterkey = true,
       .sed = false,
       .poll_period = 10,
       .child_period = 30000,
@@ -121,9 +121,6 @@ int main(void) {
     app_timer_init();
     app_timer_create(&monitor_timer, APP_TIMER_MODE_REPEATED, monitor_timer_callback);
     app_timer_start(monitor_timer, APP_TIMER_TICKS(60000), NULL);
-
-    //const char* joiner_psk = "J01NME";
-    //otJoinerStart(thread_get_instance(), joiner_psk, NULL, NULL, NULL, NULL, NULL, join_callback, NULL);
 
     // Enter main loop.
     while (1) {

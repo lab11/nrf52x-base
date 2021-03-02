@@ -5,6 +5,7 @@
 
 #include <mbedtls/platform.h>
 #include <openthread/heap.h>
+#include <openthread/dataset.h>
 
 #include "simple_thread.h"
 
@@ -51,6 +52,7 @@ static void platform_init(void)
 void __attribute__((weak)) thread_init(const thread_config_t* config)
 {
     otError error;
+    static otOperationalDataset dataset = {0};
 
     otSysInit(0, NULL);
 
@@ -59,37 +61,30 @@ void __attribute__((weak)) thread_init(const thread_config_t* config)
     m_ot_instance = otInstanceInitSingle();
     ASSERT(m_ot_instance != NULL);
 
-
-    NRF_LOG_INFO("Thread version: %s", otGetVersionString());
-    NRF_LOG_INFO("Network name:   %s",
-                 otThreadGetNetworkName(m_ot_instance));
-
     if (!otDatasetIsCommissioned(m_ot_instance) || config->autocommission)
     {
-        error = otLinkSetChannel(m_ot_instance, config->channel);
-        ASSERT(error == OT_ERROR_NONE);
-        NRF_LOG_INFO("Thread Channel: %d", otLinkGetChannel(m_ot_instance));
-
-        error = otPlatRadioSetTransmitPower(m_ot_instance, config->tx_power);
-        ASSERT(error == OT_ERROR_NONE);
-        int8_t tx_power_set;
-        otPlatRadioGetTransmitPower(m_ot_instance, &tx_power_set);
-        NRF_LOG_INFO("TX Power: %d dBm", tx_power_set);
-
-        error = otLinkSetPanId(m_ot_instance, config->panid);
-        ASSERT(error == OT_ERROR_NONE);
-        NRF_LOG_INFO("Thread PANID: 0x%lx", (uint32_t)otLinkGetPanId(m_ot_instance));
-
-        error = otThreadSetMasterKey(m_ot_instance, &(config->masterkey));
-        ASSERT(error == OT_ERROR_NONE);
-        const otMasterKey * masterkey = otThreadGetMasterKey(m_ot_instance);
-        char masterkey_str[128];
-        size_t k = 0;
-        for (size_t i = 0; i < sizeof(masterkey->m8); i++) {
-          k += snprintf(masterkey_str+k, 128-k, "%2x", masterkey->m8[i]);
+        // set up active dataset with channel, panid, masterkey
+        if (config->channel) {
+          dataset.mChannel = config->channel;
+          dataset.mComponents.mIsChannelPresent = true;
         }
-        NRF_LOG_INFO("Thread MasterKey: %s", masterkey_str);
+        if (config->panid) {
+          dataset.mPanId = config->panid;
+          dataset.mComponents.mIsPanIdPresent = true;
+        }
+        memcpy(&dataset.mMasterKey, &(config->masterkey), sizeof(dataset.mMasterKey));
+        dataset.mComponents.mIsMasterKeyPresent = config->has_masterkey;
+
+        // set active dataset
+        otDatasetSetActive(m_ot_instance, &dataset);
     }
+
+    error = otPlatRadioSetTransmitPower(m_ot_instance, config->tx_power);
+    ASSERT(error == OT_ERROR_NONE);
+    int8_t tx_power_set;
+    otPlatRadioGetTransmitPower(m_ot_instance, &tx_power_set);
+    NRF_LOG_INFO("TX Power: %d dBm", tx_power_set);
+
 
     otLinkModeConfig mode;
     memset(&mode, 0, sizeof(mode));
@@ -121,9 +116,21 @@ void __attribute__((weak)) thread_init(const thread_config_t* config)
       error = otThreadSetEnabled(m_ot_instance, true);
       ASSERT(error == OT_ERROR_NONE);
 
+      const otMasterKey * masterkey = otThreadGetMasterKey(m_ot_instance);
+      char masterkey_str[128];
+      size_t k = 0;
+      for (size_t i = 0; i < sizeof(masterkey->m8); i++) {
+        k += snprintf(masterkey_str+k, 128-k, "%2x", masterkey->m8[i]);
+      }
+
+      NRF_LOG_INFO("Thread version: %s", otGetVersionString());
+      NRF_LOG_INFO("Network name:   %s",
+                   otThreadGetNetworkName(m_ot_instance));
+
       NRF_LOG_INFO("Thread interface has been enabled.");
       NRF_LOG_INFO("802.15.4 Channel: %d", otLinkGetChannel(m_ot_instance));
       NRF_LOG_INFO("802.15.4 PAN ID:  0x%04x", otLinkGetPanId(m_ot_instance));
+      NRF_LOG_INFO("Thread MasterKey: %s", masterkey_str);
       NRF_LOG_INFO("rx-on-when-idle:  %s", otThreadGetLinkMode(m_ot_instance).mRxOnWhenIdle ?
           "enabled" : "disabled");
     }

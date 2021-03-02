@@ -12,6 +12,7 @@ typedef struct {
   uint8_t     channel;
   uint16_t    panid;
   otMasterKey masterkey;
+  bool        has_masterkey;
   int8_t      tx_power;
   bool        sed; // sleepy end device
   uint32_t    poll_period;
