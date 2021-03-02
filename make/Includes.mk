@@ -435,6 +435,8 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/atomic_flags/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/balloc/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/block_dev/
+    SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/block_dev/ram/
+    SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/block_dev/qspi/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/bootloader/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/bootloader/dfu/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/iot/background_dfu/
@@ -534,6 +536,8 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_HEADER_PATHS += $(SDK_ROOT)components/softdevice/common/
     SDK_HEADER_PATHS += $(SDK_ROOT)external/cifra_AES128-EAX/
     SDK_HEADER_PATHS += $(SDK_ROOT)external/nrf_tls/
+    SDK_HEADER_PATHS += $(SDK_ROOT)/external/fatfs/port/
+    SDK_HEADER_PATHS += $(SDK_ROOT)/external/fatfs/src/
 
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/
     SDK_SOURCE_PATHS += $(SDK_ROOT)modules/nrfx/
@@ -549,6 +553,8 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/atomic_flags/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/balloc/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/block_dev/
+    APP_SOURCE_PATHS += $(SDK_ROOT)/components/libraries/block_dev/ram/
+    APP_SOURCE_PATHS += $(SDK_ROOT)/components/libraries/block_dev/qspi/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/bootloader/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/bootloader/dfu/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/iot/background_dfu/
@@ -617,6 +623,8 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_SOURCE_PATHS += $(SDK_ROOT)external/fprintf/
     SDK_SOURCE_PATHS += $(SDK_ROOT)external/segger_rtt/
     SDK_SOURCE_PATHS += $(SDK_ROOT)external/cifra_AES128-EAX/
+    SDK_SOURCE_PATHS += $(SDK_ROOT)/external/fatfs/port/
+    SDK_SOURCE_PATHS += $(SDK_ROOT)/external/fatfs/src/
 
     LIBS += $(SDK_ROOT)external/nrf_cc310/lib/cortex-m4/hard-float/libnrf_cc310_0.9.12.a
     LIBS += $(SDK_ROOT)external/nrf_cc310_bl/lib/cortex-m4/hard-float/libnrf_cc310_bl_0.9.12.a
