@@ -29,14 +29,15 @@
 /**
  * @file
  * @brief
- *  This file defines the top-level dns functions for the OpenThread library.
+ *  This file defines the top-level DNS functions for the OpenThread library.
  */
 
 #ifndef OPENTHREAD_DNS_H_
 #define OPENTHREAD_DNS_H_
 
-#include <openthread/ip6.h>
-#include <openthread/message.h>
+#include <stdint.h>
+
+#include <openthread/error.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,17 +53,13 @@ extern "C" {
  *
  */
 
-#define OT_DNS_MAX_HOSTNAME_LENGTH 62 ///< Maximum allowed hostname length (maximum label size - 1 for compression).
+#define OT_DNS_MAX_NAME_SIZE 255 ///< Maximum name string size (includes null char at the end of string).
 
-#define OT_DNS_DEFAULT_SERVER_IP "2001:4860:4860::8888" ///< Defines default DNS Server address - Google DNS.
-#define OT_DNS_DEFAULT_SERVER_PORT 53                   ///< Defines default DNS Server port.
+#define OT_DNS_MAX_LABEL_SIZE 64 ///< Maximum label string size (include null char at the end of string).
 
-/**
- * Initializer for otDnsTxtIterator.
- */
-#define OT_DNS_TXT_ITERATOR_INIT 0
+#define OT_DNS_TXT_KEY_MIN_LENGTH 1 ///< Minimum length of TXT record key string (RFC 6763 - section 6.4).
 
-typedef uint16_t otDnsTxtIterator; ///< Used to iterate through the TXT entries.
+#define OT_DNS_TXT_KEY_MAX_LENGTH 9 ///< Recommended maximum length of TXT record key string (RFC 6763 - section 6.4).
 
 /**
  * This structure represents a TXT record entry representing a key/value pair (RFC 6763 - section 6.3).
@@ -77,9 +74,10 @@ typedef uint16_t otDnsTxtIterator; ///< Used to iterate through the TXT entries.
 typedef struct otDnsTxtEntry
 {
     /**
-     * The TXT record key string. It doesn't need to be a null-terminated string and `mKeyLength` gives its length.
+     * The TXT record key string.
      *
-     * If `mKey` is not NULL, then the entry is treated as key/value pair with `mValue` buffer providing the value.
+     * If `mKey` is not NULL, then it MUST be a null-terminated C string. The entry is treated as key/value pair with
+     * `mValue` buffer providing the value.
      *   - The entry is encoded as follows:
      *        - A single string length byte followed by "key=value" format (without the quotation marks).
               - In this case, the overall encoded length must be 255 bytes or less.
@@ -93,58 +91,54 @@ typedef struct otDnsTxtEntry
     const char *   mKey;
     const uint8_t *mValue;       ///< The TXT record value or already encoded TXT-DATA (depending on `mKey`).
     uint16_t       mValueLength; ///< Number of bytes in `mValue` buffer.
-    uint8_t mKeyLength; ///< Number of bytes in `mKey` buffer. MUST be set even if `mKey` is a null-terminated string.
 } otDnsTxtEntry;
 
 /**
- * This structure implements DNS Query parameters.
+ * This structure represents an iterator for TXT record entires (key/value pairs).
+ *
+ * The data fields in this structure are intended for use by OpenThread core and caller should not read or change them.
  *
  */
-typedef struct otDnsQuery
+typedef struct otDnsTxtEntryIterator
 {
-    const char *         mHostname;    ///< Identifies hostname to be found. It shall not change during resolving.
-    const otMessageInfo *mMessageInfo; ///< A reference to the message info related with DNS Server.
-    bool                 mNoRecursion; ///< If cleared, it directs name server to pursue the query recursively.
-} otDnsQuery;
+    const void *mPtr;
+    uint16_t    mData[2];
+    char        mChar[OT_DNS_TXT_KEY_MAX_LENGTH + 1];
+} otDnsTxtEntryIterator;
 
 /**
- * This function pointer is called when a DNS response is received.
+ * This function initializes a TXT record iterator.
  *
- * @param[in]  aContext   A pointer to application-specific context.
- * @param[in]  aHostname  Identifies hostname related with DNS response.
- * @param[in]  aAddress   A pointer to the IPv6 address received in DNS response. May be null.
- * @param[in]  aTtl       Specifies the maximum time in seconds that the resource record may be cached.
- * @param[in]  aResult    A result of the DNS transaction.
+ * The buffer pointer @p aTxtData and its content MUST persist and remain unchanged while @p aIterator object
+ * is being used.
  *
- * @retval  OT_ERROR_NONE              A response was received successfully and IPv6 address is provided
- *                                     in @p aAddress.
- * @retval  OT_ERROR_ABORT             A DNS transaction was aborted by stack.
- * @retval  OT_ERROR_RESPONSE_TIMEOUT  No DNS response has been received within timeout.
- * @retval  OT_ERROR_NOT_FOUND         A response was received but no IPv6 address has been found.
- * @retval  OT_ERROR_FAILED            A response was received but status code is different than success.
+ * @param[in] aIterator       A pointer to the iterator to initialize (MUST NOT be NULL).
+ * @param[in] aTxtData        A pointer to buffer containing the encoded TXT data.
+ * @param[in] aTxtDataLength  The length (number of bytes) of @p aTxtData.
  *
  */
-typedef void (*otDnsResponseHandler)(void *              aContext,
-                                     const char *        aHostname,
-                                     const otIp6Address *aAddress,
-                                     uint32_t            aTtl,
-                                     otError             aResult);
+void otDnsInitTxtEntryIterator(otDnsTxtEntryIterator *aIterator, const uint8_t *aTxtData, uint16_t aTxtDataLength);
 
 /**
- * This function sends a DNS query for AAAA (IPv6) record.
+ * This function parses the TXT data from an iterator and gets the next TXT record entry (key/value pair).
  *
- * This function is available only if feature `OPENTHREAD_CONFIG_DNS_CLIENT_ENABLE` is enabled.
+ * The @p aIterator MUST be initialized using `otDnsInitTxtEntryIterator()` before calling this function and the TXT
+ * data buffer used to initialize the iterator MUST persist and remain unchanged. Otherwise the behavior of this
+ * function is undefined.
  *
- * @param[in]  aInstance   A pointer to an OpenThread instance.
- * @param[in]  aQuery      A pointer to specify DNS query parameters.
- * @param[in]  aHandler    A function pointer that shall be called on response reception or time-out.
- * @param[in]  aContext    A pointer to arbitrary context information.
+ * If the parsed key string length is smaller than or equal to `OT_DNS_TXT_KEY_MAX_LENGTH` (recommended max key length)
+ * the key string is returned in `mKey` in @p aEntry. But if the key is longer, then `mKey` is set to NULL and the
+ * entire encoded TXT entry string is returned in `mValue` and `mValueLength`.
+ *
+ * @param[in]  aIterator   A pointer to the iterator (MUST NOT be NULL).
+ * @param[out] aEntry      A pointer to a `otDnsTxtEntry` structure to output the parsed/read entry (MUST NOT be NULL).
+ *
+ * @retval OT_ERROR_NONE       The next entry was parsed successfully. @p aEntry is updated.
+ * @retval OT_ERROR_NOT_FOUND  No more entries in the TXT data.
+ * @retval OT_ERROR_PARSE      The TXT data from @p aIterator is not well-formed.
  *
  */
-otError otDnsClientQuery(otInstance *         aInstance,
-                         const otDnsQuery *   aQuery,
-                         otDnsResponseHandler aHandler,
-                         void *               aContext);
+otError otDnsGetNextTxtEntry(otDnsTxtEntryIterator *aIterator, otDnsTxtEntry *aEntry);
 
 /**
  * @}

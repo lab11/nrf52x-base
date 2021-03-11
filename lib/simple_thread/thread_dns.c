@@ -3,11 +3,9 @@
 #include <string.h>
 #include "nrf_log.h"
 
-void __attribute__((weak)) dns_response_handler(void         * p_context,
-                                 const char   * p_hostname,
-                                 const otIp6Address * p_resolved_address,
-                                 uint32_t       ttl,
-                                 otError        error)
+void __attribute__((weak)) dns_response_handler(otError        error,
+                          const otDnsAddressResponse *response,
+                          void *context)
 {
     if (error != OT_ERROR_NONE)
     {
@@ -16,32 +14,21 @@ void __attribute__((weak)) dns_response_handler(void         * p_context,
     }
 
     NRF_LOG_INFO("Successfully resolved address");
-    memcpy(p_context, p_resolved_address, sizeof(otIp6Address));
+    otDnsAddressResponseGetAddress(response, 0, context, NULL);
 }
 
 otError thread_dns_hostname_resolve(otInstance * p_instance,
-                                    const char         * p_dns_host,
+                                    const char         * p_dns_addr,
                                     const char         * p_hostname,
-                                    otDnsResponseHandler p_dns_response_handler,
+                                    otDnsAddressCallback p_dns_address_callback,
                                     void               * p_context)
 {
     otError       error;
-    otMessageInfo message_info;
+    otDnsQueryConfig config;
+    memcpy(&config, otDnsClientGetDefaultConfig(p_instance), sizeof(config));
 
-    memset(&message_info, 0, sizeof(message_info));
-    message_info.mPeerPort    = OT_DNS_DEFAULT_SERVER_PORT;
-    error = otIp6AddressFromString(p_dns_host, &message_info.mPeerAddr);
-
-    if (error == OT_ERROR_NONE)
-    {
-        otDnsQuery query;
-
-        query.mHostname    = p_hostname;
-        query.mMessageInfo = &message_info;
-        query.mNoRecursion = false;
-
-        error = otDnsClientQuery(p_instance, &query, p_dns_response_handler, p_context);
-    }
+    otIp6AddressFromString(p_dns_addr, &config.mServerSockAddr.mAddress);
+    error = otDnsClientResolveAddress(p_instance, p_hostname, p_dns_address_callback, p_context, &config);
 
     if (error != OT_ERROR_NONE)
     {

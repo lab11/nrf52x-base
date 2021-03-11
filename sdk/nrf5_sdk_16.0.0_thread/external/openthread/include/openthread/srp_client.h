@@ -130,27 +130,27 @@ typedef struct otSrpClientService
  *
  * If the server rejects an SRP update request, the DNS response code (RFC 2136) is mapped to the following errors:
  *
- *    (0)  NOERROR   Success (no error condition)                    -> OT_ERROR_NONE
- *    (1)  FORMERR   Server unable to interpret due to format error  -> OT_ERROR_PARSE
- *    (2)  SERVFAIL  Server encountered an internal failure          -> OT_ERROR_FAILED
- *    (3)  NXDOMAIN  Name that ought to exist, does not exist        -> OT_ERROR_NOT_FOUND
- *    (4)  NOTIMP    Server does not support the query type (OpCode) -> OT_ERROR_NOT_IMPLEMENTED
- *    (5)  REFUSED   Server refused for policy/security reasons      -> OT_ERROR_SECURITY
- *    (6)  YXDOMAIN  Some name that ought not to exist, does exist   -> OT_ERROR_DUPLICATED
- *    (7)  YXRRSET   Some RRset that ought not to exist, does exist  -> OT_ERROR_DUPLICATED
- *    (8)  NXRRSET   Some RRset that ought to exist, does not exist  -> OT_ERROR_NOT_FOUND
- *    (9)  NOTAUTH   Service is not authoritative for zone           -> OT_ERROR_SECURITY
- *    (10) NOTZONE   A name is not in the zone                       -> OT_ERROR_PARSE
- *    (20) BADNAME   Bad name                                        -> OT_ERROR_PARSE
- *    (21) BADALG    Bad algorithm                                   -> OT_ERROR_SECURITY
- *    (22) BADTRUN   Bad truncation                                  -> OT_ERROR_PARSE
- *    Other response codes                                           -> OT_ERROR_FAILED
+ *  - (0)  NOERROR   Success (no error condition)                    -> OT_ERROR_NONE
+ *  - (1)  FORMERR   Server unable to interpret due to format error  -> OT_ERROR_PARSE
+ *  - (2)  SERVFAIL  Server encountered an internal failure          -> OT_ERROR_FAILED
+ *  - (3)  NXDOMAIN  Name that ought to exist, does not exist        -> OT_ERROR_NOT_FOUND
+ *  - (4)  NOTIMP    Server does not support the query type (OpCode) -> OT_ERROR_NOT_IMPLEMENTED
+ *  - (5)  REFUSED   Server refused for policy/security reasons      -> OT_ERROR_SECURITY
+ *  - (6)  YXDOMAIN  Some name that ought not to exist, does exist   -> OT_ERROR_DUPLICATED
+ *  - (7)  YXRRSET   Some RRset that ought not to exist, does exist  -> OT_ERROR_DUPLICATED
+ *  - (8)  NXRRSET   Some RRset that ought to exist, does not exist  -> OT_ERROR_NOT_FOUND
+ *  - (9)  NOTAUTH   Service is not authoritative for zone           -> OT_ERROR_SECURITY
+ *  - (10) NOTZONE   A name is not in the zone                       -> OT_ERROR_PARSE
+ *  - (20) BADNAME   Bad name                                        -> OT_ERROR_PARSE
+ *  - (21) BADALG    Bad algorithm                                   -> OT_ERROR_SECURITY
+ *  - (22) BADTRUN   Bad truncation                                  -> OT_ERROR_PARSE
+ *  - Other response codes                                           -> OT_ERROR_FAILED
  *
  * The following errors are also possible:
  *
- *    OT_ERROR_RESPONSE_TIMEOUT : Timed out waiting for response from server (client would continue to retry).
- *    OT_ERROR_INVALID_ARGS     : The provided service structure is invalid (e.g., bad service name or `otDnsTxtEntry`).
- *    OT_ERROR_NO_BUFS          : Insufficient buffer to prepare or send the update message.
+ *  - OT_ERROR_RESPONSE_TIMEOUT : Timed out waiting for response from server (client would continue to retry).
+ *  - OT_ERROR_INVALID_ARGS     : The provided service structure is invalid (e.g., bad service name or `otDnsTxtEntry`).
+ *  - OT_ERROR_NO_BUFS          : Insufficient buffer to prepare or send the update message.
  *
  * Note that in case of any failure, the client continues the operation, i.e. it prepares and (re)transmits the SRP
  * update message to the server, after some wait interval. The retry wait interval starts from the minimum value and
@@ -170,6 +170,21 @@ typedef void (*otSrpClientCallback)(otError                    aError,
                                     const otSrpClientService * aServices,
                                     const otSrpClientService * aRemovedServices,
                                     void *                     aContext);
+
+/**
+ * This function pointer type defines the callback used by SRP client to notify user when it is auto-started or stopped.
+ *
+ * This is only used when auto-start feature `OPENTHREAD_CONFIG_SRP_CLIENT_AUTO_START_API_ENABLE` is enabled.
+ *
+ * This callback is invoked when auto-start mode is enabled and the SRP client is either automatically started or
+ * stopped.
+ *
+ * @param[in] aSeverSockAddress    A non-NULL pointer indicates SRP sever was started and pointer will give the
+ *                                 selected server socket address. A NULL pointer indicates SRP sever was stopped.
+ * @param[in] aContext             A pointer to an arbitrary context (provided when callback was registered).
+ *
+ */
+typedef void (*otSrpClientAutoStartCallback)(const otSockAddr *aServerSockAddr, void *aContext);
 
 /**
  * This function starts the SRP client operation.
@@ -244,6 +259,60 @@ const otSockAddr *otSrpClientGetServerAddress(otInstance *aInstance);
  *
  */
 void otSrpClientSetCallback(otInstance *aInstance, otSrpClientCallback aCallback, void *aContext);
+
+/**
+ * This function enables the auto-start mode.
+ *
+ * This is only available when auto-start feature `OPENTHREAD_CONFIG_SRP_CLIENT_AUTO_START_API_ENABLE` is enabled.
+ *
+ * Config option `OPENTHREAD_CONFIG_SRP_CLIENT_AUTO_START_DEFAULT_MODE` specifies the default auto-start mode (whether
+ * it is enabled or disabled at the start of OT stack).
+ *
+ * When auto-start is enabled, the SRP client will monitor the Thread Network Data for SRP Server Service entries
+ * and automatically start and stop the client when an SRP server is detected.
+ *
+ * If multiple SRP servers are found, a random one will be selected. If the selected SRP server is no longer
+ * detected (not longer present in the Thread Network Data), the SRP client will be stopped and then it may switch
+ * to another SRP server (if available).
+ *
+ * When the SRP client is explicitly started through a successful call to `otSrpClientStart()`, the given SRP server
+ * address in `otSrpClientStart()` will continue to be used regardless of the state of auto-start mode and whether the
+ * same SRP server address is discovered or not in the Thread Network Data. In this case, only an explicit
+ * `otSrpClientStop()` call will stop the client.
+ *
+ * @param[in] aInstance   A pointer to the OpenThread instance.
+ * @param[in] aCallback   A callback to notify when client is auto-started/stopped. Can be NULL if not needed.
+ * @param[in] aContext    A context to be passed when invoking @p aCallback.
+ *
+ */
+void otSrpClientEnableAutoStartMode(otInstance *aInstance, otSrpClientAutoStartCallback aCallback, void *aContext);
+
+/**
+ * This function disables the auto-start mode.
+ *
+ * This is only available when auto-start feature `OPENTHREAD_CONFIG_SRP_CLIENT_AUTO_START_API_ENABLE` is enabled.
+ *
+ * Disabling the auto-start mode will not stop the client if it is already running but the client stops monitoring
+ * the Thread Network Data to verify that the selected SRP server is still present in it.
+ *
+ * Note that a call to `otSrpClientStop()` will also disable the auto-start mode.
+ *
+ * @param[in] aInstance   A pointer to the OpenThread instance.
+ *
+ */
+void otSrpClientDisableAutoStartMode(otInstance *aInstance);
+
+/**
+ * This function indicates the current state of auto-start mode (enabled or disabled).
+ *
+ * This is only available when auto-start feature `OPENTHREAD_CONFIG_SRP_CLIENT_AUTO_START_API_ENABLE` is enabled.
+ *
+ * @param[in] aInstance   A pointer to the OpenThread instance.
+ *
+ * @returns TRUE if the auto-start mode is enabled, FALSE otherwise.
+ *
+ */
+bool otSrpClientIsAutoStartModeEnabled(otInstance *aInstance);
 
 /**
  * This function gets the lease interval used in SRP update requests.

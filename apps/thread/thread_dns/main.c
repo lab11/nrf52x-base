@@ -29,7 +29,7 @@ APP_TIMER_DEF(coap_send_timer);
 #define LED2 NRF_GPIO_PIN_MAP(0,6)
 
 #define DEFAULT_CHILD_TIMEOUT    40                                         /**< Thread child timeout [s]. */
-#define DEFAULT_POLL_PERIOD      1000                                       /**< Thread Sleepy End Device polling period when MQTT-SN Asleep. [ms] */
+#define DEFAULT_POLL_PERIOD      100                                        /**< Thread Sleepy End Device polling period when MQTT-SN Asleep. [ms] */
 #define NUM_SLAAC_ADDRESSES      4                                          /**< Number of SLAAC addresses. */
 
 static otIp6Address m_peer_address =
@@ -58,12 +58,11 @@ static void log_init(void)
     NRF_LOG_DEFAULT_BACKENDS_INIT();
 }
 
-void dns_response_handler(void         * p_context,
-                          const char   * p_hostname,
-                          const otIp6Address * p_resolved_address,
-                          uint32_t       ttl,
-                          otError        error)
+void dns_response_handler(otError        error,
+                          const otDnsAddressResponse *response,
+                          void *context)
 {
+
     if (error != OT_ERROR_NONE)
     {
         NRF_LOG_INFO("DNS response error %d.", error);
@@ -71,7 +70,7 @@ void dns_response_handler(void         * p_context,
     }
 
     NRF_LOG_INFO("Successfully resolved address");
-    m_peer_address = *p_resolved_address;
+    otDnsAddressResponseGetAddress(response, 0, &m_peer_address, NULL);
 }
 
 void send_timer_callback() {
@@ -122,7 +121,7 @@ int main(void) {
     APP_SCHED_INIT(SCHED_EVENT_DATA_SIZE, SCHED_QUEUE_SIZE);
     app_timer_init();
     app_timer_create(&coap_send_timer, APP_TIMER_MODE_REPEATED, send_timer_callback);
-    app_timer_start(coap_send_timer, APP_TIMER_TICKS(5000), NULL);
+    app_timer_start(coap_send_timer, APP_TIMER_TICKS(10000), NULL);
 
     // Enter main loop.
     while (1) {
