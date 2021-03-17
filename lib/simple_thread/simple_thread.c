@@ -63,6 +63,11 @@ void __attribute__((weak)) thread_init(const thread_config_t* config)
 
     if (!otDatasetIsCommissioned(m_ot_instance) || config->autocommission)
     {
+        if (config->ext_addr) {
+          error = otLinkSetExtendedAddress(m_ot_instance, config->ext_addr);
+          ASSERT(error == OT_ERROR_NONE);
+        }
+
         // set up active dataset with channel, panid, masterkey
         if (config->channel) {
           dataset.mChannel = config->channel;
@@ -72,8 +77,9 @@ void __attribute__((weak)) thread_init(const thread_config_t* config)
           dataset.mPanId = config->panid;
           dataset.mComponents.mIsPanIdPresent = true;
         }
-        memcpy(&dataset.mMasterKey, &(config->masterkey), sizeof(dataset.mMasterKey));
-        dataset.mComponents.mIsMasterKeyPresent = config->has_masterkey;
+
+        memcpy(&dataset.mMasterKey, config->masterkey, sizeof(dataset.mMasterKey));
+        dataset.mComponents.mIsMasterKeyPresent = config->masterkey != NULL;
 
         // set active dataset
         otDatasetSetActive(m_ot_instance, &dataset);

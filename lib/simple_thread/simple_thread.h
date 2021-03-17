@@ -9,15 +9,15 @@
 #include <openthread/dataset.h>
 
 typedef struct {
-  uint8_t     channel;
-  uint16_t    panid;
-  otMasterKey masterkey;
-  bool        has_masterkey;
-  int8_t      tx_power;
-  bool        sed; // sleepy end device
-  uint32_t    poll_period;
-  uint32_t    child_period;
-  bool        autocommission;
+  otExtAddress* ext_addr;
+  otMasterKey* masterkey;
+  uint8_t   channel;
+  uint16_t  panid;
+  int8_t    tx_power;
+  bool      sed; // sleepy end device
+  uint32_t  poll_period;
+  uint32_t  child_period;
+  bool      autocommission;
 } thread_config_t;
 
 void thread_state_changed_callback(uint32_t flags, void * p_context);
