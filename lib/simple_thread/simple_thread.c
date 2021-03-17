@@ -68,6 +68,11 @@ void __attribute__((weak)) thread_init(const thread_config_t* config)
 
     if (!otDatasetIsCommissioned(m_ot_instance) || config->autocommission)
     {
+        if (config->ext_addr) {
+          error = otLinkSetExtendedAddress(m_ot_instance, config->ext_addr);
+          ASSERT(error == OT_ERROR_NONE);
+        }
+
         error = otLinkSetChannel(m_ot_instance, config->channel);
         ASSERT(error == OT_ERROR_NONE);
         NRF_LOG_INFO("Thread Channel: %d", otLinkGetChannel(m_ot_instance));

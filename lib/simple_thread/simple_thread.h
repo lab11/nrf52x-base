@@ -9,6 +9,7 @@
 #include <openthread/tasklet.h>
 
 typedef struct {
+  otExtAddress* ext_addr;
   uint8_t   channel;
   int8_t    tx_power;
   uint16_t  panid;
