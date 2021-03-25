@@ -42,7 +42,7 @@ endif
 
 # ---- SDK files
 
-ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
+ifneq (,$(filter $(NRF_IC),nrf52832 nrf52833 nrf52840))
   ifeq ($(SDK_VERSION), 15)
 
     # Set the path
@@ -55,6 +55,7 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     MBR_PATH ?= $(SDK_ROOT)components/softdevice/mbr/$(NRF_IC)/hex/mbr_$(NRF_MODEL)_$(MBR_VERSION)_mbr.hex
 
     # default files for ICs
+    # Note: nrf52833 doesn't exist in SDK15
     ifeq ($(NRF_IC),nrf52832)
       SDK_SOURCES += system_nrf52.c
       SDK_AS = gcc_startup_nrf52.S
@@ -400,6 +401,9 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     ifeq ($(NRF_IC),nrf52832)
       SDK_SOURCES += system_nrf52.c
       SDK_AS = gcc_startup_nrf52.S
+    else ifeq ($(NRF_IC),nrf52833)
+      SDK_SOURCES += system_nrf52833.c
+      SDK_AS = gcc_startup_nrf52833.S
     else ifeq ($(NRF_IC),nrf52840)
       SDK_SOURCES += system_nrf52840.c
       SDK_AS = gcc_startup_nrf52840.S
