@@ -93,7 +93,7 @@ endif
 
 # ---- CMSIS DSP configuration
 
-ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
+ifneq (,$(filter $(NRF_IC),nrf52832 nrf52833 nrf52840))
 CONFIGURATION_VARS += ARM_MATH_CM4
 CONFIGURATION_VARS += __FPU_PRESENT
 endif
@@ -109,6 +109,14 @@ ifdef NRF_IC
     FLASH_KB ?= 512
     FULL_IC = nrf52832_xxaa
     CONFIGURATION_VARS += NRF52 ID_FLASH_LOCATION=0x77FF8
+    ID_FLASH_LOCATION=0x77FF8
+  else ifeq ($(NRF_IC), nrf52833)
+    NRF_MODEL = nrf52
+    SOFTDEVICE_MODEL ?= s140
+    RAM_KB ?= 128
+    FLASH_KB ?= 512
+    FULL_IC = nrf52833_xxaa
+    CONFIGURATION_VARS += ID_FLASH_LOCATION=0x77FF8
     ID_FLASH_LOCATION=0x77FF8
   else ifeq ($(NRF_IC), nrf52840)
     NRF_MODEL = nrf52
@@ -209,7 +217,7 @@ endif
 # ---- Compilation flags
 
 #XXX: make sure the `check_override` script is being run
-ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
+ifneq (,$(filter $(NRF_IC),nrf52832 nrf52833 nrf52840))
   CPUFLAGS += -mthumb
   CPUFLAGS += -mabi=aapcs
   CPUFLAGS += -mcpu=cortex-m4
