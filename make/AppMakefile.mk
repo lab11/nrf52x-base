@@ -39,9 +39,9 @@ include $(NRF_BASE_DIR)/make/Program.mk
 # ---- Rules for building apps
 .PHONY:	all
 ifeq ($(USE_BOOTLOADER),1)
-all: $(PBGENS) $(OBJS) $(OBJS_AS) $(MERGED_HEX)
+all: $(OBJS) $(OBJS_AS) $(MERGED_HEX) | $(PBGENS)
 else
-all: $(PBGENS) $(OBJS) $(OBJS_AS) $(HEX)
+all: $(OBJS) $(OBJS_AS) $(HEX) | $(PBGENS)
 endif
 
 # protobufs must be generated before objects
