@@ -24,4 +24,5 @@ void thread_state_changed_callback(uint32_t flags, void * p_context);
 void thread_init(const thread_config_t* config);
 void thread_process(void);
 void thread_sleep(void);
+void thread_reset_active_timestamp();
 otInstance * thread_get_instance(void);

@@ -17,6 +17,21 @@ void __attribute__((weak)) thread_state_changed_callback(uint32_t flags, void * 
 
 }
 
+void thread_reset_active_timestamp() {
+  otOperationalDataset dataset = {0};
+
+  otDatasetGetActive(m_ot_instance, &dataset);
+  dataset.mActiveTimestamp = 1;
+  dataset.mComponents.mIsActiveTimestampPresent = 0;
+  otError ret = otDatasetSetActive(m_ot_instance, &dataset);
+  NRF_LOG_INFO("dataset commissioned %d, %d", otDatasetIsCommissioned(m_ot_instance), ret);
+
+  // toggle thread enable to trigger searching for new networks
+  otThreadSetEnabled(m_ot_instance, false);
+  otThreadSetEnabled(m_ot_instance, true);
+
+}
+
 static void* ot_calloc(size_t n, size_t size)
 {
     void *p_ptr = NULL;
