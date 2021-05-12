@@ -39,16 +39,16 @@ include $(NRF_BASE_DIR)/make/Program.mk
 # ---- Rules for building apps
 .PHONY:	all
 ifeq ($(USE_BOOTLOADER),1)
-all: $(OBJS) $(OBJS_AS) $(MERGED_HEX) | $(PBGENS)
+all: $(OBJS) $(OBJS_AS) $(MERGED_HEX)
 else
-all: $(OBJS) $(OBJS_AS) $(HEX) | $(PBGENS)
+all: $(OBJS) $(OBJS_AS) $(HEX)
 endif
 
-# protobufs must be generated before objects
+# protobufs must exist before objects
 $(OBJS): $(PBGENS)
 
-$(PBGENS): $(PBSRCS) $(PBOPTS)
-	$(PROTOC) $(PROTOC_OPTS) $(PROTOC_INC) --nanopb_out=$(NANOPB_OPTS):. $<
+$(PBGENS): | $(PBSRCS) $(PBOPTS)
+	$(PROTOC) $(PROTOC_OPTS) $(PROTOC_INC) --nanopb_out=$(NANOPB_OPTS):. $(PBSRCS)
 
 $(BUILDDIR):
 	$(TRACE_DIR)
