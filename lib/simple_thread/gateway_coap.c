@@ -10,7 +10,6 @@
 #include <openthread/message.h>
 
 #include "custom_board.h"
-#include "config.h"
 
 #include "pb_encode.h"
 
@@ -29,8 +28,16 @@ static const otIp6Address unspecified_ipv6 =
     }
 };
 
+static char gw_parse_addr[64];
+static char gw_device_type[32];
+
 inline void gateway_set_response_handler(otCoapResponseHandler handler) {
   response_handler = handler;
+}
+
+void gateway_coap_init(const char* parse_addr, const char* device_type) {
+  strncpy(gw_parse_addr, parse_addr, sizeof(gw_parse_addr));
+  strncpy(gw_device_type, device_type, sizeof(gw_device_type));
 }
 
 void gateway_block_finalize(uint8_t code, otError result) {
@@ -58,7 +65,7 @@ static void gateway_response_handler (void* context, otMessage* message, const
       NRF_LOG_INFO("404 Not Found!");
       // send discovery!
       Message msg = Message_init_default;
-      strncpy(msg.data.discovery, GATEWAY_PARSE_ADDR, sizeof(msg.data.discovery));
+      strncpy(msg.data.discovery, gw_parse_addr, sizeof(msg.data.discovery));
       struct timeval dummy = {0};
       gateway_coap_send(&(message_info->mPeerAddr), "discovery", false, dummy, &msg);
     }
@@ -79,7 +86,7 @@ otError gateway_coap_send(const otIp6Address* dest_addr,
   Header header = Header_init_default;
   header.version = GATEWAY_PACKET_VERSION;
   memcpy(header.id.bytes, device_id, sizeof(device_id));
-  strncpy(header.device_type, GATEWAY_DEVICE_TYPE, sizeof(header.device_type));
+  strncpy(header.device_type, gw_device_type, sizeof(header.device_type));
   header.id.size = sizeof(device_id);
 
   header.tv_sec = time.tv_sec;
@@ -117,7 +124,7 @@ otError gateway_coap_block_send(const otIp6Address* dest_addr, block_info* b_inf
   Header header = Header_init_default;
   header.version = GATEWAY_PACKET_VERSION;
   memcpy(header.id.bytes, device_id, sizeof(device_id));
-  strncpy(header.device_type, GATEWAY_DEVICE_TYPE, sizeof(header.device_type));
+  strncpy(header.device_type, gw_device_type, sizeof(header.device_type));
   header.id.size = sizeof(device_id);
 
   header.tv_sec = time.tv_sec;

@@ -18,6 +18,21 @@ void __attribute__((weak)) thread_state_changed_callback(uint32_t flags, void * 
 
 }
 
+void thread_reset_active_timestamp() {
+  otOperationalDataset dataset = {0};
+
+  otDatasetGetActive(m_ot_instance, &dataset);
+  dataset.mActiveTimestamp = 1;
+  dataset.mComponents.mIsActiveTimestampPresent = 0;
+  otError ret = otDatasetSetActive(m_ot_instance, &dataset);
+  NRF_LOG_INFO("dataset commissioned %d, %d", otDatasetIsCommissioned(m_ot_instance), ret);
+
+  // toggle thread enable to trigger searching for new networks
+  otThreadSetEnabled(m_ot_instance, false);
+  otThreadSetEnabled(m_ot_instance, true);
+
+}
+
 void* otPlatCAlloc(size_t n, size_t size)
 {
     void *p_ptr = NULL;
@@ -60,6 +75,11 @@ void __attribute__((weak)) thread_init(const thread_config_t* config)
 
     m_ot_instance = otInstanceInitSingle();
     ASSERT(m_ot_instance != NULL);
+
+
+    NRF_LOG_INFO("Thread version: %s", otGetVersionString());
+    NRF_LOG_INFO("Network name:   %s",
+                 otThreadGetNetworkName(m_ot_instance));
 
     if (!otDatasetIsCommissioned(m_ot_instance) || config->autocommission)
     {
