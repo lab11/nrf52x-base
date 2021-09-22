@@ -1,3 +1,4 @@
+syntax = "proto2";
 package dfu;
 
 // Version 0.1
@@ -44,7 +45,7 @@ message BootValidation {
 message InitCommand {
     optional uint32             fw_version      = 1;
     optional uint32             hw_version      = 2;
-    repeated uint32             sd_req          = 3 [packed = true];
+    repeated uint32             sd_req          = 3;
     optional FwType             type            = 4;
 
     optional uint32             sd_size         = 5;

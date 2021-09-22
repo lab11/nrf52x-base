@@ -4,6 +4,7 @@
 #include <string.h>
 #include "nrf.h"
 #include "nrf_timer.h"
+#include "app_scheduler.h"
 #include "app_timer.h"
 #include "nrf_delay.h"
 #include "nrf_gpio.h"
@@ -16,6 +17,9 @@
 #include "thread_coap.h"
 
 APP_TIMER_DEF(coap_send_timer);
+
+#define SCHED_QUEUE_SIZE 32
+#define SCHED_EVENT_DATA_SIZE APP_TIMER_SCHED_EVENT_DATA_SIZE
 
 #define COAP_SERVER_ADDR "64:ff9b::23a6:b3ac"
 
@@ -49,7 +53,7 @@ static void log_init(void)
 void send_timer_callback() {
   const uint8_t* data = (uint8_t*)"hello";
   otInstance* thread_instance = thread_get_instance();
-  thread_coap_send(thread_instance, OT_COAP_CODE_PUT, OT_COAP_TYPE_NON_CONFIRMABLE, &m_peer_address, "test", data, strnlen((char*)data, 6));
+  thread_coap_send(thread_instance, OT_COAP_CODE_PUT, OT_COAP_TYPE_NON_CONFIRMABLE, &m_peer_address, "test", data, strnlen((char*)data, 6), false, NULL);
   NRF_LOG_INFO("Sent test message!");
 }
 
@@ -80,8 +84,9 @@ int main(void) {
 
     thread_init(&thread_config);
     otInstance* thread_instance = thread_get_instance();
-    thread_coap_client_init(thread_instance);
+    thread_coap_client_init(thread_instance, false);
 
+    APP_SCHED_INIT(SCHED_EVENT_DATA_SIZE, SCHED_QUEUE_SIZE);
     app_timer_init();
     app_timer_create(&coap_send_timer, APP_TIMER_MODE_REPEATED, send_timer_callback);
     app_timer_start(coap_send_timer, APP_TIMER_TICKS(5000), NULL);
@@ -89,6 +94,7 @@ int main(void) {
     // Enter main loop.
     while (1) {
         thread_process();
+        app_sched_execute();
         if (NRF_LOG_PROCESS() == false)
         {
           thread_sleep();

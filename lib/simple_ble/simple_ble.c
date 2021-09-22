@@ -682,7 +682,7 @@ void __attribute__((weak)) advertising_init(void) {
 
     init.config.ble_adv_fast_enabled  = true;
     init.config.ble_adv_fast_interval = APP_ADV_INTERVAL;
-    init.config.ble_adv_fast_timeout  = 18000;
+    init.config.ble_adv_fast_timeout  = 0;
 
     init.evt_handler = on_adv_evt;
 
@@ -1214,7 +1214,6 @@ void simple_ble_adv_only_name(void) {
     adv_data.flags = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE; // BLE Low energy advertisement
 
     // encode advertisement data
-    m_advertising.adv_data.adv_data.p_data = m_advertising.enc_advdata;
     m_advertising.adv_data.adv_data.len = BLE_GAP_ADV_SET_DATA_SIZE_MAX;
     err_code = ble_advdata_encode(&adv_data, m_advertising.adv_data.adv_data.p_data, &m_advertising.adv_data.adv_data.len);
     APP_ERROR_CHECK(err_code);
@@ -1262,7 +1261,6 @@ void simple_ble_set_adv(ble_advdata_t* adv_data, ble_advdata_t* scan_rsp_data) {
 
     // encode advertisement data
     if (adv_data != NULL) {
-        m_advertising.adv_data.adv_data.p_data = m_advertising.enc_advdata;
         m_advertising.adv_data.adv_data.len = BLE_GAP_ADV_SET_DATA_SIZE_MAX;
         err_code = ble_advdata_encode(adv_data, m_advertising.adv_data.adv_data.p_data, &m_advertising.adv_data.adv_data.len);
         APP_ERROR_CHECK(err_code);
@@ -1270,7 +1268,6 @@ void simple_ble_set_adv(ble_advdata_t* adv_data, ble_advdata_t* scan_rsp_data) {
 
     // encode scan response data
     if (scan_rsp_data != NULL) {
-        m_advertising.adv_data.scan_rsp_data.p_data = m_advertising.enc_scan_rsp_data;
         m_advertising.adv_data.scan_rsp_data.len = BLE_GAP_ADV_SET_DATA_SIZE_MAX;
         err_code = ble_advdata_encode(scan_rsp_data, m_advertising.adv_data.scan_rsp_data.p_data, &m_advertising.adv_data.scan_rsp_data.len);
         APP_ERROR_CHECK(err_code);
@@ -1280,6 +1277,34 @@ void simple_ble_set_adv(ble_advdata_t* adv_data, ble_advdata_t* scan_rsp_data) {
     }
 
     // actually set advertisement
+    err_code = sd_ble_gap_adv_set_configure(&m_advertising.adv_handle, &m_advertising.adv_data, &m_advertising.adv_params);
+    APP_ERROR_CHECK(err_code);
+
+    // Start the advertisement
+    advertising_start();
+}
+
+void simple_ble_adv_raw(uint8_t* buf, size_t len) {
+    ret_code_t err_code;
+
+    // stop advertising. We must do this before changing the advertisement data
+    advertising_stop();
+
+    // limit size to maximum advertisement size
+    size_t min_len = BLE_GAP_ADV_SET_DATA_SIZE_MAX;
+    if (len < min_len) {
+        min_len = len;
+    }
+
+    // copy over advertisement payload
+    memcpy(m_advertising.adv_data.adv_data.p_data, buf, min_len);
+    m_advertising.adv_data.adv_data.len = min_len;
+
+    // clear scan response
+    memset(m_advertising.adv_data.scan_rsp_data.p_data, 0, BLE_GAP_ADV_SET_DATA_SIZE_MAX);
+    m_advertising.adv_data.scan_rsp_data.len = 0;
+
+    // actually set the advertisement
     err_code = sd_ble_gap_adv_set_configure(&m_advertising.adv_handle, &m_advertising.adv_data, &m_advertising.adv_params);
     APP_ERROR_CHECK(err_code);
 

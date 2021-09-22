@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>  <project>
+    <path>$WS_DIR$\rcp\uart\iar\ot_nrf52833_libopenthread_rcp_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\core\ftd\iar\ot_nrf52833_libopenthread_ftd_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\core\mtd\iar\ot_nrf52833_libopenthread_mtd_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\lib\hdlc\iar\ot_nrf52833_libopenthread_hdlc_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\cli\mtd\iar\ot_nrf52833_libopenthread_cli_mtd_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\rcp\spi\iar\ot_nrf52833_libopenthread_rcp_spi_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\cli\ftd\iar\ot_nrf52833_libopenthread_cli_ftd_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\core\radio\iar\ot_nrf52833_libopenthread_radio_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\mbedcrypto\cc310\iar\ot_nrf52833_libmbedcrypto_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\ncp\ftd\uart\iar\ot_nrf52833_libopenthread_ncp_ftd_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\ncp\mtd\uart\iar\ot_nrf52833_libopenthread_ncp_mtd_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\ncp\ftd\spi\iar\ot_nrf52833_libopenthread_ncp_ftd_spi_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\ncp\mtd\spi\iar\ot_nrf52833_libopenthread_ncp_mtd_spi_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\plat_utils\iar\ot_nrf52833_libopenthread_platform_utils_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\lib\spinel_ncp\iar\ot_nrf52833_libopenthread_spinel_ncp_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\lib\spinel_rcp\iar\ot_nrf52833_libopenthread_spinel_rcp_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\plat_nrf52833\sdk-nosd\iar\ot_nrf52833_libopenthread_nrf52833_sdk.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\plat_nrf52833\uart\iar\ot_nrf52833_libopenthread_nrf52833_transport.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\plat_nrf52833\usb\iar\ot_nrf52833_libopenthread_nrf52833_transport_usb.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\plat_nrf52833\spi\iar\ot_nrf52833_libopenthread_nrf52833_transport_spi.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\core\optim-mtd\iar\ot_nrf52833_libopenthread_mtd_optimized_mtd_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\core\optim-ftd\iar\ot_nrf52833_libopenthread_ftd_optimized_ftd_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\cli\optim-ftd\iar\ot_nrf52833_libopenthread_cli_ftd_optimized_ftd_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\plat_nrf52833\sdk-nodiag\iar\ot_nrf52833_libopenthread_nrf52833_sdk_nodiag.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\plat_nrf52833\sdk-sd\iar\ot_nrf52833_libopenthread_nrf52833_softdevice_sdk.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\cli\optim-mtd\iar\ot_nrf52833_libopenthread_cli_mtd_optimized_mtd_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\nordicsemi_nrf52833\driver\iar\ot_nrf52833_libnordicsemi_nrf52833_radio_driver.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\plat_nrf52833\no-transport\iar\ot_nrf52833_libopenthread_nrf52833_transport_none.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\plat_utils_mtd\iar\ot_nrf52833_libopenthread_platform_utils_optimized_mtd_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\plat_utils_ftd\iar\ot_nrf52833_libopenthread_platform_utils_optimized_ftd_nrf52833.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\plat_nrf52833\sdk-sd-nodiag\iar\ot_nrf52833_libopenthread_nrf52833_softdevice_sdk_nodiag.ewp</path>
+  </project>  <project>
+    <path>$WS_DIR$\nordicsemi_nrf52833\driver-sd\iar\ot_nrf52833_libnordicsemi_nrf52833_radio_driver_softdevice.ewp</path>
+  </project>  <batchBuild/>
+</workspace>

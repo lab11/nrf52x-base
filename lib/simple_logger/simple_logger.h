@@ -11,6 +11,9 @@
 //	//permissions
 //	//"w" - write
 //	//"a" - append (just like c files)
+//	//"r" - read
+//	Example: simple_logger_init(filename, "a r");
+//	Note - the space is NECESSARY
 //	simple_logger_init(filename, permissions);
 //	
 //	//In main loop
@@ -50,5 +53,6 @@ uint8_t simple_logger_log(const char *format, ...)
 uint8_t simple_logger_log_header(const char *format, ...)
 		__attribute__ ((format (printf, 1, 2)));
 uint8_t simple_logger_read(uint8_t* buf, uint8_t buf_len);
+uint8_t simple_logger_reset_fp();
 
 #endif

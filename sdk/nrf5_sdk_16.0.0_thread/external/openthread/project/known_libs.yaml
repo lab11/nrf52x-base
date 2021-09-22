@@ -1,0 +1,101 @@
+libmbedcrypto:
+  target_dir: mbedcrypto/cc310
+  src_path: build/{target_name}/third_party/mbedtls
+libopenthread-cli-ftd:
+  target_dir: cli/ftd
+  src_path: build/{target_name}/src/cli
+libopenthread-cli-mtd:
+  target_dir: cli/mtd
+  src_path: build/{target_name}/src/cli
+libopenthread-ftd:
+  target_dir: core/ftd
+  src_path: build/{target_name}/src/core
+libopenthread-mtd:
+  target_dir: core/mtd
+  src_path: build/{target_name}/src/core
+libopenthread-ncp-ftd:
+  target_dir: ncp/ftd/uart
+  src_path: build/{target_name}/src/ncp
+libopenthread-ncp-ftd-spi:
+  target_dir: ncp/ftd/spi
+  src_path: build/{target_name}/src/ncp
+libopenthread-ncp-mtd:
+  target_dir: ncp/mtd/uart
+  src_path: build/{target_name}/src/ncp
+libopenthread-ncp-mtd-spi:
+  target_dir: ncp/mtd/spi
+  src_path: build/{target_name}/src/ncp
+libopenthread-radio:
+  target_dir: core/radio
+  src_path: build/{target_name}/src/core
+libopenthread-rcp:
+  target_dir: rcp/uart
+  src_path: build/{target_name}/src/ncp
+libopenthread-rcp-spi:
+  target_dir: rcp/spi
+  src_path: build/{target_name}/src/ncp
+libopenthread-spinel-ncp:
+  target_dir: lib/spinel_ncp
+  src_path: build/{target_name}/src/lib/spinel
+libopenthread-spinel-rcp:
+  target_dir: lib/spinel_rcp
+  src_path: build/{target_name}/src/lib/spinel
+libopenthread-hdlc:
+  target_dir: lib/hdlc
+  src_path: build/{target_name}/src/lib/hdlc
+libopenthread-{target_name}-sdk:
+  target_dir: plat_{target_name}/sdk-nosd
+  src_path: build/{target_name}/examples/platforms/nrf528xx
+libopenthread-{target_name}-softdevice-sdk:
+  target_dir: plat_{target_name}/sdk-sd
+  src_path: build/{target_name}/examples/platforms/nrf528xx
+libopenthread-platform-utils:
+  target_dir: plat_utils
+  src_path: build/{target_name}/examples/platforms/utils
+libnordicsemi-{target_name}-radio-driver:
+  target_dir: nordicsemi_{target_name}/driver
+  src_path: build/{target_name}/third_party/NordicSemiconductor
+libnordicsemi-{target_name}-radio-driver-softdevice:
+  target_dir: nordicsemi_{target_name}/driver-sd
+  src_path: build/{target_name}/third_party/NordicSemiconductor
+libopenthread-{target_name}-transport:
+  target_dir: plat_{target_name}/uart
+  src_path: build/{target_name}/examples/platforms/nrf528xx
+libopenthread-{target_name}-transport-spi:
+  target_dir: plat_{target_name}/spi
+  src_path: build/{target_name}/examples/platforms/nrf528xx
+libopenthread-{target_name}-transport-usb:
+  target_dir: plat_{target_name}/usb
+  src_path: build/{target_name}/examples/platforms/nrf528xx
+libopenthread-{target_name}-transport-none:
+  target_dir: plat_{target_name}/no-transport
+  src_path: build/{target_name}/examples/platforms/nrf528xx
+libopenthread-cli-ftd-optimized-ftd:
+  target_dir: cli/optim-ftd
+  src_path: build/{target_name}/src/cli
+libopenthread-ftd-optimized-ftd:
+  target_dir: core/optim-ftd
+  src_path: build/{target_name}/src/core
+libopenthread-platform-utils-optimized-ftd:
+  target_dir: plat_utils_ftd
+  src_path: build/{target_name}/examples/platforms/utils
+libopenthread-cli-mtd-optimized-mtd:
+  target_dir: cli/optim-mtd
+  src_path: build/{target_name}/src/cli
+libopenthread-mtd-optimized-mtd:
+  target_dir: core/optim-mtd
+  src_path: build/{target_name}/src/core
+libopenthread-platform-utils-optimized-mtd:
+  target_dir: plat_utils_mtd
+  src_path: build/{target_name}/examples/platforms/utils
+libopenthread-{target_name}-sdk-nodiag:
+  target_dir: plat_{target_name}/sdk-nodiag
+  src_path: build/{target_name}/examples/platforms/nrf528xx
+libopenthread-{target_name}-softdevice-sdk-nodiag:
+  target_dir: plat_{target_name}/sdk-sd-nodiag
+  src_path: build/{target_name}/examples/platforms/nrf528xx
+
+
+libjlinkrtt:
+libnordicsemi-{target_name}-sdk:
+libopenthread-{target_name}:

@@ -16,6 +16,8 @@
 
 #include "simple_thread.h"
 
+#include <openthread/thread.h>
+
 #define LED0 NRF_GPIO_PIN_MAP(0,4)
 #define LED1 NRF_GPIO_PIN_MAP(0,5)
 #define LED2 NRF_GPIO_PIN_MAP(0,6)
@@ -32,6 +34,13 @@ static void log_init(void)
     APP_ERROR_CHECK(err_code);
 
     NRF_LOG_DEFAULT_BACKENDS_INIT();
+}
+
+void thread_state_changed_callback(uint32_t flags, void * p_context)
+{
+
+    NRF_LOG_INFO("State changed! Flags: 0x%08x Current role: %d\r\n",
+                 flags, otThreadGetDeviceRole(p_context));
 }
 
 int main(void) {
@@ -52,14 +61,17 @@ int main(void) {
       .autocommission = true,
     };
 
+    // Enter main loop.
     thread_init(&thread_config);
 
-    // Enter main loop.
-    while (1) {
-        thread_process();
-        if (NRF_LOG_PROCESS() == false)
-        {
-          thread_sleep();
-        }
+    while (true)
+    {
+      thread_process();
+
+      if (NRF_LOG_PROCESS() == false)
+      {
+        thread_sleep();
+      }
     }
+
 }

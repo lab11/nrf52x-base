@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "nrf.h"
-#include "nrf_timer.h"
+#include "app_scheduler.h"
 #include "app_timer.h"
 #include "nrf_delay.h"
 #include "nrf_gpio.h"
@@ -20,6 +20,9 @@
 #include "openthread/ip6.h"
 
 APP_TIMER_DEF(ntp_update_timer);
+
+#define SCHED_QUEUE_SIZE 32
+#define SCHED_EVENT_DATA_SIZE APP_TIMER_SCHED_EVENT_DATA_SIZE
 
 #define COAP_SERVER_HOSTNAME "google.com"
 #define NTP_SERVER_HOSTNAME "us.pool.ntp.org"
@@ -100,6 +103,7 @@ int main(void) {
 
     thread_init(&thread_config);
 
+    APP_SCHED_INIT(SCHED_EVENT_DATA_SIZE, SCHED_QUEUE_SIZE);
     app_timer_init();
     app_timer_create(&ntp_update_timer, APP_TIMER_MODE_REPEATED, ntp_update_callback);
     app_timer_start(ntp_update_timer, APP_TIMER_TICKS(10000), NULL);
@@ -107,6 +111,7 @@ int main(void) {
     // Enter main loop.
     while (1) {
         thread_process();
+        app_sched_execute();
         if (NRF_LOG_PROCESS() == false)
         {
           thread_sleep();

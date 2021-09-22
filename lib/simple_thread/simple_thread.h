@@ -9,6 +9,7 @@
 #include <openthread/tasklet.h>
 
 typedef struct {
+  otExtAddress* ext_addr;
   uint8_t   channel;
   int8_t    tx_power;
   uint16_t  panid;
@@ -23,4 +24,5 @@ void thread_state_changed_callback(uint32_t flags, void * p_context);
 void thread_init(const thread_config_t* config);
 void thread_process(void);
 void thread_sleep(void);
+void thread_reset_active_timestamp();
 otInstance * thread_get_instance(void);

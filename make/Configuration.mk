@@ -11,6 +11,31 @@ CONFIGURATION_MAKEFILE = 1
 # directory for built output
 BUILDDIR ?= _build/
 
+# ---- NANOPB configuration
+# Path to the nanopb root directory
+NANOPB_DIR := $(NRF_BASE_DIR)/lib/nanopb/
+# Files for the nanopb core
+NANOPB_CORE = $(NANOPB_DIR)/pb_encode.c $(NANOPB_DIR)/pb_decode.c $(NANOPB_DIR)/pb_common.c
+CONFIGURATION_VARS += PB_FIELD_32BIT PB_BUFFER_ONLY
+PROTOC_INC = -I.
+ifdef PROTO_DIR
+	PROTOC_INC += -I$(PROTO_DIR)
+endif
+
+# Check whether to use binary version of nanopb_generator or the
+# system-supplied python interpreter.
+ifneq "$(wildcard $(NANOPB_DIR)/generator-bin)" ""
+	# Binary package
+	PROTOC = $(NANOPB_DIR)/generator-bin/protoc
+	PROTOC_OPTS =
+	NANOPB_OPTS =
+else
+	# Source only or git checkout
+	PROTOC = protoc
+	PROTOC_OPTS = --plugin=protoc-gen-nanopb=$(NANOPB_DIR)/generator/protoc-gen-nanopb
+	NANOPB_OPTS = -I$(PROTO_DIR)
+endif
+
 # Remove built-in rules and variables
 # n.b. no-op for make --version < 4.0
 MAKEFLAGS += -r
@@ -33,6 +58,8 @@ SIZE := $(TOOLCHAIN)-size
 # Git version
 GIT_VERSION := $(shell git describe --abbrev=4 --always --tags)
 BARE_VERSION := $(lastword $(subst v, , $(firstword $(subst -, ,$(GIT_VERSION)))))
+HW_VERSION ?= 52
+MANUF_ID ?= 0
 
 # Pretty-printing rules
 # If environment variable V is non-empty, be verbose
@@ -66,7 +93,7 @@ endif
 
 # ---- CMSIS DSP configuration
 
-ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
+ifneq (,$(filter $(NRF_IC),nrf52832 nrf52833 nrf52840))
 CONFIGURATION_VARS += ARM_MATH_CM4
 CONFIGURATION_VARS += __FPU_PRESENT
 endif
@@ -82,6 +109,14 @@ ifdef NRF_IC
     FLASH_KB ?= 512
     FULL_IC = nrf52832_xxaa
     CONFIGURATION_VARS += NRF52 ID_FLASH_LOCATION=0x77FF8
+    ID_FLASH_LOCATION=0x77FF8
+  else ifeq ($(NRF_IC), nrf52833)
+    NRF_MODEL = nrf52
+    SOFTDEVICE_MODEL ?= s140
+    RAM_KB ?= 128
+    FLASH_KB ?= 512
+    FULL_IC = nrf52833_xxaa
+    CONFIGURATION_VARS += ID_FLASH_LOCATION=0x77FF8
     ID_FLASH_LOCATION=0x77FF8
   else ifeq ($(NRF_IC), nrf52840)
     NRF_MODEL = nrf52
@@ -108,6 +143,7 @@ endif
 # Default SDK and softdevice versions
 SDK_VERSION ?= 15
 ifeq ($(SDK_VERSION), 15)
+  MBR_VERSION = 2.4.1
   ifeq ($(SOFTDEVICE_MODEL), s132)
     SOFTDEVICE_VERSION = 6.1.1
   else ifeq ($(SOFTDEVICE_MODEL), s140)
@@ -115,15 +151,26 @@ ifeq ($(SDK_VERSION), 15)
   else ifeq ($(SOFTDEVICE_MODEL), blank)
     SOFTDEVICE_VERSION = 0
     USE_BLE = 0 # can't have BLE without a softdevice
-    # if we want to use the MBR to manage a bootloader without a softdevice:
-    ifeq ($(USE_MBR), 1)
-      MBR_VERSION = 2.4.1
-    endif
   endif
+endif
+ifeq ($(SDK_VERSION), 16)
+  MBR_VERSION = 2.4.1
+  ifeq ($(SOFTDEVICE_MODEL), s132)
+    SOFTDEVICE_VERSION = 7.0.1
+  else ifeq ($(SOFTDEVICE_MODEL), s140)
+    SOFTDEVICE_VERSION = 7.0.1
+  else ifeq ($(SOFTDEVICE_MODEL), blank)
+    SOFTDEVICE_VERSION = 0
+    USE_BLE = 0 # can't have BLE without a softdevice
+  endif
+  BOOTLOADER_HEX = $(NRF_BASE_DIR)/apps/bootloader/$(BOOTLOADER)/_build/$(BOOTLOADER)_sdk$(SDK_VERSION)_$(SOFTDEVICE_MODEL).hex
 endif
 CONFIGURATION_VARS += SDK_VERSION_$(SDK_VERSION)
 
 # Identify the linker script for this particular configuration
+ifeq ($(USE_BOOTLOADER), 1)
+LINKER_SCRIPT ?= gcc_$(NRF_IC)_dfu_$(SOFTDEVICE_MODEL)_$(SOFTDEVICE_VERSION)_$(RAM_KB)_$(FLASH_KB).ld
+endif
 LINKER_SCRIPT ?= gcc_$(NRF_IC)_$(SOFTDEVICE_MODEL)_$(SOFTDEVICE_VERSION)_$(RAM_KB)_$(FLASH_KB).ld
 
 # Default wireless configurations
@@ -172,7 +219,7 @@ endif
 # ---- Compilation flags
 
 #XXX: make sure the `check_override` script is being run
-ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
+ifneq (,$(filter $(NRF_IC),nrf52832 nrf52833 nrf52840))
   CPUFLAGS += -mthumb
   CPUFLAGS += -mabi=aapcs
   CPUFLAGS += -mcpu=cortex-m4
@@ -194,6 +241,7 @@ override CFLAGS += \
     -Wno-unused-parameter\
     -Werror=return-type\
     -Wno-expansion-to-defined\
+    -Wno-packed-bitfield-compat\
     $(CONFIGURATION_DEFINES)\
     $(SDK_DEFINES)\
     -DGIT_VERSION=\"$(GIT_VERSION)\"\
@@ -264,7 +312,7 @@ override OBJDUMP_FLAGS += \
 
 override CFLAGS += -Wdate-time #                # warn if __TIME__, __DATE__, or __TIMESTAMP__ used
                                          # ^on b/c flashing assumes same code => no flash, these enforce
-override CFLAGS += -Wfloat-equal #              # floats used with '=' operator, likely imprecise
+#override CFLAGS += -Wfloat-equal #              # floats used with '=' operator, likely imprecise
 override CFLAGS += -Wformat-nonliteral #        # can't check format string (maybe disable if annoying)
 override CFLAGS += -Wformat-security #          # using untrusted format strings (maybe disable)
 override CFLAGS += -Wformat-y2k #               # use of strftime that assumes two digit years
@@ -321,7 +369,7 @@ override CFLAGS += -Wwrite-strings #            # { char* c = "foo"; c[0] = 'b' 
 #override CFLAGS += -Wbad-function-cast #          # not obvious when this would trigger, could drop if annoying
 override CFLAGS += -Wjump-misses-init #           # goto or switch skips over a variable initialziation
 #override CFLAGS += -Wmissing-prototypes #         # global fn defined w/out prototype (should be static or in .h)
-override CFLAGS += -Wnested-externs #             # mis/weird-use of extern keyword
+#override CFLAGS += -Wnested-externs #             # mis/weird-use of extern keyword
 #override CFLAGS += -Wold-style-definition #       # this garbage: void bar (a) int a; { }
 
 #CFLAGS += -Wunsuffixed-float-constants # # { float f=0.67; if(f==0.67) printf("y"); else printf("n"); } => n

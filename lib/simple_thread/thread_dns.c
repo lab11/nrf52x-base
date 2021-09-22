@@ -5,7 +5,7 @@
 
 void __attribute__((weak)) dns_response_handler(void         * p_context,
                                  const char   * p_hostname,
-                                 otIp6Address * p_resolved_address,
+                                 const otIp6Address * p_resolved_address,
                                  uint32_t       ttl,
                                  otError        error)
 {
@@ -29,7 +29,6 @@ otError thread_dns_hostname_resolve(otInstance * p_instance,
     otMessageInfo message_info;
 
     memset(&message_info, 0, sizeof(message_info));
-    message_info.mInterfaceId = OT_NETIF_INTERFACE_ID_THREAD;
     message_info.mPeerPort    = OT_DNS_DEFAULT_SERVER_PORT;
     error = otIp6AddressFromString(p_dns_host, &message_info.mPeerAddr);
 

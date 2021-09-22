@@ -6,6 +6,7 @@ BOARD_MAKEFILE = 1
 
 # Get directory of this makefile
 BOARD_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+KEY_DIR := $(BOARD_DIR)/../keys/
 
 # Include any files in this directory in the build process
 BOARD_SOURCE_PATHS = $(BOARD_DIR)/.
@@ -18,7 +19,7 @@ BOARD_AS = $(notdir $(wildcard $(BOARD_DIR)/./*.s))
 BOARD = PCA10059
 USE_BLE = 0
 
-LINKER_SCRIPT = gcc_$(NRF_IC)_bootloader_$(SOFTDEVICE_MODEL)_$(SOFTDEVICE_VERSION)_$(RAM_KB)_$(FLASH_KB).ld
+LINKER_SCRIPT = gcc_$(NRF_IC)_dongle_$(SOFTDEVICE_MODEL)_$(SOFTDEVICE_VERSION)_$(RAM_KB)_$(FLASH_KB).ld
 
 # Additional #define's to be added to code by the compiler
 BOARD_VARS = \
@@ -49,6 +50,7 @@ BOARD_SOURCES += \
 	nrf_log_str_formatter.c\
 	nrf_pwr_mgmt.c\
 	nrf_memobj.c\
+	mem_manager.c\
 	nrf_ringbuf.c\
 	nrf_section_iter.c\
 	nrf_sdh.c\
@@ -56,6 +58,7 @@ BOARD_SOURCES += \
 	nrf_queue.c\
 	nrf_drv_clock.c\
 	nrf_nvmc.c\
+	nrfx_nvmc.c\
 	nrfx_gpiote.c\
 	nrfx_saadc.c\
 	nrfx_timer.c\

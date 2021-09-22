@@ -48,7 +48,7 @@
 /** @brief SD_REQ field value which indicates that Softdevice can be overwritten by the application. */
 #define SD_REQ_APP_OVERWRITES_SD 0
 
-/** @brief SD_REQ_ANY_VERSION field value which indicates that any SoftDevice version is valid. 
+/** @brief SD_REQ_ANY_VERSION field value which indicates that any SoftDevice version is valid.
  *
  * @note This is used by external application in case SoftDevice version compatibility isn't needed.
  */
@@ -59,6 +59,6 @@
  *
  * @return NRF_DFU_RES_CODE_SUCCESS if successful or error code otherwise
  */
-nrf_dfu_result_t nrf_dfu_ver_validation_check(dfu_init_command_t const * p_init);
+nrf_dfu_result_t nrf_dfu_ver_validation_check(dfu_InitCommand const * p_init);
 
 #endif //__NRF_DFU_VER_VALIDATION_H
