@@ -63,12 +63,11 @@ static void log_init(void)
     NRF_LOG_DEFAULT_BACKENDS_INIT();
 }
 
-void dns_response_handler(void         * p_context,
-                                 const char   * p_hostname,
-                                 const otIp6Address * p_resolved_address,
-                                 uint32_t       ttl,
-                                 otError        error)
+void dns_response_handler(otError        error,
+                          const otDnsAddressResponse *response,
+                          void *context)
 {
+
     if (error != OT_ERROR_NONE)
     {
         NRF_LOG_INFO("DNS response error %d.", error);
@@ -76,7 +75,7 @@ void dns_response_handler(void         * p_context,
     }
 
     NRF_LOG_INFO("Successfully resolved address");
-    m_peer_address = *p_resolved_address;
+    otDnsAddressResponseGetAddress(response, 0, &m_peer_address, NULL);
 }
 
 void blocks_sent_callback(uint8_t* data, size_t len) {
@@ -107,7 +106,7 @@ void send_timer_callback() {
     }
     NRF_LOG_INFO("Fits in %d blocks", info.data_len/block_size);
 
-    info.block_size = OT_COAP_BLOCK_SIZE_512;
+    info.block_size = OT_COAP_OPTION_BLOCK_SZX_512;
     info.code = OT_COAP_CODE_PUT;
     info.callback = blocks_sent_callback;
     info.etag = etag++;
@@ -130,11 +129,15 @@ int main(void) {
     nrf_gpio_cfg_output(LED2);
     nrf_gpio_pin_set(LED2);
 
+    otMasterKey masterkey = {.m8 = {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff}};
+
     thread_config_t thread_config = {
       .channel = 25,
       .panid = 0xFACE,
-      .sed = true,
-      .poll_period = 10,
+      .masterkey = &masterkey,
+      .tx_power = 8,
+      .sed = false,
+      .poll_period = DEFAULT_POLL_PERIOD,
       .child_period = DEFAULT_CHILD_TIMEOUT,
       .autocommission = true,
     };

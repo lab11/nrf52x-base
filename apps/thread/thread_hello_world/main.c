@@ -39,8 +39,9 @@ static void log_init(void)
 void thread_state_changed_callback(uint32_t flags, void * p_context)
 {
 
-    NRF_LOG_INFO("State changed! Flags: 0x%08x Current role: %d\r\n",
+    NRF_LOG_INFO("State changed! Flags: 0x%08x Current role: %d",
                  flags, otThreadGetDeviceRole(p_context));
+    NRF_LOG_INFO("802.15.4 Channel: %d\n", otLinkGetChannel(p_context));
 }
 
 int main(void) {
@@ -52,10 +53,14 @@ int main(void) {
     nrf_gpio_cfg_output(LED2);
     nrf_gpio_pin_set(LED2);
 
+    otMasterKey masterkey = {.m8 = {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff}};
+
     thread_config_t thread_config = {
-      .channel = 25,
       .panid = 0xFACE,
-      .sed = true,
+      .masterkey = &masterkey,
+      .channel = 25,
+      .tx_power = 8,
+      .sed = false,
       .poll_period = DEFAULT_POLL_PERIOD,
       .child_period = DEFAULT_CHILD_TIMEOUT,
       .autocommission = true,

@@ -23,7 +23,6 @@
 #include <openthread/tasklet.h>
 #include <openthread/thread.h>
 #include <openthread/platform/alarm-milli.h>
-#include <openthread/platform/openthread-system.h>
 
 #include "simple_thread.h"
 #include "gc_iot.h"
@@ -296,10 +295,14 @@ int main(int argc, char * argv[])
     }
     printf("\n");
 
+    otMasterKey masterkey = {.m8 = {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff}};
+
     thread_config_t thread_config = {
-      .channel = 25,
       .panid = 0xFACE,
-      .sed = true,
+      .masterkey = &masterkey,
+      .channel = 25,
+      .tx_power = 8,
+      .sed = false,
       .poll_period = DEFAULT_POLL_PERIOD,
       .child_period = DEFAULT_CHILD_TIMEOUT,
       .autocommission = true,

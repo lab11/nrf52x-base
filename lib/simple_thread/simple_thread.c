@@ -5,6 +5,7 @@
 
 #include <mbedtls/platform.h>
 #include <openthread/heap.h>
+#include <openthread/dataset.h>
 
 #include "simple_thread.h"
 
@@ -68,6 +69,7 @@ static void platform_init(void)
 void __attribute__((weak)) thread_init(const thread_config_t* config)
 {
     otError error;
+    static otOperationalDataset dataset = {0};
 
     otSysInit(0, NULL);
 
@@ -88,20 +90,29 @@ void __attribute__((weak)) thread_init(const thread_config_t* config)
           ASSERT(error == OT_ERROR_NONE);
         }
 
-        error = otLinkSetChannel(m_ot_instance, config->channel);
-        ASSERT(error == OT_ERROR_NONE);
-        NRF_LOG_INFO("Thread Channel: %d", otLinkGetChannel(m_ot_instance));
+        // set up active dataset with channel, panid, masterkey
+        if (config->channel) {
+          dataset.mChannel = config->channel;
+          dataset.mComponents.mIsChannelPresent = true;
+        }
+        if (config->panid) {
+          dataset.mPanId = config->panid;
+          dataset.mComponents.mIsPanIdPresent = true;
+        }
 
-        error = otPlatRadioSetTransmitPower(m_ot_instance, config->tx_power);
-        ASSERT(error == OT_ERROR_NONE);
-        int8_t tx_power_set;
-        otPlatRadioGetTransmitPower(m_ot_instance, &tx_power_set);
-        NRF_LOG_INFO("TX Power: %d dBm", tx_power_set);
+        memcpy(&dataset.mMasterKey, config->masterkey, sizeof(dataset.mMasterKey));
+        dataset.mComponents.mIsMasterKeyPresent = config->masterkey != NULL;
 
-        error = otLinkSetPanId(m_ot_instance, config->panid);
-        ASSERT(error == OT_ERROR_NONE);
-        NRF_LOG_INFO("Thread PANID: 0x%lx", (uint32_t)otLinkGetPanId(m_ot_instance));
+        // set active dataset
+        otDatasetSetActive(m_ot_instance, &dataset);
     }
+
+    error = otPlatRadioSetTransmitPower(m_ot_instance, config->tx_power);
+    ASSERT(error == OT_ERROR_NONE);
+    int8_t tx_power_set;
+    otPlatRadioGetTransmitPower(m_ot_instance, &tx_power_set);
+    NRF_LOG_INFO("TX Power: %d dBm", tx_power_set);
+
 
     otLinkModeConfig mode;
     memset(&mode, 0, sizeof(mode));
