@@ -58,6 +58,7 @@ int main(void) {
     thread_config_t thread_config = {
       .panid = 0xFACE,
       .masterkey = &masterkey,
+      .channel = 25,
       .tx_power = 8,
       .sed = false,
       .poll_period = DEFAULT_POLL_PERIOD,

@@ -71,15 +71,16 @@ int main(void) {
     nrf_gpio_pin_set(LED3);
     nrf_gpio_pin_clear(LED0);
 
+    otMasterKey masterkey = {.m8 = {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff}};
+
     thread_config_t thread_config = {
+      .panid = 0xFACE,
+      .masterkey = &masterkey,
       .channel = 25,
       .tx_power = 8,
-      .masterkey.m8 = {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff},
-      .has_masterkey = true,
-      .panid = 0xFACE,
       .sed = false,
-      //.poll_period = DEFAULT_POLL_PERIOD,
-      //.child_period = DEFAULT_CHILD_TIMEOUT,
+      .poll_period = DEFAULT_POLL_PERIOD,
+      .child_period = DEFAULT_CHILD_TIMEOUT,
       .autocommission = true,
     };
 
