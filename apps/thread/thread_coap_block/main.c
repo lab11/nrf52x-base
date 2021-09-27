@@ -63,11 +63,12 @@ static void log_init(void)
     NRF_LOG_DEFAULT_BACKENDS_INIT();
 }
 
-void dns_response_handler(otError        error,
-                          const otDnsAddressResponse *response,
-                          void *context)
+void dns_response_handler(void         * p_context,
+                          const char   * p_hostname,
+                          const otIp6Address * p_resolved_address,
+                          uint32_t       ttl,
+                          otError        error)
 {
-
     if (error != OT_ERROR_NONE)
     {
         NRF_LOG_INFO("DNS response error %d.", error);
@@ -75,7 +76,7 @@ void dns_response_handler(otError        error,
     }
 
     NRF_LOG_INFO("Successfully resolved address");
-    otDnsAddressResponseGetAddress(response, 0, &m_peer_address, NULL);
+    m_peer_address = *p_resolved_address;
 }
 
 void blocks_sent_callback(uint8_t* data, size_t len) {
@@ -106,7 +107,7 @@ void send_timer_callback() {
     }
     NRF_LOG_INFO("Fits in %d blocks", info.data_len/block_size);
 
-    info.block_size = OT_COAP_OPTION_BLOCK_SZX_512;
+    info.block_size = OT_COAP_BLOCK_SIZE_512;
     info.code = OT_COAP_CODE_PUT;
     info.callback = blocks_sent_callback;
     info.etag = etag++;
