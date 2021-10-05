@@ -244,6 +244,7 @@ override CFLAGS += \
     $(SDK_DEFINES)\
     -DGIT_VERSION=\"$(GIT_VERSION)\"\
     -DCONFIG_GPIO_AS_PINRESET\
+    -DCONFIG_NFCT_PINS_AS_GPIOS\
     -s\
     -ffunction-sections\
     -fdata-sections\
