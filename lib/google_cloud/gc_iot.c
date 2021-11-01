@@ -274,7 +274,7 @@ otError gc_iot_coap_publish(otIp6Address* dest, uint16_t port, uint64_t unix_tim
             break;
         }
 
-        otCoapMessageInit(p_message, OT_COAP_TYPE_NON_CONFIRMABLE, OT_COAP_CODE_POST);
+        otCoapMessageInit(p_message, OT_COAP_TYPE_CONFIRMABLE, OT_COAP_CODE_POST);
         otCoapMessageGenerateToken(p_message, 2);
 
         error = otCoapMessageAppendUriPathOptions(p_message, GCP_COAP_IOT_CORE_PATH);
