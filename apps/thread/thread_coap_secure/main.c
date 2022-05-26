@@ -207,7 +207,7 @@ static void test_timer_handler(void * p_context)
     test_counter++;
     char test[64];
     snprintf(test, 64, "counter: %ld", test_counter);
-    gc_iot_coap_publish(&m_peer_address, GCP_COAP_IOT_CORE_SERVER_SECURE_PORT, m_unix_time, (uint8_t*) test, strlen(test), coap_response_handler);
+    gc_iot_coap_publish(&m_peer_address, GCP_COAP_IOT_CORE_SERVER_SECURE_PORT, m_unix_time, (uint8_t*) test, strlen(test), coap_response_handler, NULL);
 }
 
 /***************************************************************************************************
