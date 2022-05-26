@@ -244,7 +244,7 @@ static void gc_iot_coap_payload_append(otMessage * p_message, uint8_t* data, siz
     }
 }
 
-otError gc_iot_coap_publish(otIp6Address* dest, uint16_t port, uint64_t unix_time, uint8_t* data, size_t len, otCoapResponseHandler handler)
+otError gc_iot_coap_publish(otIp6Address* dest, uint16_t port, uint64_t unix_time, uint8_t* data, size_t len, otCoapResponseHandler handler, void* context)
 {
     otError       error = OT_ERROR_NONE;
     otMessage   * p_message;
@@ -302,7 +302,7 @@ otError gc_iot_coap_publish(otIp6Address* dest, uint16_t port, uint64_t unix_tim
         error = otCoapSecureSendRequest(thread_get_instance(),
                                         p_message,
                                         handler,
-                                        NULL);
+                                        context);
 //#else
         //error = otCoapSendRequest(thread_get_instance(),
         //                          p_message,

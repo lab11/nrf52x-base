@@ -14,5 +14,5 @@ void gc_iot_coap_set_core_params(const char* path,
                                  const char* config);
 
 otError gc_iot_coap_publish(otIp6Address* dest, uint16_t port, uint64_t unix_time,
-                            uint8_t* data, size_t len, otCoapResponseHandler handler);
+                            uint8_t* data, size_t len, otCoapResponseHandler handler, void* context);
 
