@@ -183,7 +183,7 @@ static otError jwt_create(uint8_t       * p_output,
  * @section CoAP messages.
  **************************************************************************************************/
 
-static void coap_header_proxy_uri_append(otMessage * p_message, const char * p_action, uint64_t unix_time)
+static otError coap_header_proxy_uri_append(otMessage * p_message, const char * p_action, uint64_t unix_time)
 {
     otError error = OT_ERROR_NONE;
     char    jwt[BUFFER_LENGTH];
@@ -205,7 +205,7 @@ static void coap_header_proxy_uri_append(otMessage * p_message, const char * p_a
                                (uint32_t)(unix_time), (uint32_t)(timeout), GCP_COAP_IOT_CORE_PROJECT_ID);
     if (length <= 0) {
       NRF_LOG_INFO("json sprintf failed");
-      return;
+      return OT_ERROR_FAILED;
     }
 
     // strlen for device key +1 for null byte
@@ -213,21 +213,23 @@ static void coap_header_proxy_uri_append(otMessage * p_message, const char * p_a
                                (const uint8_t *)GCP_COAP_IOT_CORE_DEVICE_KEY, strlen(GCP_COAP_IOT_CORE_DEVICE_KEY) + 1);
     if (error != OT_ERROR_NONE) {
       NRF_LOG_INFO("jwt create failed: %d", error);
-      return;
+      return error;
     }
 
     error = otCoapMessageAppendProxyUriOption(p_message, jwt);
     if (error != OT_ERROR_NONE) {
       NRF_LOG_INFO("message append failed");
-      return;
+      return error;
     }
+
+    return OT_ERROR_NONE;
 }
 
 
 /*
  * So they harcode adding the relevent data to the coap packet here
 */
-static void gc_iot_coap_payload_append(otMessage * p_message, uint8_t* data, size_t len, uint64_t unix_time) {
+static otError gc_iot_coap_payload_append(otMessage * p_message, uint8_t* data, size_t len, uint64_t unix_time) {
     char payload[BUFFER_LENGTH];
     char b64encoded[BUFFER_LENGTH];
 
@@ -240,8 +242,9 @@ static void gc_iot_coap_payload_append(otMessage * p_message, uint8_t* data, siz
     otError error = otMessageAppend(p_message, payload, length);
     if (error != OT_ERROR_NONE) {
       NRF_LOG_INFO("message append failed: %d", error);
-      return;
     }
+
+    return error;
 }
 
 otError gc_iot_coap_publish(otIp6Address* dest, uint16_t port, uint64_t unix_time, uint8_t* data, size_t len, otCoapResponseHandler handler, void* context)
@@ -271,6 +274,7 @@ otError gc_iot_coap_publish(otIp6Address* dest, uint16_t port, uint64_t unix_tim
         p_message = otCoapNewMessage(thread_get_instance(), NULL);
         if (p_message == NULL)
         {
+            error = OT_ERROR_NO_BUFS;
             break;
         }
 
@@ -279,17 +283,23 @@ otError gc_iot_coap_publish(otIp6Address* dest, uint16_t port, uint64_t unix_tim
 
         error = otCoapMessageAppendUriPathOptions(p_message, GCP_COAP_IOT_CORE_PATH);
         if (error != OT_ERROR_NONE) {
-          return error;
+          break;
         }
 
-        coap_header_proxy_uri_append(p_message, GCP_COAP_IOT_CORE_PUBLISH, unix_time);
+        error = coap_header_proxy_uri_append(p_message, GCP_COAP_IOT_CORE_PUBLISH, unix_time);
+        if (error != OT_ERROR_NONE) {
+          break;
+        }
 
         error = otCoapMessageSetPayloadMarker(p_message);
         if (error != OT_ERROR_NONE) {
-          return error;
+          break;
         }
 
-        gc_iot_coap_payload_append(p_message, data, len, unix_time);
+        error = gc_iot_coap_payload_append(p_message, data, len, unix_time);
+        if (error != OT_ERROR_NONE) {
+          break;
+        }
 
         // Set message info structure to point on GCP server.
         memset(&message_info, 0, sizeof(message_info));
@@ -315,8 +325,9 @@ otError gc_iot_coap_publish(otIp6Address* dest, uint16_t port, uint64_t unix_tim
     if (error != OT_ERROR_NONE && p_message != NULL)
     {
         otMessageFree(p_message);
+        return error;
     }
-  return OT_ERROR_NONE;
+    return OT_ERROR_NONE;
 }
 
 
