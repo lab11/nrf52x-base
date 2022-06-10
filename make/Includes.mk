@@ -54,6 +54,8 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
 
     # Add paths for sdk-specific linker files
     SDK_LINKER_PATHS += $(SDK_ROOT)modules/nrfx/mdk/
+    SDK_LINKER_PATHS += $(SDK_ROOT)components/libraries/crypto/backend/cc310/
+    SDK_LINKER_PATHS += $(SDK_ROOT)components/libraries/crypto/
 
     # Path for default sdk_config.h
     SDK_CONFIG_DEFAULT ?= $(NRF_BASE_DIR)/make/config/$(NRF_IC)/config/
@@ -87,6 +89,13 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/crc16/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/crc32/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/crypto/
+    SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/crypto/backend/mbedtls/
+    SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/crypto/backend/oberon/
+    SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/crypto/backend/micro_ecc/
+    SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/crypto/backend/nrf_hw/
+    SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/crypto/backend/nrf_sw/
+    SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/crypto/backend/optiga/
+    SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/crypto/backend/cifra/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/csense/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/csense_drv/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/libraries/delay/
@@ -174,9 +183,9 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_HEADER_PATHS += $(SDK_ROOT)components/toolchain/cmsis/include/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/softdevice/common/
     SDK_HEADER_PATHS += $(SDK_ROOT)external/cifra_AES128-EAX/
-    #SDK_HEADER_PATHS += $(SDK_ROOT)external/mbedtls/library/
+    SDK_HEADER_PATHS += $(SDK_ROOT)external/mbedtls/include/mbedtls/
     SDK_HEADER_PATHS += $(SDK_ROOT)external/nrf_tls/
-    #SDK_HEADER_PATHS += $(SDK_ROOT)external/nrf_tls/mbedtls/nrf_crypto/config/
+    SDK_HEADER_PATHS += $(SDK_ROOT)external/nrf_tls/mbedtls/nrf_crypto/config/
 
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/
     SDK_SOURCE_PATHS += $(SDK_ROOT)modules/nrfx/
@@ -204,6 +213,13 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/crc16/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/crc32/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/crypto/
+    SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/crypto/backend/mbedtls/
+    SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/crypto/backend/oberon/
+    SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/crypto/backend/micro_ecc/
+    SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/crypto/backend/nrf_hw/
+    SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/crypto/backend/nrf_sw/
+    SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/crypto/backend/optiga/
+    SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/crypto/backend/cifra/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/csense/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/csense_drv/
     SDK_SOURCE_PATHS += $(SDK_ROOT)components/libraries/delay/
@@ -262,7 +278,7 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     SDK_SOURCE_PATHS += $(SDK_ROOT)external/fprintf/
     SDK_SOURCE_PATHS += $(SDK_ROOT)external/segger_rtt/
     SDK_SOURCE_PATHS += $(SDK_ROOT)external/cifra_AES128-EAX/
-    #SDK_SOURCE_PATHS += $(SDK_ROOT)external/mbedtls/library/
+    SDK_SOURCE_PATHS += $(SDK_ROOT)external/mbedtls/library/
 
     ifdef SERIALIZATION_MODE
       SDK_HEADER_PATHS += $(wildcard $(SDK_ROOT)components/serialization/*/)
@@ -370,6 +386,7 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
     endif
 
   endif # SDK 15
+  LIBS += $(SDK_ROOT)/external/nrf_cc310/lib/cortex-m4/hard-float/libnrf_cc310_0.9.12.a
 endif # nrf52
 
 
