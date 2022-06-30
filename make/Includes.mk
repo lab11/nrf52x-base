@@ -537,6 +537,7 @@ ifneq (,$(filter $(NRF_IC),nrf52832 nrf52833 nrf52840))
     SDK_HEADER_PATHS += $(SDK_ROOT)external/nrf_cc310/include/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/toolchain/gcc/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/toolchain/
+    SDK_HEADER_PATHS += $(SDK_ROOT)components/toolchain/cmsis/include/
     SDK_HEADER_PATHS += $(SDK_ROOT)components/softdevice/common/
     SDK_HEADER_PATHS += $(SDK_ROOT)external/cifra_AES128-EAX/
     SDK_HEADER_PATHS += $(SDK_ROOT)external/nrf_tls/
