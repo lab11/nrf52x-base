@@ -67,9 +67,12 @@ else
 	# Not in tmux
 	ifeq ($(UNAME_S),Darwin)
 		TERMINAL ?= osascript -e 'tell application "Terminal" to do script
-	else
-		TERMINAL ?= x-terminal-emulator -e
 	endif
+	# In Gnome session
+	ifeq ($(DESKTOP_SESSION),gnome)
+		TERMINAL ?= gnome-terminal
+	endif
+	TERMINAL ?= x-terminal-emulator -e
 endif
 
 # ---- ID FLASH LOCATION
