@@ -18,8 +18,8 @@ NANOPB_DIR := $(NRF_BASE_DIR)/lib/nanopb/
 NANOPB_CORE = $(NANOPB_DIR)/pb_encode.c $(NANOPB_DIR)/pb_decode.c $(NANOPB_DIR)/pb_common.c
 CONFIGURATION_VARS += PB_FIELD_32BIT PB_BUFFER_ONLY
 PROTOC_INC = -I.
-ifdef PROTO_DIR
-	PROTOC_INCLUDES = $(addprefix -I,$(PROTO_DIR))
+ifdef PROTO_DIRS
+	PROTOC_INCLUDES = $(addprefix -I,$(PROTO_DIRS))
 endif
 
 # Check whether to use binary version of nanopb_generator or the
@@ -33,7 +33,7 @@ else
 	# Source only or git checkout
 	PROTOC = protoc
 	PROTOC_OPTS = --plugin=protoc-gen-nanopb=$(NANOPB_DIR)/generator/protoc-gen-nanopb
-	NANOPB_OPTS = -I$(PROTO_DIR)
+	NANOPB_OPTS = -I$(PROTO_DIRS)
 endif
 
 # Remove built-in rules and variables
