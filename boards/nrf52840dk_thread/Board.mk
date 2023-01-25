@@ -76,7 +76,6 @@ BOARD_SOURCES += \
 	thread_coap_block.c\
 	thread_dns.c\
 	thread_ntp.c\
-	gc_iot.c\
 
 endif
 endif
