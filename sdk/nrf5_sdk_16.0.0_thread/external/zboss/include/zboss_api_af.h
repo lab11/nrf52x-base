@@ -48,6 +48,11 @@ PURPOSE: ZBOSS AF API
  */
 
 /**
+ * @addtogroup af_data_service AF data service
+ * @{
+ */
+
+/**
    Node descriptor
  */
 typedef ZB_PACKED_PRE struct zb_af_node_desc_s
@@ -66,9 +71,10 @@ zb_af_node_desc_t;
 
 typedef zb_nwk_device_type_t zb_logical_type_t;
 
+/** @} */ /* af_data_service */
 
 /**
- *  @defgroup node_desc_dev_types Device types
+ *  @addtogroup af_node_desc_dev_types AF device types
  *  @{
  */
 /** Device type - Coordinator */
@@ -77,8 +83,12 @@ typedef zb_nwk_device_type_t zb_logical_type_t;
 #define ZB_ROUTER      ZB_NWK_DEVICE_TYPE_ROUTER
 /** Device type - End Device */
 #define ZB_END_DEVICE  ZB_NWK_DEVICE_TYPE_ED
-/*! @} */
+/*! @} */ /* af_node_desc_dev_types */
 
+/**
+ * @addtogroup af_common_constants AF common constants
+ * @{
+ */
 /**
   Node descriptor - frequency value
   */
@@ -150,7 +160,12 @@ typedef enum zb_power_source_level_e
   ZB_POWER_LEVEL_100 = 12      /*!< 100% */
 }
 zb_power_source_level_t;
+/** @} */ /* af_common_constants */
 
+/**
+ * @addtogroup af_data_service AF data service
+ * @{
+ */
 
 /**
    Node power descriptor
@@ -166,6 +181,7 @@ typedef ZB_PACKED_PRE struct zb_af_node_power_desc_s
   zb_uint16_t power_desc_flags;
 } ZB_PACKED_STRUCT zb_af_node_power_desc_t;
 
+
 /** @cond internals_doc */
 #define __CAT__(a, b, c, d, e) a##b##c##d##e
 /** @endcond */ /*internals_doc */
@@ -176,7 +192,7 @@ typedef ZB_PACKED_PRE struct zb_af_node_power_desc_s
 /**
    Declares Simple descriptor type
 
-   @param in_clusters_count - number of input clusters in desscriptor
+   @param in_clusters_count - number of input clusters in descriptor
    @param out_clusters_count - number of output clusters in descriptor
 
    @b Example:
@@ -200,6 +216,12 @@ typedef ZB_PACKED_PRE struct zb_af_node_power_desc_s
   } ZB_PACKED_STRUCT                                                                      \
   zb_af_simple_desc_ ## in_clusters_count ## _ ## out_clusters_count ## _t
 
+/** @} */ /* af_data_service */
+
+/**
+ * @addtogroup af_management_service AF management service
+ * @{
+ */
 /** General descriptor type */
 ZB_DECLARE_SIMPLE_DESC(1,1);
 /** ZDO descriptor type */
@@ -273,8 +295,12 @@ void zb_set_default_ffd_descriptor_values(zb_logical_type_t device_type);
   @endcode
  */
 void zb_set_default_ed_descriptor_values(void);
+/** @} */ /* af_management_service */
 
-
+/**
+ * @addtogroup af_common_constants AF common constants
+ * @{
+ */
 /*! Profile identifiers */
 enum zb_af_profile_id_e
 {
@@ -317,6 +343,7 @@ typedef enum zb_af_cmd_transmission_status_e
 {
   ZB_AF_STATUS_NO_FREE_BUF,   /*!< No  free buffer */
 }zb_af_cmd_transmission_status_t;
+/** @} */ /* af_common_constants */
 
 /** @cond internals_doc */
 #if !(defined ZB_ZCL_DISABLE_REPORTING) || defined(DOXYGEN)
@@ -326,13 +353,21 @@ struct zb_zcl_cluster_desc_s;   /* Forward declration */
 /** @endcond */ /* internals_doc */
 
 /**
+ * @addtogroup af_management_service AF management service
+ * @{
+ */
+/**
  * Device command handler
  *
  * @param param - index of buffer with ZCL command
  * @return status (see @ref zb_bool_t)
  */
 typedef zb_uint8_t (*zb_device_handler_t)(zb_uint8_t param);
-
+/** @} */ /* af_management_service */
+/**
+ * @addtogroup af_data_service AF data service
+ * @{
+ */
 
 /** Endpoint description for user applications. */
 
@@ -368,6 +403,12 @@ typedef ZB_PACKED_PRE struct zb_af_endpoint_desc_s
   struct zb_zcl_cvc_alarm_variables_s *cvc_alarm_info;
 }ZB_PACKED_STRUCT
 zb_af_endpoint_desc_t;
+/** @} */ /* af_data_service */
+
+/**
+ * @addtogroup af_management_service AF management service
+ * @{
+ */
 
 /**
  *  @brief Search for endpoint (device) descriptor by endpoint ID.
@@ -382,7 +423,7 @@ zb_af_endpoint_desc_t* zb_af_get_endpoint_desc(zb_uint8_t ep_id);
  *  @returns ZB_TRUE if endpoint is registered, ZB_FALSE otherwise.
  */
 #define ZB_AF_IS_EP_REGISTERED( _ep ) (zb_af_get_endpoint_desc( _ep ))?(ZB_TRUE):(ZB_FALSE)
-
+/** @} */ /* af_management_service */
 /** @cond internals_doc */
 
 /**
@@ -397,7 +438,10 @@ zb_af_device_ctx_t;
 
 /** @endcond */ /* internals_doc */
 
-
+/**
+ * @addtogroup af_management_service AF management service
+ * @{
+ */
 /**
    General macro to declare endpoint description list
    @param ep_list_name - name of ep list structure
@@ -663,7 +707,7 @@ void zb_af_register_device_ctx(zb_af_device_ctx_t *device_ctx);
   Callback for notifying user about status of ZCL/ZDO command transmission
  */
 typedef void (*zb_af_transmission_res_cb_t) (zb_uint8_t status);
-
+/** @} */ /* af_management_service */
 /*! @} */
 
 #endif /* ZB_AF_GLOBALS_H */

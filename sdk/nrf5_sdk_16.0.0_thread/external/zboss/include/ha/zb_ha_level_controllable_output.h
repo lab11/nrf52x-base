@@ -70,7 +70,7 @@ PURPOSE: Level controllable output for HA profile
     @snippet doxygen_snippets.dox HANDLER_CODE_snippet_ha_level_controllable_output_sample_c
     @par
 
-    The complete set of Level Control device samples can be found in /snippet/ha_level_controllable_output_sample.c.
+    The complete set of Level Control device samples can be found in /application/HA_samples/level_control_output
 */
 
 /*!< Level Controllable Output device version */

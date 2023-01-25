@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018 - 2019, Nordic Semiconductor ASA
+ * Copyright (c) 2018 - 2020, Nordic Semiconductor ASA
  *
  * All rights reserved.
  *
@@ -196,10 +196,10 @@ void thread_init(const thread_configuration_t * p_config)
 
     if (!otDatasetIsCommissioned(mp_ot_instance) && p_config->autocommissioning)
     {
-        error = otLinkSetChannel(mp_ot_instance, 25);
+        error = otLinkSetChannel(mp_ot_instance, THREAD_CHANNEL);
         ASSERT(error == OT_ERROR_NONE);
 
-        error = otLinkSetPanId(mp_ot_instance, 0xFACE);
+        error = otLinkSetPanId(mp_ot_instance, THREAD_PANID);
         ASSERT(error == OT_ERROR_NONE);
     }
 
@@ -326,16 +326,6 @@ static void fpu_sleep_prepare(void)
 void thread_sleep(void)
 {
     ASSERT(mp_ot_instance != NULL);
-
-#ifdef NRF52840_XXAA
-    // Workaround for issue with nrf_security.
-    // Issue:
-    // The MCU is prevented from going to sleep mode
-    // by the pending CryptoCell interrrupt in the NVIC register.
-    // Workaround:
-    // The CRYPTOCELL_IRQn interrupt is cleared here manually by calling NVIC_ClearPendingIRQ().
-    NVIC_ClearPendingIRQ(CRYPTOCELL_IRQn);
-#endif
 
     // Enter sleep state if no more tasks are pending.
     if (!otTaskletsArePending(mp_ot_instance))

@@ -5,6 +5,7 @@
 
 #include <mbedtls/platform.h>
 #include <openthread/heap.h>
+#include <openthread/dataset.h>
 
 #include "simple_thread.h"
 
@@ -14,6 +15,21 @@ void __attribute__((weak)) thread_state_changed_callback(uint32_t flags, void * 
 {
     NRF_LOG_INFO("State changed! Flags: 0x%08lx Current role: %d\r\n",
                  flags, otThreadGetDeviceRole(p_context));
+
+}
+
+void thread_reset_active_timestamp() {
+  otOperationalDataset dataset = {0};
+
+  otDatasetGetActive(m_ot_instance, &dataset);
+  dataset.mActiveTimestamp = 1;
+  dataset.mComponents.mIsActiveTimestampPresent = 0;
+  otError ret = otDatasetSetActive(m_ot_instance, &dataset);
+  NRF_LOG_INFO("dataset commissioned %d, %d", otDatasetIsCommissioned(m_ot_instance), ret);
+
+  // toggle thread enable to trigger searching for new networks
+  otThreadSetEnabled(m_ot_instance, false);
+  otThreadSetEnabled(m_ot_instance, true);
 
 }
 
@@ -53,6 +69,7 @@ static void platform_init(void)
 void __attribute__((weak)) thread_init(const thread_config_t* config)
 {
     otError error;
+    static otOperationalDataset dataset = {0};
 
     otSysInit(0, NULL);
 
@@ -68,20 +85,34 @@ void __attribute__((weak)) thread_init(const thread_config_t* config)
 
     if (!otDatasetIsCommissioned(m_ot_instance) || config->autocommission)
     {
-        error = otLinkSetChannel(m_ot_instance, config->channel);
-        ASSERT(error == OT_ERROR_NONE);
-        NRF_LOG_INFO("Thread Channel: %d", otLinkGetChannel(m_ot_instance));
+        if (config->ext_addr) {
+          error = otLinkSetExtendedAddress(m_ot_instance, config->ext_addr);
+          ASSERT(error == OT_ERROR_NONE);
+        }
 
-        error = otPlatRadioSetTransmitPower(m_ot_instance, config->tx_power);
-        ASSERT(error == OT_ERROR_NONE);
-        int8_t tx_power_set;
-        otPlatRadioGetTransmitPower(m_ot_instance, &tx_power_set);
-        NRF_LOG_INFO("TX Power: %d dBm", tx_power_set);
+        // set up active dataset with channel, panid, masterkey
+        if (config->channel) {
+          dataset.mChannel = config->channel;
+          dataset.mComponents.mIsChannelPresent = true;
+        }
+        if (config->panid) {
+          dataset.mPanId = config->panid;
+          dataset.mComponents.mIsPanIdPresent = true;
+        }
 
-        error = otLinkSetPanId(m_ot_instance, config->panid);
-        ASSERT(error == OT_ERROR_NONE);
-        NRF_LOG_INFO("Thread PANID: 0x%lx", (uint32_t)otLinkGetPanId(m_ot_instance));
+        memcpy(&dataset.mMasterKey, config->masterkey, sizeof(dataset.mMasterKey));
+        dataset.mComponents.mIsMasterKeyPresent = config->masterkey != NULL;
+
+        // set active dataset
+        otDatasetSetActive(m_ot_instance, &dataset);
     }
+
+    error = otPlatRadioSetTransmitPower(m_ot_instance, config->tx_power);
+    ASSERT(error == OT_ERROR_NONE);
+    int8_t tx_power_set;
+    otPlatRadioGetTransmitPower(m_ot_instance, &tx_power_set);
+    NRF_LOG_INFO("TX Power: %d dBm", tx_power_set);
+
 
     otLinkModeConfig mode;
     memset(&mode, 0, sizeof(mode));

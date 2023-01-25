@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 - 2019, Nordic Semiconductor ASA
+ * Copyright (c) 2016 - 2020, Nordic Semiconductor ASA
  *
  * All rights reserved.
  *
@@ -1162,11 +1162,7 @@ static void log_status(nrf_cli_t const *         p_cli,
         nrf_log_severity_t module_compiled_lvl =
                               nrf_log_module_filter_get(backend_id, i, true, false);
         nrf_log_severity_t actual_compiled_lvl =
-#if NRF_LOG_DEFAULT_LEVEL > 0
                               MIN(module_compiled_lvl, (nrf_log_severity_t)NRF_LOG_DEFAULT_LEVEL);
-#else
-                              (nrf_log_severity_t)0;
-#endif
 
         nrf_cli_fprintf(p_cli, NRF_CLI_NORMAL, "%-40s | %-7s | %s%s\r\n",
                                   nrf_log_module_name_get(i, true),

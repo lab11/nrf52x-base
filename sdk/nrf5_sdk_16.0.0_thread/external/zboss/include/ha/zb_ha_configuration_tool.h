@@ -67,7 +67,7 @@ PURPOSE: Configuration tool device declaration
     @snippet doxygen_snippets.dox HANDLER_snippet_ha_configuration_tool_sample_c
     @par
 
-    The complete set of Configuration Tool device samples can be found in /snippet/ha_configuration_tool_sample.c.
+    The complete set of Configuration Tool device samples can be found in /application/HA_samples/configuration_tool
 */
 
 #define ZB_HA_DEVICE_VER_CONFIGURATION_TOOL 0  /*!< Configuration tool device version */

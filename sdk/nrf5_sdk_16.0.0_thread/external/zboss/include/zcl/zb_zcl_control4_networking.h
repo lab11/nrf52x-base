@@ -139,6 +139,9 @@ enum zb_zcl_control4_networking_device_type_e
 
 #define ZB_ZCL_CONTROL4_NETWORKING_RADIO_4_BARS_MAX_VALUE 4
 
+/* Number of searching ZAP attempts */
+#define ZB_ZCL_CONTROL4_NETWORK_SEARCHING_ZAP_ATTEMPTS 2
+
 /** @brief Declare attribute list for C4 Network cluster
     @param attr_list - attribute list name
     @param device_type - pointer to variable to store Device Type attribute value
@@ -345,11 +348,10 @@ enum zb_zcl_control4_networking_cmd_e
 /** @endcond */ /*internals_doc*/
 
 
-/* Control4 Network Cluster Endpoints */
-#define ZB_CONTROL4_NETWORK_SRV_ENDPOINT 0xc4
-#define ZB_CONTROL4_NETWORK_CLI_ENDPOINT 0x01
+/* Control4 Network Cluster Endpoint */
+#define ZB_CONTROL4_NETWORK_ENDPOINT 0xc4
 
-#define ZB_ZCL_CONTROL4_NETWORK_SRV_DECLARE_CLUSTER_LIST(      \
+#define ZB_ZCL_CONTROL4_NETWORK_DECLARE_CLUSTER_LIST(          \
   cluster_list_name,                                           \
   c4_network_attr_list)                                        \
   zb_zcl_cluster_desc_t cluster_list_name[] =                  \
@@ -360,13 +362,7 @@ enum zb_zcl_control4_networking_cmd_e
       (c4_network_attr_list),                                  \
       ZB_ZCL_CLUSTER_SERVER_ROLE,                              \
       ZB_ZCL_MANUF_CODE_INVALID                                \
-    )                                                          \
-  }
-
-#define ZB_ZCL_CONTROL4_NETWORK_CLI_DECLARE_CLUSTER_LIST(      \
-  cluster_list_name)                                           \
-  zb_zcl_cluster_desc_t cluster_list_name[] =                  \
-  {                                                            \
+    ),                                                         \
     ZB_ZCL_CLUSTER_DESC(                                       \
       ZB_ZCL_CLUSTER_ID_CONTROL4_NETWORKING,                   \
       0,                                                       \
@@ -377,72 +373,37 @@ enum zb_zcl_control4_networking_cmd_e
   }
 
 /*!
-  @brief Declare simple descriptor for C4 Network Cluster endpoint (server side)
+  @brief Declare simple descriptor for C4 Network Cluster endpoint
   @param ep_name - endpoint variable name
 */
-#define ZB_ZCL_CONTROL4_NETWORK_SRV_DECLARE_SIMPLE_DESC(ep_name) \
-  ZB_DECLARE_SIMPLE_DESC(0, 1);                                \
-  ZB_AF_SIMPLE_DESC_TYPE(0, 1) simple_desc_##ep_name =         \
+#define ZB_ZCL_CONTROL4_NETWORK_DECLARE_SIMPLE_DESC(ep_name)   \
+  /* ZB_DECLARE_SIMPLE_DESC(1, 1); it is already defined */    \
+  ZB_AF_SIMPLE_DESC_TYPE(1, 1) simple_desc_##ep_name =         \
   {                                                            \
-    ZB_CONTROL4_NETWORK_SRV_ENDPOINT,                          \
+    ZB_CONTROL4_NETWORK_ENDPOINT,                          \
     ZB_AF_CONTROL4_PROFILE_ID,                                 \
-    0, 1, 0, 0, 1,                                             \
+    0, 1, 0, 1, 1,                                             \
     {                                                          \
+      ZB_ZCL_CLUSTER_ID_CONTROL4_NETWORKING,                   \
       ZB_ZCL_CLUSTER_ID_CONTROL4_NETWORKING                    \
     }                                                          \
   }
 
 /*!
-  @brief Declare simple descriptor for C4 Network Cluster endpoint (client side)
-  @param ep_name - endpoint variable name
-*/
-#define ZB_ZCL_CONTROL4_NETWORK_CLI_DECLARE_SIMPLE_DESC(ep_name) \
-  ZB_DECLARE_SIMPLE_DESC(1, 0);                                \
-  ZB_AF_SIMPLE_DESC_TYPE(1, 0) simple_desc_##ep_name =         \
-  {                                                            \
-    ZB_CONTROL4_NETWORK_CLI_ENDPOINT,                          \
-    ZB_AF_CONTROL4_PROFILE_ID,                                 \
-    0, 1, 0, 1, 0,                                             \
-    {                                                          \
-      ZB_ZCL_CLUSTER_ID_CONTROL4_NETWORKING                    \
-    }                                                          \
-  }
-
-/*!
-  @brief Declare Server endpoint for C4 Network Cluster
+  @brief Declare endpoint for C4 Network Cluster
   @param ep_name - endpoint variable name
   @param cluster_list - endpoint cluster list
  */
-#define ZB_ZCL_CONTROL4_NETWORK_SRV_DECLARE_EP(ep_name, cluster_list) \
-  ZB_ZCL_CONTROL4_NETWORK_SRV_DECLARE_SIMPLE_DESC(ep_name);           \
+#define ZB_ZCL_CONTROL4_NETWORK_DECLARE_EP(ep_name, cluster_list)    \
+  ZB_ZCL_CONTROL4_NETWORK_DECLARE_SIMPLE_DESC(ep_name);              \
   ZB_AF_DECLARE_ENDPOINT_DESC(ep_name,                               \
-    ZB_CONTROL4_NETWORK_SRV_ENDPOINT, ZB_AF_CONTROL4_PROFILE_ID,     \
+    ZB_CONTROL4_NETWORK_ENDPOINT, ZB_AF_CONTROL4_PROFILE_ID,     \
     0,                                                               \
     NULL,                                                            \
     ZB_ZCL_ARRAY_SIZE(cluster_list, zb_zcl_cluster_desc_t),          \
     cluster_list,                                                    \
     (zb_af_simple_desc_1_1_t*)&simple_desc_##ep_name,                \
     0, NULL, 0, NULL)
-
-/*!
-  @brief Declare Client endpoint for C4 Network Cluster
-  @param ep_name - endpoint variable name
-  @param cluster_list - endpoint cluster list
- */
-#define ZB_ZCL_CONTROL4_NETWORK_CLI_DECLARE_EP(ep_name, cluster_list) \
-  ZB_ZCL_CONTROL4_NETWORK_CLI_DECLARE_SIMPLE_DESC(ep_name);           \
-  ZB_AF_DECLARE_ENDPOINT_DESC(ep_name,                               \
-    ZB_CONTROL4_NETWORK_CLI_ENDPOINT, ZB_AF_CONTROL4_PROFILE_ID,     \
-    0,                                                               \
-    NULL,                                                            \
-    ZB_ZCL_ARRAY_SIZE(cluster_list, zb_zcl_cluster_desc_t),          \
-    cluster_list,                                                    \
-    (zb_af_simple_desc_1_1_t*)&simple_desc_##ep_name,                \
-    0, NULL,                                                         \
-    0, NULL)
-
-
-
 
 /**
   Control4 Network Cluster states
@@ -454,6 +415,28 @@ typedef enum zb_zcl_control4_network_state_e
   ZB_ZCL_CONTROL4_NETWORK_STATE_RUNNING,
   ZB_ZCL_CONTROL4_NETWORK_STATE_STOPPED,
 } zb_zcl_control4_network_state_t;
+
+/**
+  Control4 Zigbee Access Point (ZAP) discovery events
+*/
+typedef enum zb_zcl_control4_zap_discover_event_e
+{
+  /** Information from ZAP (NODE ID and/or LONG_NODE_ID) received and is different from the
+   * current and default value. Bindings and/or reporting in the user application may require to be updated
+   */
+  ZB_ZCL_CONTROL4_NETWORK_ZAP_UPDATED,
+  /** ZAP discovered failed after retrying ZB_ZCL_CONTROL4_NETWORK_SEARCHING_ZAP_ATTEMPTS times.
+   *  User application may retry restart the Control4 network cluster or leave the network.
+   */
+  ZB_ZCL_CONTROL4_NETWORK_ZAP_DISCOVER_FAILED,
+} zb_zcl_control4_zap_discover_event_t;
+
+/** Control4 ZAP discover user app notification payload */
+typedef struct zb_zcl_control4_zap_info_notify_s
+{
+  /** Event for user application to handle*/
+  zb_zcl_control4_zap_discover_event_t event;
+} zb_zcl_control4_zap_info_notify_t;
 
 /**
   Start Control4 Network Cluster
@@ -490,6 +473,3 @@ void zb_zcl_control4_networking_init_client(void);
 #define ZB_ZCL_CLUSTER_ID_CONTROL4_NETWORKING_CLIENT_ROLE_INIT zb_zcl_control4_networking_init_client
 
 #endif /* #if ! defined ZB_ZCL_CONTROL4_NETWORKING_H */
-
-
-

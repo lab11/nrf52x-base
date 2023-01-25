@@ -53,7 +53,7 @@ static void log_init(void)
 void send_timer_callback() {
   const uint8_t* data = (uint8_t*)"hello";
   otInstance* thread_instance = thread_get_instance();
-  thread_coap_send(thread_instance, OT_COAP_CODE_PUT, OT_COAP_TYPE_NON_CONFIRMABLE, &m_peer_address, "test", data, strnlen((char*)data, 6), NULL);
+  thread_coap_send(thread_instance, OT_COAP_CODE_PUT, OT_COAP_TYPE_NON_CONFIRMABLE, &m_peer_address, "test", data, strnlen((char*)data, 6), false, NULL);
   NRF_LOG_INFO("Sent test message!");
 }
 
@@ -73,10 +73,13 @@ int main(void) {
 
     otIp6AddressFromString(COAP_SERVER_ADDR, &m_peer_address);
 
+    otMasterKey masterkey = {.m8 = {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff}};
+
     thread_config_t thread_config = {
-      .channel = 25,
       .panid = 0xFACE,
-      .sed = true,
+      .masterkey = &masterkey,
+      .tx_power = 8,
+      .sed = false,
       .poll_period = DEFAULT_POLL_PERIOD,
       .child_period = DEFAULT_CHILD_TIMEOUT,
       .autocommission = true,
@@ -84,7 +87,7 @@ int main(void) {
 
     thread_init(&thread_config);
     otInstance* thread_instance = thread_get_instance();
-    thread_coap_client_init(thread_instance);
+    thread_coap_client_init(thread_instance, false);
 
     APP_SCHED_INIT(SCHED_EVENT_DATA_SIZE, SCHED_QUEUE_SIZE);
     app_timer_init();

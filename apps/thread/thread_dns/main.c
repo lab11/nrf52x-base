@@ -29,7 +29,7 @@ APP_TIMER_DEF(coap_send_timer);
 #define LED2 NRF_GPIO_PIN_MAP(0,6)
 
 #define DEFAULT_CHILD_TIMEOUT    40                                         /**< Thread child timeout [s]. */
-#define DEFAULT_POLL_PERIOD      1000                                       /**< Thread Sleepy End Device polling period when MQTT-SN Asleep. [ms] */
+#define DEFAULT_POLL_PERIOD      100                                        /**< Thread Sleepy End Device polling period when MQTT-SN Asleep. [ms] */
 #define NUM_SLAAC_ADDRESSES      4                                          /**< Number of SLAAC addresses. */
 
 static otIp6Address m_peer_address =
@@ -90,7 +90,7 @@ void send_timer_callback() {
     }
   }
   else {
-      thread_coap_send(thread_instance, OT_COAP_CODE_PUT, OT_COAP_TYPE_NON_CONFIRMABLE, &m_peer_address, "test", data, strnlen((char*)data, 6), NULL);
+      thread_coap_send(thread_instance, OT_COAP_CODE_PUT, OT_COAP_TYPE_NON_CONFIRMABLE, &m_peer_address, "test", data, strnlen((char*)data, 6), false, NULL);
       NRF_LOG_INFO("Sent test message!");
   }
 }
@@ -104,10 +104,14 @@ int main(void) {
     nrf_gpio_cfg_output(LED2);
     nrf_gpio_pin_set(LED2);
 
+    otMasterKey masterkey = {.m8 = {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff}};
+
     thread_config_t thread_config = {
-      .channel = 25,
       .panid = 0xFACE,
-      .sed = true,
+      .masterkey = &masterkey,
+      .channel = 25,
+      .tx_power = 8,
+      .sed = false,
       .poll_period = DEFAULT_POLL_PERIOD,
       .child_period = DEFAULT_CHILD_TIMEOUT,
       .autocommission = true,
@@ -115,12 +119,12 @@ int main(void) {
 
     thread_init(&thread_config);
     otInstance* thread_instance = thread_get_instance();
-    thread_coap_client_init(thread_instance);
+    thread_coap_client_init(thread_instance, false);
 
     APP_SCHED_INIT(SCHED_EVENT_DATA_SIZE, SCHED_QUEUE_SIZE);
     app_timer_init();
     app_timer_create(&coap_send_timer, APP_TIMER_MODE_REPEATED, send_timer_callback);
-    app_timer_start(coap_send_timer, APP_TIMER_TICKS(5000), NULL);
+    app_timer_start(coap_send_timer, APP_TIMER_TICKS(10000), NULL);
 
     // Enter main loop.
     while (1) {

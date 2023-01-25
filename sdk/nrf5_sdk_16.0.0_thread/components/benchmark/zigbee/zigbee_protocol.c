@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018 - 2019, Nordic Semiconductor ASA
+ * Copyright (c) 2018 - 2020, Nordic Semiconductor ASA
  *
  * All rights reserved.
  *
@@ -101,7 +101,11 @@ void zboss_signal_handler(zb_bufid_t bufid)
 
     /* Call default signal handler. */
     ZB_ERROR_CHECK(zigbee_default_signal_handler(bufid));
-    zb_buf_free(bufid);
+
+    if (bufid)
+    {
+        zb_buf_free(bufid);
+    }
 }
 
 bool protocol_is_error(uint32_t error_code)

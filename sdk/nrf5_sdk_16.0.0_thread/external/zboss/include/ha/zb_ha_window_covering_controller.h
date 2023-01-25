@@ -70,7 +70,7 @@ PURPOSE: Window Covering Controller device definition
     @snippet doxygen_snippets.dox HANDLER_snippet_ha_window_covering_controller_sample_c
     @par
 
-    The complete set of Window Covering Controller device samples can be found in /snippet/ha_window_covering_controller_sample.c.
+    The complete set of Window Covering Controller device samples can be found in /application/HA_samples/window_covering_controller
 */
 
 /*!< window covering controller device version */

@@ -14,23 +14,31 @@ JLINK_GDBSERVER = JLinkGDBServer
 JLINK_RTTCLIENT = JLinkRTTClient
 
 # nrfutil tools
-MERGEHEX = $(NRF_BASE_DIR)/make/intelhex/scripts/hexmerge.py
+MERGEHEX = python3 $(NRF_BASE_DIR)/make/intelhex/scripts/hexmerge.py
 NRFUTIL = nrfutil
 PRIVATE_KEY ?= private.pem
+
+HW_VERSION ?= 52
 
 # Default port for GDB
 GDB_PORT_NUMBER ?= 2331
 
+# Pick a random port for each RTT session
+RAND_PORT_NUMBER := $(shell python3 -c 'from random import randint; print(randint(1023, 65535));' || echo '19021')
+
 # Configuration flags for JTAG tools
 JLINK_FLAGS = -device $(FULL_IC) -if swd -speed 4000
 JLINK_GDBSERVER_FLAGS = -port $(GDB_PORT_NUMBER)
+JLINK_RTT_PORT = -RTTTelnetPort $(RAND_PORT_NUMBER)
 
 # Configuration flags for nrfutil tools
 BOOTLOADER_DEV = /dev/ttyACM0
-NRFUTIL_SETTINGS_GEN_FLAGS = settings generate --family $(NRF_IC_UPPER) --application-version 1 --bootloader-version 1 --bl-settings-version 2 --key-file $(PRIVATE_KEY) --app-boot-validation='VALIDATE_ECDSA_P256_SHA256' --application $(HEX) $(BOOTLOADER_SETTINGS)
-MERGEHEX_SETTINGS_FLAGS = $(HEX) $(BUILDDIR)$(OUTPUT_NAME)_settings.hex -o $(MERGED_HEX)
-NRFUTIL_PKG_GEN_FLAGS = pkg generate --hw-version 52 --sd-req 0x0 --application-version 1 --application $(HEX) $(BUILDDIR)$(OUTPUT_NAME).zip
-NRFUTIL_PKG_SIGNED_GEN_FLAGS = pkg generate --hw-version 52 --sd-req 0x0 --application-version-string "$(BARE_VERSION)" --key-file $(PRIVATE_KEY) --application $(HEX) $(BUILDDIR)$(OUTPUT_NAME).zip --app-boot-validation='VALIDATE_ECDSA_P256_SHA256'
+NRFUTIL_SETTINGS_GEN_FLAGS = settings generate --family $(NRF_IC_UPPER) --application-version-string "$(BARE_VERSION)" --bootloader-version 1 --bl-settings-version 2 --key-file $(PRIVATE_KEY) --app-boot-validation='VALIDATE_ECDSA_P256_SHA256' --application $(HEX) $(BOOTLOADER_SETTINGS)
+NRFUTIL_PKG_GEN_FLAGS = pkg generate --hw-version $(HW_VERSION) --sd-req 0x0 --application-version-string "$(BARE_VERSION)" --application $(HEX) $(BUILDDIR)$(OUTPUT_NAME).zip
+NRFUTIL_PKG_SIGNED_GEN_FLAGS = pkg generate --hw-version $(HW_VERSION) --sd-req 0x0 --application-version-string "$(BARE_VERSION)" --key-file $(PRIVATE_KEY) --application $(HEX) $(BUILDDIR)$(OUTPUT_NAME).zip --app-boot-validation='VALIDATE_ECDSA_P256_SHA256'
+ifeq ($(USE_ZIGBEE), 1)
+    NRFUTIL_PKG_SIGNED_GEN_FLAGS += --zigbee True --zigbee-manufacturer-id $(MANUF_ID) --zigbee-ota-hw-version $(HW_VERSION) --zigbee-image-type 0xFF01 --zigbee-comment $(OUTPUT_NAME)
+endif
 NRFUTIL_PKG_USB_DFU_FLAGS = dfu usb-serial -pkg $(BUILDDIR)$(OUTPUT_NAME).zip -p $(BOOTLOADER_DEV) -b 115200
 
 # Allow users to select a specific JTAG device with a variable
@@ -46,11 +54,25 @@ endif
 SOFTDEVICE_TEST_ADDR = 0x3000
 SOFTDEVICE_TEST_LEN = 0x10
 
+# Configure terminal command for Darwin and Linux
 UNAME_S := $(shell uname -s)
-ifeq ($(UNAME_S),Darwin)
-    TERMINAL ?= osascript -e 'tell application "Terminal" to do script
+ifeq ($(firstword $(origin TMUX)),environment)
+	# In tmux
+	ifeq ($(UNAME_S),Darwin)
+		TERMINAL ?= /bin/sh -c 'tmux new-window
+	else
+		TERMINAL ?= tmux new-window
+	endif
 else
-    TERMINAL ?= x-terminal-emulator
+	# Not in tmux
+	ifeq ($(UNAME_S),Darwin)
+		TERMINAL ?= osascript -e 'tell application "Terminal" to do script
+	endif
+	# In Gnome session
+	ifeq ($(DESKTOP_SESSION),gnome)
+		TERMINAL ?= gnome-terminal
+	endif
+	TERMINAL ?= x-terminal-emulator -e
 endif
 
 # ---- ID FLASH LOCATION
@@ -68,7 +90,11 @@ endif
 # ---- JTAG rules
 
 .PHONY: flash
-flash: all test_softdevice flash_mbr
+ifeq ($(USE_BOOTLOADER),1)
+flash: all bootloader test_softdevice flash_bootloader
+else
+flash: all test_softdevice
+endif
 	$(Q)printf "r\n" > $(BUILDDIR)flash.jlink
 ifdef ID
 	$(Q)printf "w4 $(ID_FLASH_LOCATION), 0x$(ID_SECON) 0x$(ID_FIRST)\n" >> $(BUILDDIR)flash.jlink
@@ -107,20 +133,19 @@ flash_softdevice: $(BUILDDIR) $(SOFTDEVICE_PATH)
 	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)flash_softdevice.jlink
 
 .PHONY: flash_mbr
-ifdef USE_MBR
 flash_mbr: $(BUILDDIR) $(MBR_PATH)
 	$(Q)printf "loadfile $(MBR_PATH) \nr\ng\nexit\n" > $(BUILDDIR)flash_mbr.jlink
 	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)flash_mbr.jlink
-endif
 
+.PHONY: flash_bootloader
+flash_bootloader: bootloader flash_mbr $(BUILDDIR) $(MBR_PATH)
+	$(Q)printf "loadfile $(BOOTLOADER_HEX) \nr\ng\nexit\n" > $(BUILDDIR)flash_bootloader.jlink
+	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)flash_bootloader.jlink
+
+#https://devzone.nordicsemi.com/f/nordic-q-a/12484/approtect-and-dap
 .PHONY: erase
 erase: $(BUILDDIR)
-	$(Q)printf "w4 4001e504 2\nw4 4001e50c 1\nsleep 100\nr\nexit\n" > $(BUILDDIR)erase.jlink
-	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)erase.jlink
-
-.PHONY: erase-all
-erase-all: $(BUILDDIR)
-	$(Q)printf "erase\nsleep 100\nr\nexit\n" > $(BUILDDIR)erase.jlink
+	$(Q)printf "SWDSelect\nSWDWriteDP 1 0x50000000\nSWDWriteDP 2 0x01000000\nSWDWriteAP 1 0x00000001\n sleep 100\nr\nexit\n" > $(BUILDDIR)erase.jlink
 	$(Q)$(JLINK) $(JLINK_FLAGS) $(BUILDDIR)erase.jlink
 
 .PHONY: gdb
@@ -137,28 +162,28 @@ else
 	$(Q)$(TERMINAL) "cd $(PWD) && $(GDB) -x .gdbinit"'
 endif
 else
-	$(Q)$(TERMINAL) -e "$(JLINK_GDBSERVER) $(JLINK_FLAGS) $(JLINK_GDBSERVER_FLAGS)"
+	$(Q)$(TERMINAL) "$(JLINK_GDBSERVER) $(JLINK_FLAGS) $(JLINK_GDBSERVER_FLAGS)"
 	$(Q)sleep 1
 	$(Q)printf "target remote localhost:$(GDB_PORT_NUMBER)\nload\nmon reset\nbreak main\ncontinue\n" > .gdbinit
 ifneq ("$(wildcard $(DEBUG_ELF))","")
-	$(Q)$(TERMINAL) -e "$(GDB) -x .gdbinit $(DEBUG_ELF)"
+	$(Q)$(TERMINAL) "$(GDB) -x .gdbinit $(DEBUG_ELF)"
 else ifneq ("$(wildcard $(ELF))","")
-	$(Q)$(TERMINAL) -e "$(GDB) -x .gdbinit $(ELF)"
+	$(Q)$(TERMINAL) "$(GDB) -x .gdbinit $(ELF)"
 else
-	$(Q)$(TERMINAL) -e "$(GDB) -x .gdbinit"
+	$(Q)$(TERMINAL) "$(GDB) -x .gdbinit"
 endif
 endif
 
 .PHONY: rtt
 rtt:
 ifeq ($(UNAME_S),Darwin)
-	$(Q)$(TERMINAL) "$(JLINK) $(JLINK_FLAGS) -AutoConnect 1"'
-	$(Q)sleep 1
-	$(Q)$(TERMINAL) "$(JLINK_RTTCLIENT)"'
+	$(TERMINAL) "$(JLINK) $(JLINK_FLAGS) $(JLINK_RTT_PORT) -AutoConnect 1"'
+	sleep 1
+	$(TERMINAL) "$(JLINK_RTTCLIENT) $(JLINK_RTT_PORT)"'
 else
-	$(Q)$(TERMINAL) -e "$(JLINK) $(JLINK_FLAGS) -AutoConnect 1"
+	$(Q)$(TERMINAL) "$(JLINK) $(JLINK_FLAGS) $(JLINK_RTT_PORT) -AutoConnect 1"
 	$(Q)sleep 1
-	$(Q)$(TERMINAL) -e "$(JLINK_RTTCLIENT)"
+	$(Q)$(TERMINAL) "$(JLINK_RTTCLIENT) $(JLINK_RTT_PORT)"
 endif
 
 # ---- nrfutil bootloader rules

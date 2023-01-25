@@ -71,7 +71,7 @@ PURPOSE: On/Off output device definition
     @snippet doxygen_snippets.dox Send default response_snippet_ha_on_off_output_sample_c
     @par
 
-    The complete set of On/Off Output device samples can be found in /snippet/ha_on_off_output_sample.c.
+    The complete set of On/Off Output device samples can be found in /application/HA_samples/on_off_output
 */
 
 #define ZB_HA_DEVICE_VER_ON_OFF_OUTPUT 0 /*!< On/Off Output device version */

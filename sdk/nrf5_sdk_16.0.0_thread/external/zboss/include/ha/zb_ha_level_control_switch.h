@@ -63,12 +63,12 @@ PURPOSE: Level control switch device definition
 
     @par Example
     Delcaration clusters
-    @snippet ha_level_control_switch_sample.c COMMON_DECLARATION
+    @snippet doxygen_snippets.dox COMMON_DECLARATION_ha_level_control_switch_sample_c
     Register device list
-    @snippet ha_level_control_switch_sample.c REGISTER
+    @snippet doxygen_snippets.dox REGISTER_ha_level_control_switch_sample_c
     Head of handle function
-    @snippet ha_level_control_switch_sample.c VARIABLE
-    @snippet ha_level_control_switch_sample.c HANDLER
+    @snippet doxygen_snippets.dox VARIABLE_ha_level_control_switch_sample_c
+    @snippet doxygen_snippets.dox HANDLER_ha_level_control_switch_sample_c
     @par
 
     See ha/devices_generic sample

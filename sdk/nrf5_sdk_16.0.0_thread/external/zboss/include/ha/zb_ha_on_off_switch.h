@@ -70,7 +70,7 @@ PURPOSE: On/off switch device definition
     @snippet doxygen_snippets.dox HANDLER_snippet_ha_on_off_switch_sample_c
     @par
 
-    The complete set of On/Off samples can be found in /snippet/ha_on_off_switch_sample.c.
+    The complete set of On/Off samples can be found in /application/HA_samples/on_off_switch
 */
 
 /** @cond internals_doc */

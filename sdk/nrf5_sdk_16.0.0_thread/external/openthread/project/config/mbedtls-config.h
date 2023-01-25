@@ -113,7 +113,8 @@
 #include MBEDTLS_USER_CONFIG_FILE
 #endif
 
-#if defined(MBEDTLS_ECP_ALT) && !defined(MBEDTLS_ECP_RESTARTABLE)
+#if defined(MBEDTLS_ECP_ALT) && !defined(MBEDTLS_ECP_RESTARTABLE) && !defined(MBEDTLS_ECP_RESTART_CTX)
+#define MBEDTLS_ECP_RESTART_CTX
 typedef void mbedtls_ecp_restart_ctx;
 #endif
 

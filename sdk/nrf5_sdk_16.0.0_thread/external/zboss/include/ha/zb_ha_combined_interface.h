@@ -67,7 +67,7 @@ PURPOSE: Combined interface device declaration
     @snippet doxygen_snippets.dox HANDLE_snippet_ha_combined_interface_sample_c
     @par
 
-    The complete set of Combined Interface device samples can be found in /snippet/ha_combined_interface_sample.c.
+    The complete set of Combined Interface device samples can be found in /application/HA_samples/combined_interface
 */
 
 #define ZB_HA_DEVICE_VER_COMBINED_INTERFACE 0  /*!< Combined interface device version */

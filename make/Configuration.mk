@@ -58,6 +58,8 @@ SIZE := $(TOOLCHAIN)-size
 # Git version
 GIT_VERSION := $(shell git describe --abbrev=4 --always --tags)
 BARE_VERSION := $(lastword $(subst v, , $(firstword $(subst -, ,$(GIT_VERSION)))))
+HW_VERSION ?= 52
+MANUF_ID ?= 0
 
 # Pretty-printing rules
 # If environment variable V is non-empty, be verbose
@@ -91,7 +93,7 @@ endif
 
 # ---- CMSIS DSP configuration
 
-ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
+ifneq (,$(filter $(NRF_IC),nrf52832 nrf52833 nrf52840))
 CONFIGURATION_VARS += ARM_MATH_CM4
 CONFIGURATION_VARS += __FPU_PRESENT
 endif
@@ -107,6 +109,14 @@ ifdef NRF_IC
     FLASH_KB ?= 512
     FULL_IC = nrf52832_xxaa
     CONFIGURATION_VARS += NRF52 ID_FLASH_LOCATION=0x77FF8
+    ID_FLASH_LOCATION=0x77FF8
+  else ifeq ($(NRF_IC), nrf52833)
+    NRF_MODEL = nrf52
+    SOFTDEVICE_MODEL ?= s140
+    RAM_KB ?= 128
+    FLASH_KB ?= 512
+    FULL_IC = nrf52833_xxaa
+    CONFIGURATION_VARS += ID_FLASH_LOCATION=0x77FF8
     ID_FLASH_LOCATION=0x77FF8
   else ifeq ($(NRF_IC), nrf52840)
     NRF_MODEL = nrf52
@@ -133,6 +143,7 @@ endif
 # Default SDK and softdevice versions
 SDK_VERSION ?= 15
 ifeq ($(SDK_VERSION), 15)
+  MBR_VERSION = 2.4.1
   ifeq ($(SOFTDEVICE_MODEL), s132)
     SOFTDEVICE_VERSION = 6.1.1
   else ifeq ($(SOFTDEVICE_MODEL), s140)
@@ -140,13 +151,10 @@ ifeq ($(SDK_VERSION), 15)
   else ifeq ($(SOFTDEVICE_MODEL), blank)
     SOFTDEVICE_VERSION = 0
     USE_BLE = 0 # can't have BLE without a softdevice
-    # if we want to use the MBR to manage a bootloader without a softdevice:
-    ifeq ($(USE_MBR), 1)
-      MBR_VERSION = 2.4.1
-    endif
   endif
 endif
 ifeq ($(SDK_VERSION), 16)
+  MBR_VERSION = 2.4.1
   ifeq ($(SOFTDEVICE_MODEL), s132)
     SOFTDEVICE_VERSION = 7.0.1
   else ifeq ($(SOFTDEVICE_MODEL), s140)
@@ -154,15 +162,15 @@ ifeq ($(SDK_VERSION), 16)
   else ifeq ($(SOFTDEVICE_MODEL), blank)
     SOFTDEVICE_VERSION = 0
     USE_BLE = 0 # can't have BLE without a softdevice
-    # if we want to use the MBR to manage a bootloader without a softdevice:
-    ifeq ($(USE_MBR), 1)
-      MBR_VERSION = 2.4.1
-    endif
   endif
+  BOOTLOADER_HEX = $(NRF_BASE_DIR)/apps/bootloader/$(BOOTLOADER)/_build/$(BOOTLOADER)_sdk$(SDK_VERSION)_$(SOFTDEVICE_MODEL).hex
 endif
 CONFIGURATION_VARS += SDK_VERSION_$(SDK_VERSION)
 
 # Identify the linker script for this particular configuration
+ifeq ($(USE_BOOTLOADER), 1)
+LINKER_SCRIPT ?= gcc_$(NRF_IC)_dfu_$(SOFTDEVICE_MODEL)_$(SOFTDEVICE_VERSION)_$(RAM_KB)_$(FLASH_KB).ld
+endif
 LINKER_SCRIPT ?= gcc_$(NRF_IC)_$(SOFTDEVICE_MODEL)_$(SOFTDEVICE_VERSION)_$(RAM_KB)_$(FLASH_KB).ld
 
 # Default wireless configurations
@@ -209,7 +217,7 @@ endif
 # ---- Compilation flags
 
 #XXX: make sure the `check_override` script is being run
-ifneq (,$(filter $(NRF_IC),nrf52832 nrf52840))
+ifneq (,$(filter $(NRF_IC),nrf52832 nrf52833 nrf52840))
   CPUFLAGS += -mthumb
   CPUFLAGS += -mabi=aapcs
   CPUFLAGS += -mcpu=cortex-m4
@@ -231,10 +239,12 @@ override CFLAGS += \
     -Wno-unused-parameter\
     -Werror=return-type\
     -Wno-expansion-to-defined\
+    -Wno-packed-bitfield-compat\
     $(CONFIGURATION_DEFINES)\
     $(SDK_DEFINES)\
     -DGIT_VERSION=\"$(GIT_VERSION)\"\
     -DCONFIG_GPIO_AS_PINRESET\
+    -DCONFIG_NFCT_PINS_AS_GPIOS\
     -s\
     -ffunction-sections\
     -fdata-sections\

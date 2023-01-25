@@ -2514,6 +2514,10 @@ void zb_enable_distributed(void);
 /*! @{ */
 
 /**
+ * @addtogroup af_management_service AF management service
+ * @{
+ */
+/**
  *  @brief Set up application callback to be called for APS data packets.
  *
  *  That API call may be useful for tests which uses custom profile id or which needs to send raw
@@ -2584,7 +2588,7 @@ void zb_af_set_data_indication(zb_device_handler_t cb);
  *  @param param - buffer reference (if 0, buffer will be allocated automatically)
  */
 void zb_bdb_reset_via_local_action(zb_uint8_t param);
-
+/** @} */ /* af_management_service */
 /*! @} */
 
 #endif /*ZB_ZBOSS_API_ZDO_H*/

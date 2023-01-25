@@ -253,7 +253,6 @@ void zb_osif_serial_put_bytes(zb_uint8_t *buf, zb_short_t len);
 /*! @endcond */
 
 
-
 #ifdef ZB_TRACE_OVER_SIF
 void zb_osif_sif_put_bytes(zb_uint8_t *buf, zb_short_t len);
 void zb_osif_sif_init(void);

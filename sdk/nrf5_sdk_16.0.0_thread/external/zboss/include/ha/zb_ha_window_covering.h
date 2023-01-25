@@ -72,7 +72,7 @@ PURPOSE: Window Covering device definition
     @snippet doxygen_snippets.dox HANDLER_snippet_ha_window_covering_sample_c
     @par
 
-    The complete set of Window Covering device samples can be found in /snippet/ha_window_covering_sample.c.
+    The complete set of Window Covering device samples can be found in /application/HA_samples/window_covering
 */
 #define ZB_HA_DEVICE_VER_WINDOW_COVERING 0  /*!< Window covering device version */
 

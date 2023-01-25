@@ -245,6 +245,12 @@ void simple_ble_adv_only_name(void);
  */
 void simple_ble_adv_manuf_data(uint8_t* buf, size_t len);
 
+/* Set advertising data to the raw values from a buffer
+ *  buf: buffer of dat to set the advertisement to
+ *  len: length of buffer. Note that only 31 bytes are available.
+ */
+void simple_ble_adv_raw(uint8_t* buf, size_t len);
+
 /*******************************************************************************
  *   EDDYSTONE
  ******************************************************************************/

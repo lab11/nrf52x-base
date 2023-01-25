@@ -70,7 +70,7 @@ PURPOSE: Door lock controller device definition
     @snippet doxygen_snippets.dox HANDLER_snippet_ha_door_lock_controller_sample_c
     @par
 
-    The complete set of Door Lock Controller device samples can be found in /snippet/ha_door_lock_controller_sample.c
+    The complete set of Door Lock Controller device samples can be found in /application/HA_samples/door_lock_controller
 */
 
 #define ZB_HA_DEVICE_VER_DOOR_LOCK_CONTROLLER      0   /*!< Door Lock Controller device version */
