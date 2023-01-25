@@ -23,7 +23,7 @@ REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_logger/*/))
 REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/simple_thread/*/))
 REPO_SOURCE_PATHS += $(dir $(wildcard $(NRF_BASE_DIR)/lib/google_cloud/*/))
 REPO_SOURCE_PATHS += $(NRF_BASE_DIR)/lib/nanopb/
-REPO_SOURCE_PATHS += $(PROTO_DIR)
+REPO_SOURCE_PATHS += $(PROTO_DIRS)
 REPO_HEADER_PATHS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/Core/Include/
 REPO_HEADER_PATHS += $(NRF_BASE_DIR)/lib/CMSIS_5/CMSIS/DSP/Include/
 

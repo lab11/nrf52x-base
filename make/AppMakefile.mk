@@ -47,8 +47,8 @@ endif
 # protobufs must exist before objects
 $(OBJS): $(PBGENS)
 
-$(PBGENS): | $(PBSRCS) $(PBOPTS)
-	$(PROTOC) $(PROTOC_OPTS) $(PROTOC_INC) --nanopb_out=$(NANOPB_OPTS):. $(PBSRCS)
+%.pb.c: %.proto $(PBOPTS)
+	$(PROTOC) $(PROTOC_OPTS) $(PROTOC_INCLUDES) --nanopb_out=$(NANOPB_OPTS):. $<
 
 $(BUILDDIR):
 	$(TRACE_DIR)
