@@ -181,9 +181,9 @@ ifeq ($(UNAME_S),Darwin)
 	sleep 1
 	$(TERMINAL) "$(JLINK_RTTCLIENT) $(JLINK_RTT_PORT)"'
 else
-	$(Q)$(TERMINAL) "$(JLINK) $(JLINK_FLAGS) $(JLINK_RTT_PORT) -AutoConnect 1"
-	$(Q)sleep 1
-	$(Q)$(TERMINAL) "$(JLINK_RTTCLIENT) $(JLINK_RTT_PORT)"
+	$(Q)$(TERMINAL) "$(JLINK) $(JLINK_FLAGS) $(JLINK_RTT_PORT) -AutoConnect 1" &
+	sleep 1
+	$(Q)$(TERMINAL) "$(JLINK_RTTCLIENT) $(JLINK_RTT_PORT)" &
 endif
 
 # ---- nrfutil bootloader rules
