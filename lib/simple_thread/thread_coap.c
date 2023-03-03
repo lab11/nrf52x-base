@@ -2,6 +2,7 @@
 
 #include "thread_coap.h"
 #include "app_error.h"
+#include "stdlib.h"
 
 static const otIp6Address m_unspecified_ipv6 =
 {
@@ -25,10 +26,12 @@ void __attribute__((weak)) thread_coap_receive_handler(
 
 void thread_coap_client_init(otInstance* instance, bool secure) {
     otError error = OT_ERROR_NONE;
+    uint16_t rand_port = (rand() % (65535 - 1024)) + 1024;
+    NRF_LOG_INFO("Initializing CoAP with port %d", rand_port);
     if (secure) {
-      error = otCoapSecureStart(instance, OT_DEFAULT_COAP_SECURE_PORT);
+      error = otCoapSecureStart(instance, rand_port);
     } else {
-      error = otCoapStart(instance, OT_DEFAULT_COAP_PORT);
+      error = otCoapStart(instance, rand_port);
     }
     ASSERT(error == OT_ERROR_NONE);
 
