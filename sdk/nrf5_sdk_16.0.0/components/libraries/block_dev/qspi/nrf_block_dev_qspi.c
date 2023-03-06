@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 - 2019, Nordic Semiconductor ASA
+ * Copyright (c) 2016 - 2021, Nordic Semiconductor ASA
  *
  * All rights reserved.
  *
@@ -715,7 +715,9 @@ static ret_code_t block_dev_qspi_write_req(nrf_block_dev_t const * p_blk_dev,
     }
     else
     {
-        if (p_work->writeback_mode)
+        if (p_work->writeback_mode &&
+            p_work->erase_unit_idx != BD_ERASE_UNIT_INVALID_ID &&
+            p_work->erase_unit_dirty_blocks)
         {
             ret = block_dev_qspi_write_start(p_qspi_dev);
         }
