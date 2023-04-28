@@ -1,7 +1,10 @@
 /**
- *  Minimal configuration of features that do not require an entropy source
+ * \file config-no-entropy.h
  *
- *  Copyright (C) 2016, ARM Limited, All Rights Reserved
+ * \brief Minimal configuration of features that do not require an entropy source
+ */
+/*
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,21 +18,16 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 /*
  * Minimal configuration of features that do not require an entropy source
- * Distinguishing reatures:
+ * Distinguishing features:
  * - no entropy module
  * - no TLS protocol implementation available due to absence of an entropy
  *   source
  *
  * See README.txt for usage instructions.
  */
-
-#ifndef MBEDTLS_CONFIG_H
-#define MBEDTLS_CONFIG_H
 
 /* System support */
 #define MBEDTLS_HAVE_ASM
@@ -38,7 +36,6 @@
 /* mbed TLS feature support */
 #define MBEDTLS_CIPHER_MODE_CBC
 #define MBEDTLS_CIPHER_PADDING_PKCS7
-#define MBEDTLS_REMOVE_ARC4_CIPHERSUITES
 #define MBEDTLS_ECP_DP_SECP256R1_ENABLED
 #define MBEDTLS_ECP_DP_SECP384R1_ENABLED
 #define MBEDTLS_ECP_DP_CURVE25519_ENABLED
@@ -49,8 +46,6 @@
 #define MBEDTLS_PKCS1_V21
 #define MBEDTLS_SELF_TEST
 #define MBEDTLS_VERSION_FEATURES
-#define MBEDTLS_X509_CHECK_KEY_USAGE
-#define MBEDTLS_X509_CHECK_EXTENDED_KEY_USAGE
 
 /* mbed TLS modules */
 #define MBEDTLS_AES_C
@@ -73,13 +68,18 @@
 #define MBEDTLS_PK_WRITE_C
 #define MBEDTLS_PLATFORM_C
 #define MBEDTLS_RSA_C
+/* The library does not currently support enabling SHA-224 without SHA-256.
+ * A future version of the library will have this option disabled
+ * by default. */
+#define MBEDTLS_SHA224_C
 #define MBEDTLS_SHA256_C
+#define MBEDTLS_SHA384_C
 #define MBEDTLS_SHA512_C
 #define MBEDTLS_VERSION_C
 #define MBEDTLS_X509_USE_C
 #define MBEDTLS_X509_CRT_PARSE_C
 #define MBEDTLS_X509_CRL_PARSE_C
+//#define MBEDTLS_CMAC_C
 
-#include "check_config.h"
-
-#endif /* MBEDTLS_CONFIG_H */
+/* Miscellaneous options */
+#define MBEDTLS_AES_ROM_TABLES

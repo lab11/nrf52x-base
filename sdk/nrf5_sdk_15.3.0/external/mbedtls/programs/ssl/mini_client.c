@@ -2,7 +2,7 @@
  *  Minimal SSL client, used for memory measurements.
  *  (meant to be used with config-suite-b.h or config-ccm-psk-tls1_2.h)
  *
- *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -16,15 +16,11 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "mbedtls/build_info.h"
+
+#include "mbedtls/platform.h"
 
 /*
  * We're creating and connecting the socket "manually" rather than using the
@@ -32,7 +28,7 @@
  * dominate memory usage in small configurations. For the sake of simplicity,
  * only a Unix version is implemented.
  *
- * Warning: we are breaking some of the abtractions from the NET layer here.
+ * Warning: we are breaking some of the abstractions from the NET layer here.
  * This is not a good example for general use. This programs has the specific
  * goal of minimizing use of the libc functions on full-blown OSes.
  */
@@ -44,27 +40,14 @@
     !defined(MBEDTLS_NET_C) || !defined(MBEDTLS_SSL_CLI_C) || \
     !defined(UNIX)
 
-#if defined(MBEDTLS_PLATFORM_C)
-#include "mbedtls/platform.h"
-#else
-#include <stdio.h>
-#define mbedtls_printf printf
-#endif
-
 int main( void )
 {
     mbedtls_printf( "MBEDTLS_CTR_DRBG_C and/or MBEDTLS_ENTROPY_C and/or "
             "MBEDTLS_NET_C and/or MBEDTLS_SSL_CLI_C and/or UNIX "
             "not defined.\n");
-    return( 0 );
+    mbedtls_exit( 0 );
 }
 #else
-
-#if defined(MBEDTLS_PLATFORM_C)
-#include "mbedtls/platform.h"
-#else
-#include <stdlib.h>
-#endif
 
 #include <string.h>
 
@@ -90,7 +73,7 @@ int main( void )
 
 const char *pers = "mini_client";
 
-#if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED)
+#if defined(MBEDTLS_KEY_EXCHANGE_SOME_PSK_ENABLED)
 const unsigned char psk[] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
     0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
@@ -168,6 +151,7 @@ enum exit_codes
     ssl_write_failed,
 };
 
+
 int main( void )
 {
     int ret = exit_ok;
@@ -212,7 +196,7 @@ int main( void )
 
     mbedtls_ssl_conf_rng( &conf, mbedtls_ctr_drbg_random, &ctr_drbg );
 
-#if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED)
+#if defined(MBEDTLS_KEY_EXCHANGE_SOME_PSK_ENABLED)
     mbedtls_ssl_conf_psk( &conf, psk, sizeof( psk ),
                 (const unsigned char *) psk_id, sizeof( psk_id ) - 1 );
 #endif
@@ -297,6 +281,6 @@ exit:
     mbedtls_x509_crt_free( &ca );
 #endif
 
-    return( ret );
+    mbedtls_exit( ret );
 }
 #endif

@@ -1,8 +1,11 @@
 /**
- * @file
- * Encryption/decryption module documentation file.
+ * \file doc_encdec.h
  *
- *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+ * \brief Encryption/decryption module documentation file.
+ */
+/*
+ *
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -16,8 +19,6 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
 /**
@@ -37,22 +38,18 @@
  * All symmetric encryption algorithms are accessible via the generic cipher layer
  * (see \c mbedtls_cipher_setup()).
  *
- * The asymmetric encryptrion algorithms are accessible via the generic public
+ * The asymmetric encryption algorithms are accessible via the generic public
  * key layer (see \c mbedtls_pk_init()).
  *
  * The following algorithms are provided:
  * - Symmetric:
  *   - AES (see \c mbedtls_aes_crypt_ecb(), \c mbedtls_aes_crypt_cbc(), \c mbedtls_aes_crypt_cfb128() and
  *     \c mbedtls_aes_crypt_ctr()).
- *   - ARCFOUR (see \c mbedtls_arc4_crypt()).
- *   - Blowfish / BF (see \c mbedtls_blowfish_crypt_ecb(), \c mbedtls_blowfish_crypt_cbc(),
- *     \c mbedtls_blowfish_crypt_cfb64() and \c mbedtls_blowfish_crypt_ctr())
  *   - Camellia (see \c mbedtls_camellia_crypt_ecb(), \c mbedtls_camellia_crypt_cbc(),
  *     \c mbedtls_camellia_crypt_cfb128() and \c mbedtls_camellia_crypt_ctr()).
  *   - DES/3DES (see \c mbedtls_des_crypt_ecb(), \c mbedtls_des_crypt_cbc(), \c mbedtls_des3_crypt_ecb()
  *     and \c mbedtls_des3_crypt_cbc()).
  *   - GCM (AES-GCM and CAMELLIA-GCM) (see \c mbedtls_gcm_init())
- *   - XTEA (see \c mbedtls_xtea_crypt_ecb()).
  * - Asymmetric:
  *   - Diffie-Hellman-Merkle (see \c mbedtls_dhm_read_public(), \c mbedtls_dhm_make_public()
  *     and \c mbedtls_dhm_calc_secret()).

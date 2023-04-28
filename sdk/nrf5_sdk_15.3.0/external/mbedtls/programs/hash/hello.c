@@ -1,7 +1,7 @@
 /*
  *  Classic "Hello, world" demonstration program
  *
- *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+ *  Copyright The Mbed TLS Contributors
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,22 +15,11 @@
  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "mbedtls/build_info.h"
 
-#if defined(MBEDTLS_PLATFORM_C)
 #include "mbedtls/platform.h"
-#else
-#include <stdio.h>
-#define mbedtls_printf     printf
-#endif
 
 #if defined(MBEDTLS_MD5_C)
 #include "mbedtls/md5.h"
@@ -40,29 +29,27 @@
 int main( void )
 {
     mbedtls_printf("MBEDTLS_MD5_C not defined.\n");
-    return( 0 );
+    mbedtls_exit( 0 );
 }
 #else
+
+
 int main( void )
 {
-    int i;
+    int i, ret;
     unsigned char digest[16];
     char str[] = "Hello, world!";
 
     mbedtls_printf( "\n  MD5('%s') = ", str );
 
-    mbedtls_md5( (unsigned char *) str, 13, digest );
+    if( ( ret = mbedtls_md5( (unsigned char *) str, 13, digest ) ) != 0 )
+        mbedtls_exit( MBEDTLS_EXIT_FAILURE );
 
     for( i = 0; i < 16; i++ )
         mbedtls_printf( "%02x", digest[i] );
 
     mbedtls_printf( "\n\n" );
 
-#if defined(_WIN32)
-    mbedtls_printf( "  Press Enter to exit this program.\n" );
-    fflush( stdout ); getchar();
-#endif
-
-    return( 0 );
+    mbedtls_exit( MBEDTLS_EXIT_SUCCESS );
 }
 #endif /* MBEDTLS_MD5_C */
