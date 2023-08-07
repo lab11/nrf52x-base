@@ -5,7 +5,7 @@ GROUP(-lgcc -lc -lnosys)
 
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x0 + 152K, LENGTH = 512K - 152K - 4K /* 152 kB is taken by s140, 4 kB is taken by bootloader settings */
+  FLASH (rx) : ORIGIN = 0x0 + 156K, LENGTH = 512K - 156K - 4K /* 156 kB is taken by s140, 4 kB is taken by bootloader settings */
   RAM (rwx) :  ORIGIN = 0x200094b8, LENGTH = 0x16b48 /* worst case taken from example apps. this can be significantly reduced if needed */
   bootloader_settings_page (r) : ORIGIN = 512K - 4K, LENGTH = 4K
   uicr_bootloader_start_address (r) : ORIGIN = 0x10001014, LENGTH = 0x4
