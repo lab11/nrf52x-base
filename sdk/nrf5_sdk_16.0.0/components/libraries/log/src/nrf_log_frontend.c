@@ -52,6 +52,17 @@
 #include "nrf_atomic.h"
 #include <string.h>
 
+
+
+//************************************************
+// Edit to NRF SDK files
+// This file gives a bunch of warnings about array bounds that we want to suppress
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+//************************************************
+
+
+
 STATIC_ASSERT((NRF_LOG_BUFSIZE % 4) == 0);
 STATIC_ASSERT(IS_POWER_OF_TWO(NRF_LOG_BUFSIZE));
 
@@ -1573,5 +1584,15 @@ static void log_cmd(nrf_cli_t const * p_cli, size_t argc, char **argv)
 NRF_CLI_CMD_REGISTER(log, &m_sub_log_stat, "Commands for controlling logger", log_cmd);
 
 #endif //NRF_LOG_CLI_CMDS
+
+
+
+//************************************************
+// Edit to NRF SDK files
+// Restoring warnings. See above
+#pragma GCC diagnostic pop
+//************************************************
+
+
 
 #endif // NRF_MODULE_ENABLED(NRF_LOG)
